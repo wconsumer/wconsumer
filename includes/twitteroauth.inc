@@ -1,15 +1,8 @@
 <?php
 
-/*
- * Abraham Williams (abraham@abrah.am) http://abrah.am
- *
- * The first PHP Library to support OAuth for Twitter's REST API.
- */
-
-/* Load OAuth lib. You can find it at http://oauth.net */
-
 /**
- * Twitter OAuth class
+ * @file
+ * Contains a twitter class that will be removed, since the core module will work directly with oauth.inc
  */
 class TwitterOAuth {
   /* Contains the last HTTP status code returned. */
@@ -60,7 +53,8 @@ class TwitterOAuth {
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
     if (!empty($oauth_token) && !empty($oauth_token_secret)) {
       $this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
-    } else {
+    } 
+    else {
       $this->token = NULL;
     }
   }
@@ -93,7 +87,8 @@ class TwitterOAuth {
     }
     if (empty($sign_in_with_twitter)) {
       return $this->authorizeURL() . "?oauth_token={$token}";
-    } else {
+    } 
+    else {
        return $this->authenticateURL() . "?oauth_token={$token}";
     }
   }
@@ -225,7 +220,7 @@ class TwitterOAuth {
     $this->http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
     $this->http_info = array_merge($this->http_info, curl_getinfo($ci));
     $this->url = $url;
-    curl_close ($ci);
+    curl_close($ci);
     return $response;
   }
 

@@ -1,172 +1,142 @@
+
 <?php
-
-
-
 function wconsumer_menu() {
-	$items['wconsumer/service/callback'] = array(
+  $items['wconsumer/service/callback']          = array(
     // A type of MENU_CALLBACK means leave the path completely out of the menu
     // links.
-      'type' => MENU_CALLBACK,
+    'type' => MENU_CALLBACK,
     // The title is still used for the page title, even though it's not used
     // for the menu link text, since there's no menu link.
-      'title' => 'Callback Only',
-      'page callback' => '_wconsumer_callback',
-      'access callback' => TRUE,
-    );
-
+    'title' => 'Callback Only',
+    'page callback' => '_wconsumer_callback',
+    'access callback' => TRUE
+  );
   // Now provide the actual permissioned menu item.
   $items['wconsumer/service/twitter/authorize'] = array(
-
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Authenticate Twitter',
     'description' => 'Get Oauth Tokens',
     'page callback' => '_wconsumer_twitter_token_request',
-
     // For a permissioned menu entry, we provide an access callback which
     // determines whether the current user should have access. The default is
     // user_access(), which we'll use in this case. Since it's the default,
     // we don't even have to enter it.
     'access callback' => 'user_access',
-
     // The 'access arguments' are passed to the 'access callback' to help it
     // do its job. In the case of user_access(), we need to pass a permission
     // as the first argument.
-    'access arguments' => array('access twitter oauth'),
-
+    'access arguments' => array(
+      'access twitter oauth'
+    ),
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
-    'weight' => 10,
-    
+    'weight' => 10
   );
-  $items['wconsumer/service'] = array(
-
+  $items['wconsumer/service']                   = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Twitter Manager',
     'description' => 'Page to manage twitter',
     'page callback' => '_wconsumer_twitter',
-
     // For a permissioned menu entry, we provide an access callback which
     // determines whether the current user should have access. The default is
     // user_access(), which we'll use in this case. Since it's the default,
     // we don't even have to enter it.
     'access callback' => 'user_access',
-
     // The 'access arguments' are passed to the 'access callback' to help it
     // do its job. In the case of user_access(), we need to pass a permission
     // as the first argument.
-    'access arguments' => array('access twitter oauth'),
-
+    'access arguments' => array(
+      'access twitter oauth'
+    ),
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
-    'weight' => 10,
+    'weight' => 10
   );
-
   return $items;
 }
 function _wconsumer_twitter() {
-    drupal_session_start();
-    module_load_include('inc', 'wconsumer', 'includes/oauth');
-	module_load_include('inc', 'wconsumer', 'includes/twitteroauth');
-	define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
-	define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
-	define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
-	$tokens = variable_get('access_token');
-	
-	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $tokens['oauth_token'], $tokens['oauth_token_secret']);
-	//$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, '531345886-cdSX9kBRCCntFTGnEMwkl0uPP3BOnauGcAdHetdO', 'R8dPDsPXBxBYZUqOYLauyGZgTsUz8japHsq8NQkSfk');
-	$results = $connection->get('account/verify_credentials');
-	//$connection->post('statuses/update', array('status' => 'Text of status here'));
-		$message = variable_get('access_token');
-		print_r($results);
-	drupal_set_message(t('Unable to Connect to: ', array('@var' => print_r($results, TRUE))), 'butterflies');
-	
-print_r($message);	
-	//$content = variable_get('oauth_token_secret');
-	//drupal_set_message(t('Token: ', array('@var' => $content)), 'butterflies');
-
-	
-	return $message;
+  module_load_include('inc', 'wconsumer', 'includes/oauth');
+  module_load_include('inc', 'wconsumer', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
+  $tokens     = variable_get('access_token');
+  $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, variable_get('oauth_token'), variable_get('oauth_token_secret'));
+  $results    = $connection->get('account/verify_credentials');
+  print_r($results);
+  drupal_set_message(t('Unable to Connect to:', array(
+    '@var' => print_r($results, TRUE)
+  )), 'butterflies');
+  $message = 'good';
+  return $message;
 }
 function _wconsumer_callback() {
- drupal_session_start();
-$service = 'twitter';
-	module_load_include('inc', 'wconsumer', 'includes/oauth');
-	module_load_include('inc', 'wconsumer', 'includes/twitteroauth');
-	define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
-	define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
-	define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
-
-
-/* If the oauth_token is old redirect to the connect page.*/ 
-if (isset($_REQUEST['oauth_token']) && $_SESSION['oauth_token'] !== $_REQUEST['oauth_token']) {
-  $_SESSION['oauth_status'] = 'oldtoken';
-  header('Location: ./');
+  $service = 'twitter';
+  module_load_include('inc', 'wconsumer', 'includes/oauth');
+  module_load_include('inc', 'wconsumer', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
+  /* Create TwitteroAuth object with app key/secret and token key/secret from default phase */
+  $connection    = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+  /* Request access tokens from twitter */
+  $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
+  //print_r($access_tokens);
+  
+  /* Save the access tokens. Normally these would be saved in a database for future use. */
+  variable_set('oauth_token', $access_tokens['oauth_token']);
+  variable_set('oauth_token_secret', $access_tokens['oauth_token_secret']);
+  /* If HTTP response is 200 continue otherwise send to connect page to retry */
+  if (200 == $connection->http_code) {
+    /* The user has been verified and the access tokens can be saved for future use */
+    $_SESSION['status'] = 'verified';
+    header('Location: ./');
+  } //200 == $connection->http_code
+  else {
+    /* Save HTTP status for error dialog on connnect page.*/
+    header('Location: ./');
+  }
 }
-
-/* Create TwitteroAuth object with app key/secret and token key/secret from default phase */
-$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, variable_get('oauth_token'), variable_get('oauth_token_secret'));
-
-/* Request access tokens from twitter */
-//$access_token = $connection->getAccessToken($_REQUEST['oauth_verifier']);
-echo 'access';
-/* Save the access tokens. Normally these would be saved in a database for future use. */
-//$_SESSION['access_token'] = $access_token;
-variable_set('access_token', $connection->getAccessToken($_REQUEST['oauth_verifier']));
-
-
-/* Remove no longer needed request tokens */
-unset($_SESSION['oauth_token']);
-unset($_SESSION['oauth_token_secret']);
-
-/* If HTTP response is 200 continue otherwise send to connect page to retry */
-if (200 == $connection->http_code) {
-  /* The user has been verified and the access tokens can be saved for future use */
-  $_SESSION['status'] = 'verified';
-  header('Location: ./');
-} else {
-  /* Save HTTP status for error dialog on connnect page.*/
-  header('Location: ./');
-}
-
-}
-
-function _wconsumer_twitter_token_request($service = null) {
-	$service = 'twitter';
-	module_load_include('inc', 'wconsumer', 'includes/oauth');
-	module_load_include('inc', 'wconsumer', 'includes/twitteroauth');
-	define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
-	define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
-	define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
-	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
-	/* Get temporary credentials. */
-	$request_token = $connection->getRequestToken(OAUTH_CALLBACK);
-	/* Save temporary credentials to session. */
-	variable_set('oauth_token', $request_token['oauth_token']);
-	variable_set('oauth_token_secret', $request_token['oauth_token_secret']);
-	
-	$_SESSION['oauth_token'] = $token = $request_token['oauth_token'];
-	$_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-	
-	
-	/* If last connection failed don't display authorization link. */
-	switch ($connection->http_code) {
-		case 200:
-		/* Build authorize URL and redirect user to Twitter. */
-		$url = $connection->getAuthorizeURL(variable_get('oauth_token'));
-		header('Location: ' . $url); 
-		break;
-		default:
-		/* Show notification if something went wrong. */
-			drupal_set_message(t('Unable to Connect to: ', array('@var' => $service)), 'butterflies');
-			return $message;
-			break; 
-		}
+function _wconsumer_twitter_token_request($service = NULL) {
+  drupal_session_start();
+  $service = 'twitter';
+  module_load_include('inc', 'wconsumer', 'includes/oauth');
+  module_load_include('inc', 'wconsumer', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
+  $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
+  /* Get temporary credentials. */
+  $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
+  //variable_set('oauth_token', $token['oauth_token']);
+  //variable_set('oauth_token_secret', $token['oauth_token_secret']);  
+  //print_r($request_token);
+  
+  /* Save temporary credentials to session. */
+  //variable_set('oauth_token', $request_token['oauth_token']);
+  //variable_set('oauth_token_secret', $request_token['oauth_token_secret']);
+  $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
+  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+  /* If last connection failed don't display authorization link. */
+  switch ($connection->http_code) {
+    case 200:
+      /* Build authorize URL and redirect user to Twitter. */
+      $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
+      header('Location: ' . $url);
+      break;
+    default:
+      /* Show notification if something went wrong. */
+      drupal_set_message(t('Unable to Connect to: ss', array(
+        '@var' => $service
+      )), 'butterflies');
+      return $message;
+      break;
+  } //$connection->http_code
 }
 function wconsumer_permission() {
   return array(
-    'access twitter oauth' =>  array(
-      'title' => t('Twitter Oauth Authenticate'),
-    ),
+    'access twitter oauth' => array(
+      'title' => t('Twitter Oauth Authenticate')
+    )
   );
-
 }
