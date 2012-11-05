@@ -70,12 +70,12 @@ function _wconsumer_twitter() {
 	define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
 	define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
 	define('OAUTH_CALLBACK', 'http://www.webizly.biz/wconsumer/service/callback');
-	$message = variable_get('access_token');
+	$tokens = variable_get('access_token');
 	
-	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $message['oauth_token'], $message['oauth_token_secret']);
+	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $tokens['oauth_token'], $tokens['oauth_token_secret']);
 	//$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, '531345886-cdSX9kBRCCntFTGnEMwkl0uPP3BOnauGcAdHetdO', 'R8dPDsPXBxBYZUqOYLauyGZgTsUz8japHsq8NQkSfk');
 	$results = $connection->get('account/verify_credentials');
-	
+	//$connection->post('statuses/update', array('status' => 'Text of status here'));
 		$message = variable_get('access_token');
 		print_r($results);
 	drupal_set_message(t('Unable to Connect to: ', array('@var' => print_r($results, TRUE))), 'butterflies');
