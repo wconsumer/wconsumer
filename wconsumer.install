@@ -1,0 +1,131 @@
+<?php
+function wconsumer_schema() {
+  
+
+  $schema['wconsumer_service'] = array(
+    'description' => 'Stores Services',
+    'fields' => array(
+     'sid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Request ID',
+      ),
+    'consumer_key' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The Consumer Key',
+      ),
+    'consumer_secret' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The Consumer Key',
+      ),
+    ),
+  'primary key' => array('sid'),
+  'indexes' => array(
+    'sid'                 => array('sid'),
+  ),
+);
+$schema['wconsumer_request'] = array(
+    'description' => 'Stores Service Requests',
+    'fields' => array(
+     'rid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Request ID',
+      ),
+      'sid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => '0',
+        'description' => 'Foreign Key: Service ID',
+      ),
+      'suid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => '0',
+        'description' => 'Foreign Key: User ID',
+      ),
+      'request' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The Request',
+      ),
+    ),
+  'foreign keys' => array(
+    'sid' => array(
+      'table' => 'wconsumer_service',
+      'columns' => array('sid' => 'sid'),
+     ),
+   ),
+  'primary key' => array('rid'),
+  'indexes' => array(
+    'rid'                 => array('rid'),
+    'sid'                => array('sid'),
+    'suid'           => array('suid'),
+  ),
+);  
+
+$schema['wconsumer_user'] = array(
+  'description' => 'Stores User Services',
+  'fields' => array(
+   'suid'  => array(
+      'type' => 'serial',
+      'not null' => TRUE,
+      'description' => 'Primary Key: Request ID',
+    ),
+    'sid'  => array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => '0',
+      'description' => 'Foreign Key: Service ID',
+    ),
+    'uid' => array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => '0',
+      'description' => 'Foreign Key: User ID',
+    ),
+    'access_token' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+      'description' => 'The Consumer Key',
+    ),
+    'access_token_secret' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+      'description' => 'The Consumer Key',
+    ),
+  ),
+  'foreign keys' => array(
+    'users' => array(
+      'table' => 'users',
+      'columns' => array('uid' => 'uid'),
+     ),
+    'sid' => array(
+      'table' => 'wconsumer_service',
+      'columns' => array('sid' => 'sid'),
+     ),
+   ),
+  'primary key' => array('suid'),
+  'indexes' => array(
+  	'suid' => array('suid'),
+    'sid' => array('sid'),
+    'uid' => array('uid'),
+  ), 
+  );
+
+
+  
+  return $schema;
+}
