@@ -63,7 +63,37 @@ $items['wc_core/service/twitter/manager']                   = array(
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
   
+  $items['user/%/wc_core/service/revoke'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Revoke Twitter',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Get Oauth Tokens',
+    'page callback' => '_wc_twitter_revoke',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+
     return $items;
+}
+function _wc_twitter_revoke() {
+  unset($_SESSION['oauth_token']);
+  unset($_SESSION['oauth_token_secret']);
+  variable_del('oauth_token_secret');
+  variable_del('oauth_token');
+  $message = 'done';
+  return $message;
+	
 }
 function _wc_twitter() {
 	$message = 'manager';
@@ -82,11 +112,11 @@ function _wc_twitter_my_twitter() {
     '@var' => print_r($results, TRUE)
   )), 'butterflies');
 	$message = 'Your account = ' . $results->name;
-	
+	print_r($_SESSION);
+
 	return $message;
 }
 function _wc_twitter_token_request() {
-  drupal_session_start();
   module_load_include('inc', 'wc_core', 'includes/oauth');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
   define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
@@ -97,9 +127,10 @@ function _wc_twitter_token_request() {
   $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
   $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
   $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-  $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
+  $url = $connection->getAuthorizeURL($_SESSION['oauth_token'], FALSE);
+  
   header('Location: ' . $url);
-  return $url;
+  //return $url;
 
   
 }
