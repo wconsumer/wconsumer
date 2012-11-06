@@ -43,31 +43,35 @@ function _wc_core_manager() {
 }
 
 function _wc_core_callback() {
-
+  //loads the include file
   module_load_include('inc', 'wc_core', 'includes/oauth');
-  $accessTokenURL  = 'https://api.twitter.com/oauth/access_token'; 
-  $authenticateURL = 'https://api.twitter.com/oauth/authenticate'; 
-  $authorizeURL    = 'https://api.twitter.com/oauth/authorize'; 
-  $requestTokenURL = 'https://api.twitter.com/oauth/request_token'; 
-  
-  
-  //module_load_include('inc', 'wc_core', 'includes/twitteroauth');
-  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
-  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
-  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
-  /* Create TwitteroAuth object with app key/secret and token key/secret from default phase */
+  //sets the default call back url
+  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+  //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
+  $config = module_invoke_all('wc_config',$config);
+  //this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
+  $accessTokenURL  = $config['accessTokenURL']; 
+  $authenticateURL = $config['authenticateURL'];
+  $authorizeURL    = $config['authorizeURL']; 
+  $requestTokenURL = $config['requestTokenURL'];
+  $consumerKey = $config['consumerKey'];
+  $consumerSecret = $config['consumerSecret'];
+  $oAuthCallback = $config['oauthCallback'];
+  //creates the connection with the appropriate settings
   $connection    = new oauthConnection($accessTokenURL, $authenticateURL, $authorizeURL , $requestTokenURL);
-  $connection->createConnection(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
-  /* Request access tokens from twitter */
+  $connection->createConnection($consumerKey, $consumerSecret, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+  //gets the access tokens
   $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
-  //print_r($access_tokens);
-  
-  /* Save the access tokens. Normally these would be saved in a database for future use. */
+  //saves the access tokens to the db, this will need to be replaced to save them in a table
   variable_set('oauth_token', $access_tokens['oauth_token']);
   variable_set('oauth_token_secret', $access_tokens['oauth_token_secret']);
-  /* If HTTP response is 200 continue otherwise send to connect page to retry */
+
+  
+  
+  //gets the current user's id to correctly forward
   global $user;
-  print_r($_SERVER);
+  
+  /* If HTTP response is 200 continue otherwise send to connect page to retry this needs fixed to get it to work right with reauthentication  currently this is set to allways authenticate and it needs set to forward to the correct page, but it might be possible to have a common page that they all go to*/
   if (200 == $connection->http_code) {
     /* The user has been verified and the access tokens can be saved for future use */
     //$_SESSION['status'] = 'verified';
@@ -77,7 +81,7 @@ function _wc_core_callback() {
     /* Save HTTP status for error dialog on connnect page.*/
     header('Location: ./');
   }
-}
+  }
 function wc_core_permission() {
   return array(
     'manage web consumer' => array(

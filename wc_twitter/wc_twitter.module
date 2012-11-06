@@ -1,5 +1,13 @@
 <?php
-
+function wc_twitter_wc_config($config) {	
+  $config['accessTokenURL'] = 'https://api.twitter.com/oauth/access_token';
+  $config['authenticateURL'] = 'https://api.twitter.com/oauth/authenticate';
+  $config['authorizeURL'] = 'https://api.twitter.com/oauth/authorize';
+  $config['requestTokenURL'] = 'https://api.twitter.com/oauth/request_token';
+  $config['consumerKey'] = 'YMM6LRTqymjyjNeui7Ydgg';
+  $config['consumerSecret'] = '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10';
+  return $config;
+}
 function wc_twitter_menu() {
 $items['wc_core/service/twitter/manager']                   = array(
     // The title - do NOT use t() as t() is called automatically.
