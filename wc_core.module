@@ -1,6 +1,27 @@
 
 <?php
 function wc_core_menu() {
+$items['user/%/wc_core'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'My Services',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'User Can Authenticate Web Services Here',
+    'page callback' => '_wc_core_user_services',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+
 $items['wc_core'] = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Web Consumer Manager',
@@ -33,10 +54,58 @@ $items['wc_core'] = array(
     
   );
   // Now provide the actual permissioned menu item.
+$items['user/%/wc_core/authorize'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Authenticate Twitter',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Get Oauth Tokens',
+    'page callback' => '_wc_core_token_request',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+  $items['user/%/wc_core/revoke'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Revoke Twitter',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Get Oauth Tokens',
+    'page callback' => '_wc_core_revoke',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
 
   return $items;
 }
-
+function _wc_core_revoke() {
+  unset($_SESSION['oauth_token']);
+  unset($_SESSION['oauth_token_secret']);
+  variable_del('oauth_token_secret');
+  variable_del('oauth_token');
+  $message = 'done';
+  return $message;
+	
+}
 function _wc_core_manager() {
 	$message = 'manager';
 	return $message;
@@ -46,16 +115,18 @@ function _wc_core_callback() {
   //loads the include file
   module_load_include('inc', 'wc_core', 'includes/oauth');
   //sets the default call back url
+  $config = array();
   $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
   $config = module_invoke_all('wc_config',$config);
+  print_r($config);
   //this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
-  $accessTokenURL  = $config['accessTokenURL']; 
-  $authenticateURL = $config['authenticateURL'];
-  $authorizeURL    = $config['authorizeURL']; 
-  $requestTokenURL = $config['requestTokenURL'];
-  $consumerKey = $config['consumerKey'];
-  $consumerSecret = $config['consumerSecret'];
+  $accessTokenURL  = $config['service']['twitter']['accessTokenURL']; 
+  $authenticateURL = $config['service']['twitter']['authenticateURL'];
+  $authorizeURL    = $config['service']['twitter']['authorizeURL']; 
+  $requestTokenURL = $config['service']['twitter']['requestTokenURL'];
+  $consumerKey = $config['service']['twitter']['consumerKey'];
+  $consumerSecret = $config['service']['twitter']['consumerSecret'];
   $oAuthCallback = $config['oauthCallback'];
   //creates the connection with the appropriate settings
   $connection    = new oauthConnection($accessTokenURL, $authenticateURL, $authorizeURL , $requestTokenURL);
@@ -65,10 +136,6 @@ function _wc_core_callback() {
   //saves the access tokens to the db, this will need to be replaced to save them in a table
   variable_set('oauth_token', $access_tokens['oauth_token']);
   variable_set('oauth_token_secret', $access_tokens['oauth_token_secret']);
-
-  
-  
-  //gets the current user's id to correctly forward
   global $user;
   
   /* If HTTP response is 200 continue otherwise send to connect page to retry this needs fixed to get it to work right with reauthentication  currently this is set to allways authenticate and it needs set to forward to the correct page, but it might be possible to have a common page that they all go to*/
@@ -80,14 +147,40 @@ function _wc_core_callback() {
   else {
     /* Save HTTP status for error dialog on connnect page.*/
     header('Location: ./');
+  }  
   }
-  }
+  
+function _wc_core_user_services() {
+	$content = 'list of services';
+	return $content;
+}
 function wc_core_permission() {
   return array(
     'manage web consumer' => array(
       'title' => t('manage web consumer')
   ));
 }
+
+function _wc_core_token_request() {
+  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
+  $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
+  /* Get temporary credentials. */
+  $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
+  $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
+  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+  $url = $connection->getAuthorizeURL($_SESSION['oauth_token'], FALSE);
+  
+  header('Location: ' . $url);
+  //return $url;
+
+  
+}
+
+
 
 class oauthConnection {
   /* Contains the last HTTP status code returned. */
