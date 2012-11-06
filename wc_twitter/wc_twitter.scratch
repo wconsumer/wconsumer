@@ -1,0 +1,14 @@
+  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
+  $tokens     = variable_get('access_token');
+  $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, variable_get('oauth_token'), variable_get('oauth_token_secret'));
+  $results    = $connection->get('account/verify_credentials');
+  print_r($results);
+  drupal_set_message(t('Unable to Connect to:', array(
+    '@var' => print_r($results, TRUE)
+  )), 'butterflies');
+  $message = 'good';
+  return $message;

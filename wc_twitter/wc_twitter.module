@@ -1,0 +1,111 @@
+<?php
+
+function wc_twitter_menu() {
+$items['wc_core/service/twitter/manager']                   = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Twitter',
+    'type' => MENU_NORMAL_ITEM,
+    'description' => 'Page to manage twitter',
+    'page callback' => '_wc_twitter',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+  $items['user/%/wc_core/service/twitter'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'My Twitter',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'User Twitter Account',
+    'page callback' => '_wc_twitter_my_twitter',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+
+    $items['user/%/wc_core/service/authorize'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Authenticate Twitter',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Get Oauth Tokens',
+    'page callback' => '_wc_twitter_token_request',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+  
+    return $items;
+}
+function _wc_twitter() {
+	$message = 'manager';
+	return $message;
+}
+function _wc_twitter_my_twitter() {
+  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
+  $tokens     = variable_get('access_token');
+  $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, variable_get('oauth_token'), variable_get('oauth_token_secret'));
+  $results    = $connection->get('account/verify_credentials');
+  drupal_set_message(t('Unable to Connect to:', array(
+    '@var' => print_r($results, TRUE)
+  )), 'butterflies');
+	$message = 'Your account = ' . $results->name;
+	
+	return $message;
+}
+function _wc_twitter_token_request() {
+  drupal_session_start();
+  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
+  $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
+  /* Get temporary credentials. */
+  $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
+  $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
+  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+  $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
+  header('Location: ' . $url);
+  return $url;
+
+  
+}
+function wc_twitter_permission() {
+  return array(
+    'manage twitter' => array(
+      'title' => t('manage twitter')
+  ));
+}

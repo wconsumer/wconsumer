@@ -1,0 +1,78 @@
+
+<?php
+function wc_core_menu() {
+$items['wc_core'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Web Consumer Manager',
+    'description' => 'Manage Web Services',
+    'page callback' => '_wc_core_manager',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage web consumer'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+  
+  $items['wc_core/callback']          = array(
+    // A type of MENU_CALLBACK means leave the path completely out of the menu
+    // links.
+    'type' => MENU_CALLBACK,
+    // The title is still used for the page title, even though it's not used
+    // for the menu link text, since there's no menu link.
+    'title' => 'Callback Only',
+    'page callback' => '_wc_core_callback',
+    'access callback' => TRUE,
+    
+  );
+  // Now provide the actual permissioned menu item.
+
+  return $items;
+}
+
+function _wc_core_manager() {
+	$message = 'manager';
+	return $message;
+}
+
+function _wc_core_callback() {
+  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/twitteroauth');
+  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
+  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
+  /* Create TwitteroAuth object with app key/secret and token key/secret from default phase */
+  $connection    = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+  /* Request access tokens from twitter */
+  $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
+  //print_r($access_tokens);
+  
+  /* Save the access tokens. Normally these would be saved in a database for future use. */
+  variable_set('oauth_token', $access_tokens['oauth_token']);
+  variable_set('oauth_token_secret', $access_tokens['oauth_token_secret']);
+  /* If HTTP response is 200 continue otherwise send to connect page to retry */
+  global $user;
+  
+  if (200 == $connection->http_code) {
+    /* The user has been verified and the access tokens can be saved for future use */
+    $_SESSION['status'] = 'verified';
+    header('Location: /user/'. $user->uid .'/wc_core/service/twitter');
+  } //200 == $connection->http_code
+  else {
+    /* Save HTTP status for error dialog on connnect page.*/
+    header('Location: ./');
+  }
+}
+function wc_core_permission() {
+  return array(
+    'manage web consumer' => array(
+      'title' => t('manage web consumer')
+  ));
+}

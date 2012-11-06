@@ -1,0 +1,5 @@
+name =  Vimeo
+description = This is a module to create an integration with vimeo
+package = Wconsumer
+core = 7.x
+dependencies[] = Wconsumer

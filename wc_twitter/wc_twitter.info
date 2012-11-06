@@ -1,0 +1,5 @@
+name =  WC Twitter
+description = This is a module to create an integration with Twitter
+package = Wconsumer
+core = 7.x
+dependencies[] = wc_core

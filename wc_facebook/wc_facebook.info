@@ -1,0 +1,5 @@
+name =  WC Facebook
+description = This is a module to create an integration with Facebook
+package = Wconsumer
+core = 7.x
+dependencies[] = wc_core
