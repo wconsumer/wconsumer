@@ -1,0 +1,15 @@
+<?php
+function wc_vimeo_wc_config($config) {	
+  $config['service'] = array(
+  	'vimeo' => array(
+  		'name' => 'vimeo',
+  		'accessTokenURL' => 'https://vimeo.com/oauth/access_token',
+  		'authenticateURL' => 'https://vimeo.com/oauth/authorize',
+  		'authorizeURL' => 'https://vimeo.com/oauth/authorize',
+  		'requestTokenURL' => 'https://vimeo.com/oauth/request_token',
+  		'consumerKey' => '1ea5ffa31a9bed6b76e42a9d3015eabb8ecdca12',
+  		'consumerSecret' => '7d144d642727fda92e2d7d80fa38a4d4dfd35991',
+  ),
+  );
+  return $config;
+}

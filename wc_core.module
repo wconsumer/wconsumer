@@ -1,7 +1,6 @@
-
 <?php
 function wc_core_menu() {
-$items['user/%/wc_core'] = array(
+  $items['user/%/wc_core']           = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'My Services',
     'type' => MENU_LOCAL_TASK,
@@ -17,12 +16,11 @@ $items['user/%/wc_core'] = array(
     // as the first argument.
     'access arguments' => array(
       'manage twitter'
-    ),
+    )
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-
-$items['wc_core'] = array(
+  $items['wc_core']                  = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Web Consumer Manager',
     'description' => 'Manage Web Services',
@@ -37,12 +35,11 @@ $items['wc_core'] = array(
     // as the first argument.
     'access arguments' => array(
       'manage web consumer'
-    ),
+    )
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-  
-  $items['wc_core/callback']          = array(
+  $items['wc_core/callback']         = array(
     // A type of MENU_CALLBACK means leave the path completely out of the menu
     // links.
     'type' => MENU_CALLBACK,
@@ -50,11 +47,10 @@ $items['wc_core'] = array(
     // for the menu link text, since there's no menu link.
     'title' => 'Callback Only',
     'page callback' => '_wc_core_callback',
-    'access callback' => TRUE,
-    
+    'access callback' => TRUE
   );
   // Now provide the actual permissioned menu item.
-$items['user/%/wc_core/authorize'] = array(
+  $items['user/%/wc_core/authorize'] = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Authenticate Twitter',
     'type' => MENU_LOCAL_TASK,
@@ -70,11 +66,11 @@ $items['user/%/wc_core/authorize'] = array(
     // as the first argument.
     'access arguments' => array(
       'manage twitter'
-    ),
+    )
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-  $items['user/%/wc_core/revoke'] = array(
+  $items['user/%/wc_core/revoke']    = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Revoke Twitter',
     'type' => MENU_LOCAL_TASK,
@@ -90,11 +86,10 @@ $items['user/%/wc_core/authorize'] = array(
     // as the first argument.
     'access arguments' => array(
       'manage twitter'
-    ),
+    )
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-
   return $items;
 }
 function _wc_core_revoke() {
@@ -104,33 +99,30 @@ function _wc_core_revoke() {
   variable_del('oauth_token');
   $message = 'done';
   return $message;
-	
 }
 function _wc_core_manager() {
-	$message = 'manager';
-
-	return $message;
+  $message = 'manager';
+  return $message;
 }
-
 function _wc_core_callback() {
   //loads the include file
   module_load_include('inc', 'wc_core', 'includes/oauth');
   //sets the default call back url
-  $config = array();
+  $config                  = array();
   $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
-  $config = module_invoke_all('wc_config',$config);
+  $config                  = module_invoke_all('wc_config', $config);
   //print_r($config);
   //this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
-  $accessTokenURL  = $config['service']['twitter']['accessTokenURL']; 
-  $authenticateURL = $config['service']['twitter']['authenticateURL'];
-  $authorizeURL    = $config['service']['twitter']['authorizeURL']; 
-  $requestTokenURL = $config['service']['twitter']['requestTokenURL'];
-  $consumerKey = $config['service']['twitter']['consumerKey'];
-  $consumerSecret = $config['service']['twitter']['consumerSecret'];
-  $oAuthCallback = $config['oauthCallback'];
+  $accessTokenURL          = $config['service']['vimeo']['accessTokenURL'];
+  $authenticateURL         = $config['service']['vimeo']['authenticateURL'];
+  $authorizeURL            = $config['service']['vimeo']['authorizeURL'];
+  $requestTokenURL         = $config['service']['vimeo']['requestTokenURL'];
+  $consumerKey             = $config['service']['vimeo']['consumerKey'];
+  $consumerSecret          = $config['service']['vimeo']['consumerSecret'];
+  $oAuthCallback           = $config['oauthCallback'];
   //creates the connection with the appropriate settings
-  $connection    = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL , $requestTokenURL);
+  $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
   //gets the access tokens
   $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
@@ -138,93 +130,120 @@ function _wc_core_callback() {
   variable_set('oauth_token', $access_tokens['oauth_token']);
   variable_set('oauth_token_secret', $access_tokens['oauth_token_secret']);
   global $user;
-  
   /* If HTTP response is 200 continue otherwise send to connect page to retry this needs fixed to get it to work right with reauthentication  currently this is set to allways authenticate and it needs set to forward to the correct page, but it might be possible to have a common page that they all go to*/
   if (200 == $connection->http_code) {
     /* The user has been verified and the access tokens can be saved for future use */
     //$_SESSION['status'] = 'verified';
-    header('Location: /user/'. $user->uid .'/wc_core');
+    header('Location: /user/' . $user->uid . '/wc_core');
   } //200 == $connection->http_code
   else {
     /* Save HTTP status for error dialog on connnect page.*/
     header('Location: ./');
-  }  
   }
+}
 function forEachArray($array) {
   $content = '';
-  foreach($array as $key => $value) {
-      if(is_array($value)) {
-        $content .= $key . ": <br>";
-	    forEachArray($value);   
-      } else {
-        if(is_array($value)) {
-	        forEachArray($value);
-        } else {
-	        
-        }
-	    $content .= $key . ': ' . $value . "<br>";
-	    
+  foreach ($array as $key => $value) {
+    if (is_array($value)) {
+      $content .= $key . ": <br>";
+      forEachArray($value);
+    } //is_array($value)
+    else {
+      if (is_array($value)) {
+        forEachArray($value);
+      } //is_array($value)
+      else {
       }
+      $content .= $key . ': ' . $value . "<br>";
     }
+  } //$array as $key => $value
   return $content;
 }
-
 function _wc_core_user_services() {
-    module_load_include('inc', 'wc_core', 'includes/oauth');
-    
-	$config = array();
-	$config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
-	$config = module_invoke_all('wc_config',$config);
-	$config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
-	drupal_set_message(t('Unable to Connect to:', array('@var' => print_r($config, TRUE))), 'butterflies');
-    //print_r($config);
-    $content = '';
-    foreach($config['service'] as $service) {
-	    $content .= getAuthorizationURL($service);	    
-    }	
-    
-    	
-      	$form['twitter_login'] = array(
-      	  '#type' =>  'submit', 
-      	  '#value' => t('Login'),
-      	  '#executes_submit_callback' => FALSE,
-      	       
-      	);
-	return $form;
+  //    module_load_include('inc', 'wc_core', 'includes/oauth');
+  //    $config = array();
+  //    $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+  //    $config = module_invoke_all('wc_config',$config);
+  //    $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+  //    drupal_set_message(t('Unable to Connect to:', array('@var' => print_r($config, TRUE))), 'butterflies');
+  //print_r($config);
+  //    $content = '';
+  return drupal_get_form('_wc_core_user_services_form');
+}
+function _wc_core_user_services_form($form, &$form_state) {
+  $config = array();
+  $config = module_invoke_all('wc_config', $config);
+  foreach ($config['service'] as $service) {
+    $form[$service['name']]           = array(
+      '#type' => 'fieldset',
+      '#title' => t($service['name']),
+      '#tree' => TRUE,
+      '#access' => _wc_core_user_account_access($service['name'])
+    );
+    $form[$service['name']]['markup'] = array(
+      '#markup' => _wc_core_account_status($service['name'])
+    );
+    $form[$service['name']]['action'] = array(
+      '#type' => 'button',
+      '#name' => $service['name'],
+      '#value' => t('Authenticate ' . ucfirst($service['name'])),
+      '#executes_submit_callback' => TRUE
+      //'#submit' => array('_wc_core_user_services_form_submit'), 
+    );
+  } //$config['service'] as $service
+  return $form;
+}
+function _wc_core_user_account_access($service) {
+  $access = TRUE;
+  if ($service == 'twitter') {
+    $access = TRUE;
+  } //$service == 'twitter'
+  return $access;
+}
+function _wc_core_account_status($service) {
+  return $service . '</p>';
+}
+function _wc_core_user_services_form_submit($form, &$form_state) {
+  getAuthorizationURL($form_state['clicked_button']['#name']);
 }
 function wc_core_permission() {
   return array(
     'manage web consumer' => array(
       'title' => t('manage web consumer')
-  ));
+    )
+  );
 }
-
 function getAuthorizationURL($service) {
-
-  print_r($service);
-  $serviceName  = $service['name']; 
-  $accessTokenURL  = $service['accessTokenURL']; 
-  $authenticateURL = $service['authenticateURL'];
-  $authorizeURL    = $service['authorizeURL']; 
-  $requestTokenURL = $service['requestTokenURL'];
-  $consumerKey = $service['consumerKey'];
-  $consumerSecret = $service['consumerSecret'];
-  $oAuthCallback = 'http://www.webizly.biz/wc_core/callback';
-  $connection    = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL , $requestTokenURL);
+  echo $service;
+  $url = '';
+  module_load_include('inc', 'wc_core', 'includes/oauth');
+  $config = array();
+  $config = module_invoke_all('wc_config', $config);
+  drupal_set_message(t('Config : @var', array(
+    '@var' => print_r($config['service'][$service], TRUE)
+  )), 'butterflies');
+  $serviceName     = $config['service'][$service]['name'];
+  $accessTokenURL  = $config['service'][$service]['accessTokenURL'];
+  $authenticateURL = $config['service'][$service]['authenticateURL'];
+  $authorizeURL    = $config['service'][$service]['authorizeURL'];
+  $requestTokenURL = $config['service'][$service]['requestTokenURL'];
+  $consumerKey     = $config['service'][$service]['consumerKey'];
+  $consumerSecret  = $config['service'][$service]['consumerSecret'];
+  $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback';
+  $connection      = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret);
+  drupal_set_message(t('Config : @var', array(
+    '@var' => print_r($connection, TRUE)
+  )), 'butterflies');
   $request_token                  = $connection->getRequestToken($oAuthCallback);
   $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
   $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-  $url = $connection->createAuthorizeURL($_SESSION['oauth_token'], FALSE);
-  $link_url = '<a href="' . $url . '">Login to ' . $serviceName . '</a>';	
-  
-
-  
-  
-  
-  return $link_url;
+  $url                            = $connection->createAuthorizeURL($_SESSION['oauth_token'], FALSE);
+  drupal_goto($url, array(
+    'external' => TRUE
+  ));
+  //return $url;
 }
-
 function _wc_core_token_request() {
   module_load_include('inc', 'wc_core', 'includes/oauth');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
@@ -236,13 +255,7 @@ function _wc_core_token_request() {
   $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
   $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
   $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-  $url = $connection->getAuthorizeURL($_SESSION['oauth_token'], FALSE);
-  
+  $url                            = $connection->getAuthorizeURL($_SESSION['oauth_token'], FALSE);
   header('Location: ' . $url);
   //return $url;
-
-  
 }
-
-
-
