@@ -39,18 +39,23 @@ function wc_core_menu() {
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-  $items['wc_core/callback']         = array(
+  $items['wc_core/callback/%']         = array(
     // A type of MENU_CALLBACK means leave the path completely out of the menu
     // links.
     'type' => MENU_CALLBACK,
     // The title is still used for the page title, even though it's not used
     // for the menu link text, since there's no menu link.
     'title' => 'Callback Only',
-    'page callback' => '_wc_core_callback',
+		
+    'page callback'		=> '_wc_core_callback',
+		
+		// They pass the first argument as the service name
+		'page arguments'	=> array(1),
+		
     'access callback' => TRUE
   );
   // Now provide the actual permissioned menu item.
-  $items['user/%/wc_core/authorize'] = array(
+  $items['user/%/wc_core/authorize/%'] = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Authenticate Twitter',
     'type' => MENU_LOCAL_TASK,
@@ -61,6 +66,10 @@ function wc_core_menu() {
     // user_access(), which we'll use in this case. Since it's the default,
     // we don't even have to enter it.
     'access callback' => 'user_access',
+		
+		// Service Name
+		'page arguments' => array(1),
+		
     // The 'access arguments' are passed to the 'access callback' to help it
     // do its job. In the case of user_access(), we need to pass a permission
     // as the first argument.
@@ -70,12 +79,16 @@ function wc_core_menu() {
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-  $items['user/%/wc_core/revoke']    = array(
+  $items['user/%/wc_core/revoke/%']    = array(
     // The title - do NOT use t() as t() is called automatically.
-    'title' => 'Revoke Twitter',
-    'type' => MENU_LOCAL_TASK,
-    'description' => 'Get Oauth Tokens',
-    'page callback' => '_wc_core_revoke',
+    'title'					=> 'Revoke Twitter',
+    'type						=> MENU_LOCAL_TASK,
+    'description'		=> 'Get Oauth Tokens',
+    'page callback'	=> '_wc_core_revoke',
+		
+		// The service name
+		'page arguments'	=> array(1),
+		
     // For a permissioned menu entry, we provide an access callback which
     // determines whether the current user should have access. The default is
     // user_access(), which we'll use in this case. Since it's the default,
@@ -93,12 +106,16 @@ function wc_core_menu() {
   return $items;
 }
 function _wc_core_revoke($service = '') {
-  unset($_SESSION['oauth_token']);
-  unset($_SESSION['oauth_token_secret']);
+	if ($service == '')
+		drupal_exit();
+	
+  unset($_SESSION[$service.'_oauth_token']);
+  unset($_SESSION[$service.'_oauth_token_secret']);
   variable_del($service.'_oauth_token_secret');
   variable_del($service.'_oauth_token');
   $message = 'done';
-  return $message;
+  
+	return $message;
 }
 function _wc_core_manager() {
   $message = 'manager';
@@ -254,15 +271,18 @@ function getAuthorizationURL($service) {
     '@var' => print_r($connection, TRUE)
   )), 'butterflies');
   $request_token                  = $connection->getRequestToken($oAuthCallback);
-  $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
-  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+  $_SESSION[$service.'_oauth_token']        = $token = $request_token['oauth_token'];
+  $_SESSION[$service.'_oauth_token_secret'] = $request_token['oauth_token_secret'];
   $url                            = $connection->createAuthorizeURL($_SESSION['oauth_token'], FALSE);
   drupal_goto($url, array(
     'external' => TRUE
   ));
   //return $url;
 }
-function _wc_core_token_request() {
+function _wc_core_token_request($service = '') {
+	if ($service == '')
+		drupal_exit();
+	
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
   define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
@@ -271,9 +291,9 @@ function _wc_core_token_request() {
   $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
   /* Get temporary credentials. */
   $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
-  $_SESSION['oauth_token']        = $token = $request_token['oauth_token'];
-  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-  $url                            = $connection->getAuthorizeURL($_SESSION['oauth_token'], FALSE);
+  $_SESSION[$service.'_oauth_token']        = $token = $request_token['oauth_token'];
+  $_SESSION[$service.'_oauth_token_secret'] = $request_token['oauth_token_secret'];
+  $url                            = $connection->getAuthorizeURL($_SESSION[$service.'_oauth_token'], FALSE);
   header('Location: ' . $url);
   //return $url;
 }
