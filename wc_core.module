@@ -106,7 +106,7 @@ function _wc_core_manager() {
 }
 function _wc_core_callback() {
   //loads the include file
-  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/oauth-class');
   //sets the default call back url
   $config                  = array();
   $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
@@ -216,7 +216,7 @@ function wc_core_permission() {
 function getAuthorizationURL($service) {
   echo $service;
   $url = '';
-  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/oauth-class');
   $config = array();
   $config = module_invoke_all('wc_config', $config);
   drupal_set_message(t('Config : @var', array(
@@ -245,7 +245,7 @@ function getAuthorizationURL($service) {
   //return $url;
 }
 function _wc_core_token_request() {
-  module_load_include('inc', 'wc_core', 'includes/oauth');
+  module_load_include('inc', 'wc_core', 'includes/oauth-class');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
   define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
   define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
