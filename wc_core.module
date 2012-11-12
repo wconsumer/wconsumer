@@ -176,7 +176,7 @@ function _wc_core_user_services_form($form, &$form_state) {
   foreach ($config['service'] as $service) {
     $form[$service['name']]           = array(
       '#type' => 'fieldset',
-      '#title' => t($service['name']),
+      '#title' => t(ucwords($service['name'])),
       '#tree' => TRUE,
       '#access' => _wc_core_user_account_access($service['name'])
     );
