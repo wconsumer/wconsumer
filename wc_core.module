@@ -264,7 +264,10 @@ function getAuthorizationURL($service) {
   $requestTokenURL = $config['service'][$service]['requestTokenURL'];
   $consumerKey     = $config['service'][$service]['consumerKey'];
   $consumerSecret  = $config['service'][$service]['consumerSecret'];
-  $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback';
+	
+  // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
+	$oAuthCallback   = url('wc_core/callback/'.$service);
+	
   $connection      = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret);
   drupal_set_message(t('Config : @var', array(
@@ -287,7 +290,8 @@ function _wc_core_token_request($service = '') {
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
   define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
   define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
-  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
+  define('OAUTH_CALLBACK', url('wc_core/callback/'.$service));
+	
   $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
   /* Get temporary credentials. */
   $request_token                  = $connection->getRequestToken(OAUTH_CALLBACK);
