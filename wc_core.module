@@ -92,11 +92,11 @@ function wc_core_menu() {
   );
   return $items;
 }
-function _wc_core_revoke() {
+function _wc_core_revoke($service = '') {
   unset($_SESSION['oauth_token']);
   unset($_SESSION['oauth_token_secret']);
-  variable_del('oauth_token_secret');
-  variable_del('oauth_token');
+  variable_del($service.'_oauth_token_secret');
+  variable_del($service.'_oauth_token');
   $message = 'done';
   return $message;
 }
@@ -104,33 +104,51 @@ function _wc_core_manager() {
   $message = 'manager';
   return $message;
 }
-function _wc_core_callback() {
+function _wc_core_callback($service = '') {
+	// Throw a 404 if nothing is passed
+	if ($service == '')
+		return drupal_not_found();
+	
   //loads the include file
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
+	
   //sets the default call back url
   $config                  = array();
   $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+	
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
   $config                  = module_invoke_all('wc_config', $config);
-  //print_r($config);
-  //this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
-  $accessTokenURL          = $config['service']['twitter']['accessTokenURL'];
-  $authenticateURL         = $config['service']['twitter']['authenticateURL'];
-  $authorizeURL            = $config['service']['twitter']['authorizeURL'];
-  $requestTokenURL         = $config['service']['twitter']['requestTokenURL'];
-  $consumerKey             = $config['service']['twitter']['consumerKey'];
-  $consumerSecret          = $config['service']['twitter']['consumerSecret'];
+  
+	// Only one array item (not counting oauthCallback)
+	if (! isset($config['service']) OR count($config['service']) == 0 OR ! isset($config['service'][$service]) )
+		return drupal_not_found();
+	
+  // this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
+  $accessTokenURL          = $config['service'][$service]['accessTokenURL'];
+  $authenticateURL         = $config['service'][$service]['authenticateURL'];
+  $authorizeURL            = $config['service'][$service]['authorizeURL'];
+  $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
+  $consumerKey             = $config['service'][$service]['consumerKey'];
+  $consumerSecret          = $config['service'][$service]['consumerSecret'];
   $oAuthCallback           = $config['oauthCallback'];
-  //creates the connection with the appropriate settings
+	
+  // creates the connection with the appropriate settings
   $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
-  //gets the access tokens
+  
+	// gets the access tokens
   $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
-  //saves the access tokens to the db, this will need to be replaced to save them in a table
-  variable_set('oauth_token', $access_tokens['oauth_token']);
-  variable_set('oauth_token_secret', $access_tokens['oauth_token_secret']);
+  
+	//saves the access tokens to the db, this will need to be replaced to save them in a table
+  variable_set($service.'_oauth_token', $access_tokens['oauth_token']);
+  variable_set($service.'_oauth_token_secret', $access_tokens['oauth_token_secret']);
+	
   global $user;
-  /* If HTTP response is 200 continue otherwise send to connect page to retry this needs fixed to get it to work right with reauthentication  currently this is set to allways authenticate and it needs set to forward to the correct page, but it might be possible to have a common page that they all go to*/
+  
+	// If HTTP response is 200 continue otherwise send to connect page to retry this
+	// needs fixed to get it to work right with reauthentication  currently this is
+	// set to allways authenticate and it needs set to forward to the correct page,
+	// but it might be possible to have a common page that they all go to
   if (200 == $connection->http_code) {
     /* The user has been verified and the access tokens can be saved for future use */
     //$_SESSION['status'] = 'verified';
