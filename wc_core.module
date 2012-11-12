@@ -114,12 +114,12 @@ function _wc_core_callback() {
   $config                  = module_invoke_all('wc_config', $config);
   //print_r($config);
   //this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
-  $accessTokenURL          = $config['service']['vimeo']['accessTokenURL'];
-  $authenticateURL         = $config['service']['vimeo']['authenticateURL'];
-  $authorizeURL            = $config['service']['vimeo']['authorizeURL'];
-  $requestTokenURL         = $config['service']['vimeo']['requestTokenURL'];
-  $consumerKey             = $config['service']['vimeo']['consumerKey'];
-  $consumerSecret          = $config['service']['vimeo']['consumerSecret'];
+  $accessTokenURL          = $config['service']['twitter']['accessTokenURL'];
+  $authenticateURL         = $config['service']['twitter']['authenticateURL'];
+  $authorizeURL            = $config['service']['twitter']['authorizeURL'];
+  $requestTokenURL         = $config['service']['twitter']['requestTokenURL'];
+  $consumerKey             = $config['service']['twitter']['consumerKey'];
+  $consumerSecret          = $config['service']['twitter']['consumerSecret'];
   $oAuthCallback           = $config['oauthCallback'];
   //creates the connection with the appropriate settings
   $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);

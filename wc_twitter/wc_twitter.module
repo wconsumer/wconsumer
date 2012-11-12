@@ -2,13 +2,16 @@
 function wc_twitter_wc_config($config) {	
   $config['service'] = array(
   	'twitter' => array(
-  		'name' => 'twitter',
-  		'accessTokenURL' => 'https://api.twitter.com/oauth/access_token',
-  		'authenticateURL' => 'https://api.twitter.com/oauth/authenticate',
-  		'authorizeURL' => 'https://api.twitter.com/oauth/authorize',
-  		'requestTokenURL' => 'https://api.twitter.com/oauth/request_token',
-  		'consumerKey' => 'YMM6LRTqymjyjNeui7Ydgg',
-  		'consumerSecret' => '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10',
+  		'name'							=> 'twitter',
+  		'accessTokenURL'		=> 'https://api.twitter.com/oauth/access_token',
+  		'authenticateURL'		=> 'https://api.twitter.com/oauth/authenticate',
+  		'authorizeURL'			=> 'https://api.twitter.com/oauth/authorize',
+  		'requestTokenURL'		=> 'https://api.twitter.com/oauth/request_token',
+  		'consumerKey'				=> 'YMM6LRTqymjyjNeui7Ydgg',
+  		'consumerSecret'		=> '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10',
+			
+			// Where to send them when they want to create an application
+			'applicationCreateURL' => 'https://dev.twitter.com/apps/new',
   ),
   );
   return $config;
@@ -70,11 +73,10 @@ function _wc_twitter_my_twitter() {
   define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
   define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
   define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
-  $tokens     = variable_get('access_token');
   $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, variable_get('oauth_token'), variable_get('oauth_token_secret'));
   $results    = $connection->get('account/verify_credentials');
   	$message = 'Your account = ' . $results->name;
-	print_r($_SESSION);
+//	print_r($_SESSION);
 
 	return $message;
 }

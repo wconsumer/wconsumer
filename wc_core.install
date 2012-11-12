@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Install, update, and uninstall functions for the wc_core (wc_core) module.
+ * Install, update, and uninstall functions for the Wconsumer module.
  */
 function wc_core_schema() {
   $schema['wc_core_service'] = array(
@@ -10,7 +10,7 @@ function wc_core_schema() {
       'sid' => array(
         'type' => 'serial',
         'not null' => TRUE,
-        'description' => 'Primary Key: Service ID'
+        'description' => 'Primary Key: Request ID'
       ),
       'consumer_key' => array(
         'type' => 'varchar',
@@ -24,14 +24,7 @@ function wc_core_schema() {
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
-        'description' => 'The Consumer Secret'
-      ),
-      'service_name' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-        'description' => 'The name of the associated service provider'
+        'description' => 'The Consumer Key'
       )
     ),
     'primary key' => array(
@@ -51,11 +44,17 @@ function wc_core_schema() {
         'not null' => TRUE,
         'description' => 'Primary Key: Request ID'
       ),
+      'sid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => '0',
+        'description' => 'Foreign Key: Service ID'
+      ),
       'suid' => array(
         'type' => 'int',
         'not null' => TRUE,
         'default' => '0',
-        'description' => 'Foreign Key: User service ID'
+        'description' => 'Foreign Key: User ID'
       ),
       'request' => array(
         'type' => 'varchar',
@@ -66,10 +65,10 @@ function wc_core_schema() {
       )
     ),
     'foreign keys' => array(
-      'suid' => array(
-        'table' => 'wc_core_user',
+      'sid' => array(
+        'table' => 'wconsumer_service',
         'columns' => array(
-          'suid' => 'suid'
+          'sid' => 'sid'
         )
       )
     ),
@@ -79,6 +78,9 @@ function wc_core_schema() {
     'indexes' => array(
       'rid' => array(
         'rid'
+      ),
+      'sid' => array(
+        'sid'
       ),
       'suid' => array(
         'suid'
@@ -92,7 +94,7 @@ function wc_core_schema() {
       'suid' => array(
         'type' => 'serial',
         'not null' => TRUE,
-        'description' => 'Primary Key: User service ID'
+        'description' => 'Primary Key: Request ID'
       ),
       'sid' => array(
         'type' => 'int',
@@ -129,7 +131,7 @@ function wc_core_schema() {
         )
       ),
       'sid' => array(
-        'table' => 'wc_core_service',
+        'table' => 'wconsumer_service',
         'columns' => array(
           'sid' => 'sid'
         )

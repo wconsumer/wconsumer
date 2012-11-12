@@ -1,0 +1,18 @@
+<?php
+function wc_tropo_wc_config($config) {	
+  $config['service'] = array(
+  	'linkedin' => array(
+  		'name'							=> 'tropo',
+  		'accessTokenURL'		=> '',
+  		'authenticateURL'		=> '',
+  		'authorizeURL'			=> '',
+  		'requestTokenURL'		=> '',
+  		'consumerKey'				=> '',
+  		'consumerSecret'		=> '',
+			
+			// Set it to use the API Key instead of OAuth
+			'authMethod'				=> 'apiKey',
+		),
+  );
+  return $config;
+}

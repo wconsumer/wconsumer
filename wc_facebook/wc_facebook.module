@@ -1,0 +1,15 @@
+<?php
+function wc_facebook_wc_config($config) {	
+  $config['service'] = array(
+		'twitter' => array(
+  		'name'							=> 'facebook',
+  		'accessTokenURL'		=> '',
+  		'authenticateURL'		=> '',
+  		'authorizeURL'			=> '',
+  		'requestTokenURL'		=> '',
+  		'consumerKey'				=> '',
+  		'consumerSecret'		=> '',
+  ),
+  );
+  return $config;
+}
