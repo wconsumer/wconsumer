@@ -82,7 +82,7 @@ function wc_core_menu() {
   $items['user/%/wc_core/revoke/%']    = array(
     // The title - do NOT use t() as t() is called automatically.
     'title'					=> 'Revoke Twitter',
-    'type						=> MENU_LOCAL_TASK,
+    'type'						=> MENU_LOCAL_TASK,
     'description'		=> 'Get Oauth Tokens',
     'page callback'	=> '_wc_core_revoke',
 		
@@ -92,7 +92,7 @@ function wc_core_menu() {
     // For a permissioned menu entry, we provide an access callback which
     // determines whether the current user should have access. The default is
     // user_access(), which we'll use in this case. Since it's the default,
-    // we don't even have to enter it.
+    // we dont even have to enter it.
     'access callback' => 'user_access',
     // The 'access arguments' are passed to the 'access callback' to help it
     // do its job. In the case of user_access(), we need to pass a permission
@@ -267,19 +267,25 @@ function getAuthorizationURL($service) {
 	
   // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
 	$oAuthCallback   = url('wc_core/callback/'.$service);
-	
+	echo 'service';
   $connection      = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret);
-  drupal_set_message(t('Config : @var', array(
-    '@var' => print_r($connection, TRUE)
-  )), 'butterflies');
-  $request_token                  = $connection->getRequestToken($oAuthCallback);
+    $request_token                  = $connection->getRequestToken($oAuthCallback);
   $_SESSION[$service.'_oauth_token']        = $token = $request_token['oauth_token'];
   $_SESSION[$service.'_oauth_token_secret'] = $request_token['oauth_token_secret'];
-  $url                            = $connection->createAuthorizeURL($_SESSION['oauth_token'], FALSE);
+  $url                            = $connection->createAuthorizeURL($_SESSION[$service.'_oauth_token'] , FALSE);
+  
+  drupal_set_message(t('Config : @var', array(
+    '@var' => print_r($request_token, TRUE)
+  )), 'butterflies');
+
+  
+  
+  /*
   drupal_goto($url, array(
     'external' => TRUE
   ));
+  */
   //return $url;
 }
 function _wc_core_token_request($service = '') {
