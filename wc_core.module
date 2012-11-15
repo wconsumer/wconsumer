@@ -131,7 +131,7 @@ function _wc_core_callback($service = '') {
 	
   //sets the default call back url
   $config                  = array();
-  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
 	
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
   $config                  = module_invoke_all('wc_config', $config);
@@ -151,11 +151,12 @@ function _wc_core_callback($service = '') {
 	
   // creates the connection with the appropriate settings
   $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
-  $connection->createConnection($consumerKey, $consumerSecret, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
-  
+  $connection->createConnection($consumerKey, $consumerSecret, $_SESSION[$service . '_oauth_token'], $_SESSION[$service . '_oauth_token_secret']);
+  print_r($connection); 
 	// gets the access tokens
   $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
-  
+// print_r($access_tokens);
+//echo $service;   
 	//saves the access tokens to the db, this will need to be replaced to save them in a table
   variable_set($service.'_oauth_token', $access_tokens['oauth_token']);
   variable_set($service.'_oauth_token_secret', $access_tokens['oauth_token_secret']);
@@ -166,6 +167,7 @@ function _wc_core_callback($service = '') {
 	// needs fixed to get it to work right with reauthentication  currently this is
 	// set to allways authenticate and it needs set to forward to the correct page,
 	// but it might be possible to have a common page that they all go to
+  print_r($connection);
   if (200 == $connection->http_code) {
     /* The user has been verified and the access tokens can be saved for future use */
     //$_SESSION['status'] = 'verified';
@@ -173,8 +175,10 @@ function _wc_core_callback($service = '') {
   } //200 == $connection->http_code
   else {
     /* Save HTTP status for error dialog on connnect page.*/
-    header('Location: ./');
+     header('Location: ./');
   }
+
+
 }
 function forEachArray($array) {
   $content = '';
@@ -264,9 +268,9 @@ function getAuthorizationURL($service) {
   $requestTokenURL = $config['service'][$service]['requestTokenURL'];
   $consumerKey     = $config['service'][$service]['consumerKey'];
   $consumerSecret  = $config['service'][$service]['consumerSecret'];
-	
+	global $base_url;
   // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
-	$oAuthCallback   = url('wc_core/callback/'.$service);
+	$oAuthCallback   = url($base_url . '/wc_core/callback/'.$service);
 	echo 'service';
   $connection      = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret);
@@ -281,11 +285,9 @@ function getAuthorizationURL($service) {
 
   
   
-  /*
   drupal_goto($url, array(
     'external' => TRUE
   ));
-  */
   //return $url;
 }
 function _wc_core_token_request($service = '') {
