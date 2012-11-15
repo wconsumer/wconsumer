@@ -68,16 +68,33 @@ function _wc_twitter() {
 	return $message;
 }
 function _wc_twitter_my_twitter() {
-  module_load_include('inc', 'wc_core', 'includes/oauth');
-  module_load_include('inc', 'wc_core', 'includes/twitteroauth');
-  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
-  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
-  define('OAUTH_CALLBACK', 'http://www.webizly.biz/wc_core/callback');
-  $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, variable_get('oauth_token'), variable_get('oauth_token_secret'));
+  $msg = 'test';
+  $msg = module_load_include('inc', 'wc_core', 'includes/oauth-class');
+ echo $msg;
+$config                  = array();
+  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+
+  //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
+  $config                  = module_invoke_all('wc_config', $config);
+  
+$service = 'twitter';
+  // this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
+  $accessTokenURL          = $config['service'][$service]['accessTokenURL'];
+  $authenticateURL         = $config['service'][$service]['authenticateURL'];
+  $authorizeURL            = $config['service'][$service]['authorizeURL'];
+  $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
+  $consumerKey             = $config['service'][$service]['consumerKey'];
+  $consumerSecret          = $config['service'][$service]['consumerSecret'];
+  $oAuthCallback           = $config['oauthCallback'];
+
+  // creates the connection with the appropriate settings
+  $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
+  $connection->createConnection($consumerKey, $consumerSecret, variable_get('twitter_oauth_token'), variable_get('twitter_oauth_token_secret'));
+print_r($connection);
+
   $results    = $connection->get('account/verify_credentials');
   	$message = 'Your account = ' . $results->name;
 //	print_r($_SESSION);
-
 	return $message;
 }
 function wc_twitter_permission() {
