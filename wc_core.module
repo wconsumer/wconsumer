@@ -474,8 +474,9 @@ function getAuthorizationURL($service) {
   $_SESSION[$service.'_oauth_token_secret'] = $request_token['oauth_token_secret'];
   $url = $connection->createAuthorizeURL($_SESSION[$service.'_oauth_token'] , FALSE);
   
-  drupal_set_message(t('Config : @var', array(
-    '@var' => print_r($request_token, TRUE)
+  drupal_set_message(t('Config : @var @appData', array(
+    '@var' => print_r($request_token, TRUE),
+		'@appData' => print_r(array($consumerKey, $consumerSecret), TRUE),
   )), 'butterflies');
 		
   drupal_goto($url, array(
