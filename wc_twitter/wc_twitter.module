@@ -17,6 +17,7 @@ function wc_twitter_wc_config($config) {
   return $config;
 }
 function wc_twitter_menu() {
+	return;
 $items['wc_core/service/twitter/manager']                   = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Twitter',
