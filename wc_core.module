@@ -39,20 +39,44 @@ function wc_core_menu() {
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
+	$items['wc_core/settings/%'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title'					=> 'Manage Service',
+    'type'					=> MENU_LOCAL_TASK,
+    'description'		=> 'Manage Service',
+    'page callback'	=> '_wc_core_service_manager',
+		
+		// The service name
+		'page arguments'	=> array(2),
+		
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we dont even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    )
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+	);
   $items['wc_core/callback/%']         = array(
     // A type of MENU_CALLBACK means leave the path completely out of the menu
     // links.
-    'type' => MENU_CALLBACK,
+    'type'			=> MENU_CALLBACK,
     // The title is still used for the page title, even though it's not used
     // for the menu link text, since there's no menu link.
-    'title' => 'Callback Only',
+    'title'			=> 'Callback Only',
 		
-    'page callback'		=> '_wc_core_callback',
+    'page callback'			=> '_wc_core_callback',
 		
 		// They pass the first argument as the service name
-		'page arguments'	=> array(1),
+		'page arguments'		=> array(2),
 		
-    'access callback' => TRUE
+    'access callback'		=> TRUE
   );
   // Now provide the actual permissioned menu item.
   $items['user/%/wc_core/authorize/%'] = array(
@@ -118,9 +142,130 @@ function _wc_core_revoke($service = '') {
 	return $message;
 }
 function _wc_core_manager() {
-  $message = 'manager';
-  return $message;
+	return 'apple';
 }
+
+/**
+ * Callback to manage a specific service
+ *
+ * Will let the user specify the OAuth Consumer Key/Secret or the
+ * API Key for the service depending upon the authencation method.
+ **/
+function _wc_core_service_manager($service = '')
+{
+	// Throw a 404 if nothing is passed
+	if ($service == '')
+		return drupal_not_found();
+	
+  //sets the default call back url
+  $config                  = array();
+  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
+	
+  //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
+  $config                  = module_invoke_all('wc_config', $config);
+  
+	// Only one array item (not counting oauthCallback)
+	if (! isset($config['service']) OR count($config['service']) == 0 OR ! isset($config['service'][$service]) )
+		return drupal_not_found();
+	
+	if (! isset($config['service'][$service]['authMethod']) )
+		$config['service'][$service]['authMethod'] = 'oauth';
+	
+	switch($config['service'][$service]['authMethod'])
+	{
+		case 'apiKey' :
+			return drupal_get_form('_wc_core_apiAuth_form', $config['service'][$service]);
+		break;
+		
+		// Defaults back to oauth
+		// Could change this in the future
+		default :
+			return drupal_get_form('_wc_core_oAuth_form', $config['service'][$service]);
+		break;
+	}
+	// Load up the form
+	var_dump($config['service'][$service]);
+	//drupal_get_form('')
+}
+
+/**
+ * Callback for the OAuth Authencation Form Settings
+ *
+ * @param		array
+ * @param		array Form State
+ * @param		array The config for the respective service
+**/
+function _wc_core_oAuth_form($form, $form_state, $service)
+{
+	$form[$service['name']] = array(
+    '#type'			=> 'fieldset',
+    '#title'			=> t(ucwords($service['name']).' Service Configuration'),
+    '#tree'				=> TRUE,
+    '#access'			=> _wc_core_user_account_access($service['name'])
+	);
+	
+	if (isset($service['applicationCreateURL'])) :
+		$form[$service['name']]['create_app_url'] = array(
+			'#markup'	=> t('You can create create an application at <a href="'.$service['applicationCreateURL'].'">'.$service['applicationCreateURL'].'</a>.'),
+		);
+	endif;
+	
+	$form[$service['name']]['createAppUrl'] = array(
+    '#type'				=> 'item',
+    '#title'			=> 'Application Callback URL',
+    '#tree'				=> TRUE,
+		'#markup'			=> url('wc_core/callback/'.$service['name'], array('absolute' => TRUE,)),
+	);
+	
+	
+	$form[$service['name']]['consumer-key'] = array(
+    '#type'				=> 'textfield',
+    '#title'			=> 'Consumer Key',
+    '#tree'				=> TRUE,
+    '#access'			=> _wc_core_user_account_access($service['name']),
+		'#default_value'			=> variable_get($service['name'].'_consumer_key', ''),
+		
+		'#required'		=> TRUE,
+	);
+	
+	$form[$service['name']]['consumer-secret'] = array(
+    '#type'				=> 'textfield',
+    '#title'			=> 'Consumer Secret',
+    '#tree'				=> TRUE,
+    '#access'			=> _wc_core_user_account_access($service['name']),
+		'#default_value'			=> variable_get($service['name'].'_consumer_secret', ''),
+		
+		'#required'		=> TRUE,
+	);
+	
+	$form['submit'] = array('#type' => 'submit', '#value' => t('Save Configuration'));
+	$form['service-name'] = array('#type' => 'hidden', '#value' => $service['name']);
+	
+	return $form;
+}
+
+/**
+ * Callback to submit the OAuth Form
+**/
+function _wc_core_oAuth_form_submit($form, $form_state)
+{
+	// The POST Data
+	$values = $form_state['values'];
+	
+	if (! isset($values['service-name']) )
+		drupal_exit();
+	
+	$service = $values['service-name'];
+	
+	if (! isset($values[$service]) )
+		drupal_exit();
+	
+	variable_set($service.'_consumer_key', $values[$service]['consumer-key']);
+	variable_set($service.'_consumer_secret', $values[$service]['consumer-secret']);
+	
+	drupal_set_message(t('Service configuration saved.'));
+} 
+
 function _wc_core_callback($service = '') {
 	// Throw a 404 if nothing is passed
 	if ($service == '')
