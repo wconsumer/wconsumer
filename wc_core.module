@@ -409,6 +409,8 @@ function _wc_core_user_services_form($form, &$form_state) {
     $form[$service['name']]['markup'] = array(
       '#markup' => _wc_core_account_status($service['name'])
     );
+		$form['service-name'] = array('#type' => 'hidden', '#value' => $service['name']);
+		
     $form[$service['name']]['action'] = array(
       '#type' => 'button',
       '#name' => $service['name'],
@@ -430,7 +432,7 @@ function _wc_core_account_status($service) {
   return $service . '</p>';
 }
 function _wc_core_user_services_form_submit($form, &$form_state) {
-  getAuthorizationURL($form_state['clicked_button']['#name']);
+	getAuthorizationURL($form_state['values']['service-name']);
 }
 function wc_core_permission() {
   return array(
@@ -443,7 +445,6 @@ function getAuthorizationURL($service) {
   global $base_url;
 	
 	echo $service;
-  $url = '';
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
   
 	$config = array();
@@ -453,7 +454,7 @@ function getAuthorizationURL($service) {
     '@var' => print_r($config['service'][$service], TRUE)
   )), 'butterflies');
   
-	$serviceName     = $config['service'][$service]['name'];
+	$serviceName     = $service;
   $accessTokenURL  = $config['service'][$service]['accessTokenURL'];
   $authenticateURL = $config['service'][$service]['authenticateURL'];
   $authorizeURL    = $config['service'][$service]['authorizeURL'];
