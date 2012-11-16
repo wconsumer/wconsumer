@@ -198,7 +198,8 @@ function _wc_core_service_manager($service = '')
 	
   //sets the default call back url
   $config                  = array();
-  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
+  //$config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
+	$config['oauthCallback'] = url('wc_core/callback/'.$service, array('absolute' => TRUE));
 	
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
   $config                  = module_invoke_all('wc_config', $config);
@@ -312,7 +313,9 @@ function _wc_core_callback($service = '') {
 	
   //sets the default call back url
   $config                  = array();
-  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
+  
+	//$config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
+	$config['oauthCallback'] = url('wc_core/callback/'.$service, array('absolute' => TRUE));
 	
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
   $config                  = module_invoke_all('wc_config', $config);
@@ -326,8 +329,8 @@ function _wc_core_callback($service = '') {
   $authenticateURL         = $config['service'][$service]['authenticateURL'];
   $authorizeURL            = $config['service'][$service]['authorizeURL'];
   $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
-  $consumerKey             = $config['service'][$service]['consumerKey'];
-  $consumerSecret          = $config['service'][$service]['consumerSecret'];
+  $consumerKey             = variable_get($config['service'][$service].'_consumer_key');
+  $consumerSecret          = variable_get($config['service'][$service].'_consumer_secret');
   $oAuthCallback           = $config['oauthCallback'];
 	
   // creates the connection with the appropriate settings
@@ -447,8 +450,8 @@ function getAuthorizationURL($service) {
   $authenticateURL = $config['service'][$service]['authenticateURL'];
   $authorizeURL    = $config['service'][$service]['authorizeURL'];
   $requestTokenURL = $config['service'][$service]['requestTokenURL'];
-  $consumerKey     = $config['service'][$service]['consumerKey'];
-  $consumerSecret  = $config['service'][$service]['consumerSecret'];
+  $consumerKey     = variable_get($config['service'][$service].'_consumer_key');
+  $consumerSecret  = variable_get($config['service'][$service].'_consumer_secret');
 	global $base_url;
   // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
 	$oAuthCallback   = url($base_url . '/wc_core/callback/'.$service);
@@ -477,8 +480,9 @@ function _wc_core_token_request($service = '') {
 	
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
-  define('CONSUMER_KEY', 'YMM6LRTqymjyjNeui7Ydgg');
-  define('CONSUMER_SECRET', '5syCnfNAfBWMnxp2F2s1Zq1XRysxvZ1xmq2zh10');
+	
+  define('CONSUMER_KEY', variable_get($service.'_consumer_key');
+  define('CONSUMER_SECRET', variable_get($service.'_consumer_key');
   define('OAUTH_CALLBACK', url('wc_core/callback/'.$service));
 	
   $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
