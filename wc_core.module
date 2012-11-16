@@ -481,8 +481,8 @@ function _wc_core_token_request($service = '') {
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
 	
-  define('CONSUMER_KEY', variable_get($service.'_consumer_key');
-  define('CONSUMER_SECRET', variable_get($service.'_consumer_key');
+  define('CONSUMER_KEY', variable_get($service.'_consumer_key'));
+  define('CONSUMER_SECRET', variable_get($service.'_consumer_key'));
   define('OAUTH_CALLBACK', url('wc_core/callback/'.$service));
 	
   $connection                     = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
