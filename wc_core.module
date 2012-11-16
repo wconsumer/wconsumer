@@ -307,6 +307,8 @@ function _wc_core_oAuth_form_submit($form, $form_state)
 } 
 
 function _wc_core_callback($service = '') {
+	global $base_url;
+	
 	// Throw a 404 if nothing is passed
 	if ($service == '')
 		return drupal_not_found();
@@ -315,13 +317,9 @@ function _wc_core_callback($service = '') {
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
 	
   //sets the default call back url
-  $config                  = array();
-  
-	//$config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'. $service;
-	$config['oauthCallback'] = url('wc_core/callback/'.$service, array('absolute' => TRUE));
-	
-  //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
-  $config                  = module_invoke_all('wc_config', $config);
+  $config = array();
+	$config['oauthCallback'] = $base_url.'wc_core/callback/'.$service;
+  $config = module_invoke_all('wc_config', $config);
   
 	// Only one array item (not counting oauthCallback)
 	if (! isset($config['service']) OR count($config['service']) == 0 OR ! isset($config['service'][$service]) )
@@ -332,8 +330,8 @@ function _wc_core_callback($service = '') {
   $authenticateURL         = $config['service'][$service]['authenticateURL'];
   $authorizeURL            = $config['service'][$service]['authorizeURL'];
   $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
-  $consumerKey             = variable_get($config['service'][$service].'_consumer_key');
-  $consumerSecret          = variable_get($config['service'][$service].'_consumer_secret');
+  $consumerKey             = variable_get($service.'_consumer_key');
+  $consumerSecret          = variable_get($service.'_consumer_secret');
   $oAuthCallback           = $config['oauthCallback'];
 	
   // creates the connection with the appropriate settings
