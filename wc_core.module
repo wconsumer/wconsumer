@@ -459,8 +459,8 @@ function getAuthorizationURL($service) {
   $authenticateURL = $config['service'][$service]['authenticateURL'];
   $authorizeURL    = $config['service'][$service]['authorizeURL'];
   $requestTokenURL = $config['service'][$service]['requestTokenURL'];
-  $consumerKey     = variable_get($config['service'][$service].'_consumer_key');
-  $consumerSecret  = variable_get($config['service'][$service].'_consumer_secret');
+  $consumerKey     = variable_get($service.'_consumer_key');
+  $consumerSecret  = variable_get($service.'_consumer_secret');
 	
   // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
 	$oAuthCallback   = $base_url . '/wc_core/callback/'.$service;
