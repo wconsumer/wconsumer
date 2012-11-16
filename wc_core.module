@@ -476,7 +476,7 @@ function getAuthorizationURL($service) {
   
   drupal_set_message(t('Config : @var @appData', array(
     '@var' => print_r($request_token, TRUE),
-		'@appData' => print_r(array($consumerKey, $consumerSecret), TRUE),
+		'@appData' => print_r(array($consumerKey, $consumerSecret, $oAuthCallback), TRUE),
   )), 'butterflies');
 		
   drupal_goto($url, array(
