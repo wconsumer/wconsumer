@@ -59,13 +59,13 @@ function wc_core_menu() {
 		);
 		
 		// Default Tab
-		/*
+		
 	  $items['wc_core/settings/default'] = array(
 	    'type'		=> MENU_DEFAULT_LOCAL_TASK,
 	    'title'		=> 'Settings Management',
 	    'weight'	=> 1,
 	  );
-		*/
+		
 	  $config = array();
 		$config = module_invoke_all('wc_config', $config);
 		// Only one array item (not counting oauthCallback)
