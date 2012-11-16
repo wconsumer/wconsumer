@@ -1,7 +1,7 @@
 <?php
 function wc_tropo_wc_config($config) {	
   $config['service'] = array(
-  	'linkedin' => array(
+  	'tropo' => array(
   		'name'							=> 'tropo',
   		'accessTokenURL'		=> '',
   		'authenticateURL'		=> '',

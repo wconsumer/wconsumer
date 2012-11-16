@@ -1,7 +1,7 @@
 <?php
 function wc_facebook_wc_config($config) {	
   $config['service'] = array(
-		'twitter' => array(
+		'facebook' => array(
   		'name'							=> 'facebook',
   		'accessTokenURL'		=> '',
   		'authenticateURL'		=> '',
