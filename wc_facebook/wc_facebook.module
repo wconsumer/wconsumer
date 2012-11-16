@@ -7,8 +7,6 @@ function wc_facebook_wc_config($config) {
   		'authenticateURL'		=> '',
   		'authorizeURL'			=> '',
   		'requestTokenURL'		=> '',
-  		'consumerKey'				=> '',
-  		'consumerSecret'		=> '',
   ),
   );
   return $config;

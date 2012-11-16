@@ -7,8 +7,6 @@ function wc_tropo_wc_config($config) {
   		'authenticateURL'		=> '',
   		'authorizeURL'			=> '',
   		'requestTokenURL'		=> '',
-  		'consumerKey'				=> '',
-  		'consumerSecret'		=> '',
 			
 			// Set it to use the API Key instead of OAuth
 			'authMethod'				=> 'apiKey',
