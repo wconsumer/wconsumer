@@ -117,6 +117,8 @@ function wc_core_menu() {
 		
     'access callback'		=> TRUE
   );
+	
+	/*
   // Now provide the actual permissioned menu item.
   $items['user/%/wc_core/authorize/%'] = array(
     // The title - do NOT use t() as t() is called automatically.
@@ -166,6 +168,7 @@ function wc_core_menu() {
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
+	*/
   return $items;
 }
 function _wc_core_revoke($service = '') {
@@ -437,42 +440,46 @@ function wc_core_permission() {
   );
 }
 function getAuthorizationURL($service) {
-  echo $service;
+  global $base_url;
+	
+	echo $service;
   $url = '';
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
-  $config = array();
+  
+	$config = array();
   $config = module_invoke_all('wc_config', $config);
-  drupal_set_message(t('Config : @var', array(
+  
+	drupal_set_message(t('Config : @var', array(
     '@var' => print_r($config['service'][$service], TRUE)
   )), 'butterflies');
-  $serviceName     = $config['service'][$service]['name'];
+  
+	$serviceName     = $config['service'][$service]['name'];
   $accessTokenURL  = $config['service'][$service]['accessTokenURL'];
   $authenticateURL = $config['service'][$service]['authenticateURL'];
   $authorizeURL    = $config['service'][$service]['authorizeURL'];
   $requestTokenURL = $config['service'][$service]['requestTokenURL'];
   $consumerKey     = variable_get($config['service'][$service].'_consumer_key');
   $consumerSecret  = variable_get($config['service'][$service].'_consumer_secret');
-	global $base_url;
+	
   // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
-	$oAuthCallback   = url($base_url . '/wc_core/callback/'.$service);
+	$oAuthCallback   = $base_url . '/wc_core/callback/'.$service;
 	echo 'service';
-  $connection      = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
+	
+  $connection = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret);
-    $request_token                  = $connection->getRequestToken($oAuthCallback);
+	$request_token = $connection->getRequestToken($oAuthCallback);
+	
   $_SESSION[$service.'_oauth_token']        = $token = $request_token['oauth_token'];
   $_SESSION[$service.'_oauth_token_secret'] = $request_token['oauth_token_secret'];
-  $url                            = $connection->createAuthorizeURL($_SESSION[$service.'_oauth_token'] , FALSE);
+  $url = $connection->createAuthorizeURL($_SESSION[$service.'_oauth_token'] , FALSE);
   
   drupal_set_message(t('Config : @var', array(
     '@var' => print_r($request_token, TRUE)
   )), 'butterflies');
-
-  
-  
+		
   drupal_goto($url, array(
     'external' => TRUE
   ));
-  //return $url;
 }
 function _wc_core_token_request($service = '') {
 	if ($service == '')
