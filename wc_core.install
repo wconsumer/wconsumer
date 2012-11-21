@@ -40,7 +40,10 @@ function wc_core_schema() {
     'indexes' => array(
       'sid' => array(
         'sid'
-      )
+      ),
+     'unique keys' => array(
+      'service_name'
+      ),
     )
   );
   $schema['wc_core_request'] = array(
@@ -54,13 +57,12 @@ function wc_core_schema() {
       'suid' => array(
         'type' => 'int',
         'not null' => TRUE,
-        'default' => '0',
         'description' => 'Foreign Key: User service ID'
       ),
       'request' => array(
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE,
+      //  'not null' => TRUE,
         'default' => '',
         'description' => 'The Request'
       )
@@ -97,26 +99,24 @@ function wc_core_schema() {
       'sid' => array(
         'type' => 'int',
         'not null' => TRUE,
-        'default' => '0',
         'description' => 'Foreign Key: Service ID'
       ),
       'uid' => array(
         'type' => 'int',
         'not null' => TRUE,
-        'default' => '0',
         'description' => 'Foreign Key: User ID'
       ),
       'access_token' => array(
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE,
+        //'not null' => TRUE,
         'default' => '',
         'description' => 'The oAuth access token'
       ),
       'access_token_secret' => array(
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE,
+       // 'not null' => TRUE,
         'default' => '',
         'description' => 'The oAuth access token secret'
       )
