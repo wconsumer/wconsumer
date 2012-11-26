@@ -256,7 +256,7 @@ function _wc_core_service_manager($service = '') {
 **/
 function _wc_core_oAuth_form($form, $form_state, $service) {
     
-    $serviceCreds = _wc_core_getServiceCreds($service);
+    $serviceCreds = _wc_core_getServiceCreds($service['name']);
 
     
     $form[$service['name']] = array(
@@ -549,45 +549,61 @@ function _wc_service_config_default()
 	return 'Please select a service to manage from the tabs above.';
 }
 
-/**Retrieves credentials which identify consumer to producer association
+/**
+ * Retrieves credentials which identify consumer to producer association
  *
- *@return array An associative array of credentials keyed by DB attribute names.
- **/
-function _wc_core_getServiceCreds($service_name){
-  
-  //TODO implement caching or define to reduce DB hits
-  
+ * @param		string
+ * @return  array An associative array of credentials keyed by DB attribute names.
+**/
+function _wc_core_getServiceCreds($service_name) {
+	// Try the cache
+	$try_cache = cache_get('wc_service_creds_'.$service_name);
+	if ($try_cache !== FALSE)
+		return unserialize($try_cache);
+	
   $creds = db_select(WC_CORE_T_SERVICE)
       ->fields(WC_CORE_T_SERVICE)
       ->condition('service_name', $service_name)
       ->execute()
       ->fetchAssoc();
-  
+	
+	cache_set('wc_service_creds_'.$service_name, 'cache', serialize($creds));
   return $creds;
 }
 
-/**Writes service credentials based on passed service name
+/**
+ * Writes service credentials based on passed service name
  *
+ * @param		string Name of the service
+ * @param		array
  **/
-function _wc_core_setServiceCreds($service_name, $fields){
-   
-  db_merge(WC_CORE_T_SERVICE)
-    ->key(array('service_name' => $service_name))
+function _wc_core_setServiceCreds($service_name, $fields) {
+	db_merge(WC_CORE_T_SERVICE)
+		->key(array('service_name' => $service_name))
     ->fields($fields)
     ->execute();
+	
+	wc_clear_cache();
 }
 
-/**Writes user credentials based on passed service name
+/**
+ * Writes user credentials based on passed service name
  *
- **/
+ * @param		string
+ * @param		array
+ * @param		int Specify a user
+**/
 function _wc_core_setUserCreds($service_name, $fields, $uid = null){
 
   //If no user id passed, retrieve the current
-  if(!$uid){
+  if(!$uid) {
     global $user;
     $uid = $user->uid;
   }
-
+	
+	// Clear the cache before everything
+	wc_clear_cache();
+	
   try {
       $sid = db_select(WC_CORE_T_SERVICE)
         ->fields(WC_CORE_T_SERVICE, array('sid'))
@@ -606,4 +622,14 @@ function _wc_core_setUserCreds($service_name, $fields, $uid = null){
       return false;
   }
   return true;
+}
+
+/**
+ * Clear the cache for the module
+ *
+ * @return void
+**/
+function wc_clear_cache()
+{
+	return cache_clear_all('wc_', 'cache', TRUE);
 }
