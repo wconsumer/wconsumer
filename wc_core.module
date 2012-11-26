@@ -430,23 +430,35 @@ function _wc_core_user_services_form($form, &$form_state) {
   $config = module_invoke_all('wc_config', $config);
   foreach ($config['service'] as $service) {
     $form[$service['name']]           = array(
-      '#type' => 'fieldset',
-      '#title' => t(ucwords($service['name'])),
-      '#tree' => TRUE,
-      '#access' => _wc_core_user_account_access($service['name'])
+      '#type'			=> 'fieldset',
+      '#title'		=> t(ucwords($service['name'])),
+      '#tree'			=> TRUE,
+      '#access'		=> _wc_core_user_account_access($service['name'])
     );
+		// wc_check_service
     $form[$service['name']]['markup'] = array(
-      '#markup' => _wc_core_account_status($service['name'])
+      '#markup'		=> _wc_core_account_status($service['name'])
     );
 		$form['service-name'] = array('#type' => 'hidden', '#value' => $service['name']);
 		
-    $form[$service['name']]['action'] = array(
-      '#type' => 'button',
-      '#name' => $service['name'],
-      '#value' => t('Authenticate ' . ucfirst($service['name'])),
-      '#executes_submit_callback' => TRUE
-      //'#submit' => array('_wc_core_user_services_form_submit'), 
-    );
+		// If they are setup
+		if (wc_check_service($service['name'])) :
+			
+	    $form[$service['name']]['action'] = array(
+	      '#type'			=> 'button',
+	      '#name'			=> $service['name'],
+	      '#value'		=> (! wc_check_service_auth($service['name'])) ? t('Authenticate ' . ucfirst($service['name'])) : t('Revoke ' . ucfirst($service['name'])),
+	      '#executes_submit_callback' => TRUE
+	      //'#submit' => array('_wc_core_user_services_form_submit'), 
+	    );
+				
+		else :
+			// Not setup yet
+	    $form[$service['name']]['markup'] = array(
+	      '#markup'		=> 'You haven\'t setup this service yet so you may not authenticate with it.'
+	    );
+		endif;
+		
   } //$config['service'] as $service
   return $form;
 }
@@ -458,7 +470,7 @@ function _wc_core_user_account_access($service) {
   return $access;
 }
 function _wc_core_account_status($service) {
-  return $service . '</p>';
+  return '<p>'.$service . '</p>';
 }
 function _wc_core_user_services_form_submit($form, &$form_state) {
 	getAuthorizationURL($form_state['values']['service-name']);
@@ -558,7 +570,7 @@ function _wc_service_config_default()
 function _wc_core_getServiceCreds($service_name) {
 	// Try the cache
 	$try_cache = cache_get('wc_service_creds_'.$service_name);
-	if ($try_cache !== FALSE)
+	if ($try_cache !== FALSE AND 1 == 2)
 		return unserialize($try_cache);
 	
   $creds = db_select(WC_CORE_T_SERVICE)
@@ -566,9 +578,44 @@ function _wc_core_getServiceCreds($service_name) {
       ->condition('service_name', $service_name)
       ->execute()
       ->fetchAssoc();
-	
 	cache_set('wc_service_creds_'.$service_name, 'cache', serialize($creds));
-  return $creds;
+	return $creds;
+}
+
+/**
+ * Retrieves credentials which identify consumer to producer association
+ *
+ * @param		string
+ * @return  array An associative array of credentials keyed by DB attribute names.
+**/
+function _wc_core_getUserCreds($service_name, $uid = 0) {
+	// Get the logged in user instead
+	if ($uid == 0) {
+		global $user;
+		$uid = $user->uid;
+	}
+	
+	// Try the cache
+	$try_cache = cache_get('wc_user_creds_'.$service_name.'_'.$uid);
+	if ($try_cache !== FALSE AND 1 == 2)
+		return unserialize($try_cache);
+	
+	// Find the service ID
+	$serviceCreds = _wc_core_getServiceCreds($service_name);
+	
+	// Invalid service creds
+	if ($serviceCreds)
+		return FALSE;
+	
+  $creds = db_select(WC_CORE_T_USER)
+      ->fields(WC_CORE_T_USER)
+			->condition('sid', $serviceCreds['sid'])
+			->condition('uid', $uid)
+      ->execute()
+      ->fetchAssoc();
+	
+	cache_set('wc_user_creds_'.$service_name.'_'.$uid, 'cache', serialize($creds));
+	return $creds;
 }
 
 /**
@@ -576,7 +623,7 @@ function _wc_core_getServiceCreds($service_name) {
  *
  * @param		string Name of the service
  * @param		array
- **/
+**/
 function _wc_core_setServiceCreds($service_name, $fields) {
 	db_merge(WC_CORE_T_SERVICE)
 		->key(array('service_name' => $service_name))
@@ -622,6 +669,85 @@ function _wc_core_setUserCreds($service_name, $fields, $uid = null){
       return false;
   }
   return true;
+}
+
+/**
+ * Check if a service has been setup
+ * For OAuth, this means check if the consumer key/secret are set
+ *
+ * @param		string
+ * @return 	bool
+**/
+function wc_check_service($service)
+{
+	$services = wc_get_services();
+	if (! isset($services['service']) OR ! isset($services['service'][$service]) )
+		return FALSE;
+	
+	if (! isset($services['service'][$service]['authMethod'] ) )
+			$services['service'][$service]['authMethod'] = 'oauth';
+	
+	switch($services['service'][$service]['authMethod'])
+	{
+		case 'apiKey' :
+			
+		break;
+		
+		// OAuth
+		default :
+			// Todo: add secondary checks here
+			if (! _wc_core_getServiceCreds($service) )
+				return FALSE;
+			else
+				return TRUE;
+		break;
+	}
+}
+
+/**
+ * Check if a service has been authenticated with yet
+ * For OAuth, this means check if the consumer key/secret are set
+ * and the access token/secret are set as well.
+ *
+ * @param		string
+ * @param		int Specify an optional user ID
+ * @return 	bool
+**/
+function wc_check_service_auth($service, $uid = 0)
+{
+	$services = wc_get_services();
+	if (! isset($services['service']) OR ! isset($services['service'][$service]) )
+		return FALSE;
+	
+	if (! isset($services['service'][$service]['authMethod'] ) )
+			$services['service'][$service]['authMethod'] = 'oauth';
+	
+	switch($services['service'][$service]['authMethod'])
+	{
+		case 'apiKey' :
+			
+		break;
+		
+		// OAuth
+		default :
+			// Todo: Add secondary checks here (perform oauth call)
+			if (! _wc_core_getUserCreds($service, $uid) )
+				return FALSE;
+			else
+				return TRUE;
+		break;
+	}
+}
+
+
+/**
+ * Get a list of active services
+ *
+ * @param		array Default Config
+**/
+function wc_get_services($config = array())
+{
+  return module_invoke_all('wc_config', $config);
 }
 
 /**
