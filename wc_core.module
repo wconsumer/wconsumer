@@ -439,10 +439,10 @@ function _wc_core_user_services_form($form, &$form_state) {
     $form[$service['name']]['markup'] = array(
       '#markup'		=> _wc_core_account_status($service['name'])
     );
-		$form['service-name'] = array('#type' => 'hidden', '#value' => $service['name']);
-		
 		// If they are setup
 		if (wc_check_service($service['name'])) :
+			
+			$form['service-name'] = array('#type' => 'hidden', '#value' => $service['name']);
 			
 	    $form[$service['name']]['action'] = array(
 	      '#type'			=> 'button',
@@ -484,21 +484,16 @@ function wc_core_permission() {
 }
 function getAuthorizationURL($service) {
   global $base_url;
-
-
-	echo $service;
+	
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
-  
-	$config = array();
-  $config = module_invoke_all('wc_config', $config);
+	$config = wc_get_services();
   
 	drupal_set_message(t('Config : @var', array(
     '@var' => print_r($config['service'][$service], TRUE)
   )), 'butterflies');
         
   $serviceCreds = _wc_core_getServiceCreds($service);
-  
-
+	
   $serviceName     = $service;
   $accessTokenURL  = $config['service'][$service]['accessTokenURL'];
   $authenticateURL = $config['service'][$service]['authenticateURL'];
@@ -570,7 +565,7 @@ function _wc_service_config_default()
 function _wc_core_getServiceCreds($service_name) {
 	// Try the cache
 	$try_cache = cache_get('wc_service_creds_'.$service_name);
-	if ($try_cache !== FALSE AND 1 == 2)
+	if ($try_cache !== FALSE)
 		return unserialize($try_cache);
 	
   $creds = db_select(WC_CORE_T_SERVICE)
@@ -592,25 +587,28 @@ function _wc_core_getUserCreds($service_name, $uid = 0) {
 	// Get the logged in user instead
 	if ($uid == 0) {
 		global $user;
-		$uid = $user->uid;
+		$uid = (int) $user->uid;
+	}
+	else {
+		$uid = (int) $uid;
 	}
 	
 	// Try the cache
 	$try_cache = cache_get('wc_user_creds_'.$service_name.'_'.$uid);
-	if ($try_cache !== FALSE AND 1 == 2)
+	if ($try_cache !== FALSE)
 		return unserialize($try_cache);
 	
 	// Find the service ID
 	$serviceCreds = _wc_core_getServiceCreds($service_name);
 	
 	// Invalid service creds
-	if ($serviceCreds)
+	if (! $serviceCreds)
 		return FALSE;
 	
   $creds = db_select(WC_CORE_T_USER)
       ->fields(WC_CORE_T_USER)
-			->condition('sid', $serviceCreds['sid'])
-			->condition('uid', $uid)
+			->condition('sid', $serviceCreds['sid'], '=')
+			->condition('uid', $uid, '=')
       ->execute()
       ->fetchAssoc();
 	
