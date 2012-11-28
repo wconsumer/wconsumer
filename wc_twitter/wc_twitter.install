@@ -28,7 +28,7 @@ function wc_twitter_install(){
         ->execute();
         
 //********************************TEST RECORDS*************************************************************/        
-
+	/*
     $suid = db_insert(WC_CORE_T_USER)
         ->fields(array(
             'access_token' => 'QHSna16ON6gLnDWjHzsTVhd8THu9ymA9xn9iYqX9OA8',
@@ -47,7 +47,7 @@ function wc_twitter_install(){
             
         ))
         ->execute();
-        
+        */
 //********************************END TEST RECORDS*************************************************************/             
 };
 
