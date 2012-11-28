@@ -770,10 +770,8 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
 	
 	// Make a test request to get a request token
 	$request_token = $connection->getRequestToken($base_url . '/wc_core/callback/'.$service);
-	var_dump($config, $consumer_key, $consumer_secret, $request_token);
-	exit;
 	
-	if (empty($request_token) OR $request_token == '')
+	if (! is_array($request_token) OR ! isset($request_token['oauth_callback_confirmed']))
 		return FALSE;
 	else
 		return TRUE;
