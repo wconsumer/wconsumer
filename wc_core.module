@@ -762,6 +762,8 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
 		
 	endif;
 	
+	module_load_include('inc', 'wc_core', 'includes/oauth-class');
+	
 	// Make a new connection
 	$connection = new oauthConnectionDrupal($config['accessTokenURL'], $config['authenticateURL'], $config['authorizeURL'], $config['requestTokenURL']);
   $connection->createConnection($consumer_key, $consumer_secret);
