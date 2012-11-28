@@ -772,7 +772,7 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
 	
 	// We need to make a manual request because it will throw an error if it's invalid
   $parameters = array(
-		'oauth_callback'] = $base_url . '/wc_core/callback/'.$service,
+		'oauth_callback' => $base_url . '/wc_core/callback/'.$service,
 	);
 	
 	$request = $connection->oAuthRequest($connection->getRequestTokenURL(), 'GET', $parameters);
