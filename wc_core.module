@@ -769,7 +769,14 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
   $connection->createConnection($consumer_key, $consumer_secret);
 	
 	// Make a test request to get a request token
-	$request_token = $connection->getRequestToken($base_url . '/wc_core/callback/'.$service);
+	
+	// We need to make a manual request because it will throw an error if it's invalid
+  $parameters = array(
+		'oauth_callback'] = $base_url . '/wc_core/callback/'.$service,
+	);
+	
+	$request = $connection->oAuthRequest($connection->getRequestTokenURL(), 'GET', $parameters);
+	$request_token = OAuthUtil::parse_parameters($request);
 	
 	if (! is_array($request_token) OR ! isset($request_token['oauth_callback_confirmed']))
 		return FALSE;
