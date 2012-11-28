@@ -13,6 +13,13 @@ function wc_twitter_wc_config($config) {
 			
 			// Are we going to validate the OAuth Credentials (default is on)
 			'validate'					=> TRUE,
+			
+			// What they're going to call to load information about the user
+			'userInfoMethod'		=> 'account/verify_credentials',
+			
+			// The item in the method above that is going to have the user information
+			// You can also specify a callback function
+			'userInfoItem'			=> 'screen_name',
   ),
   );
   return $config;

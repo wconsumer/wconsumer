@@ -433,8 +433,8 @@ function _wc_core_user_services() {
 	return drupal_get_form('_wc_core_user_services_form');
 }
 function _wc_core_user_services_form($form, &$form_state) {
-  $config = array();
-  $config = module_invoke_all('wc_config', $config);
+  $config = wc_get_services();
+	
   foreach ($config['service'] as $service) {
     $form[$service['name']]           = array(
       '#type'			=> 'fieldset',
@@ -442,12 +442,13 @@ function _wc_core_user_services_form($form, &$form_state) {
       '#tree'			=> TRUE,
       '#access'		=> _wc_core_user_account_access($service['name'])
     );
-		// wc_check_service
-    $form[$service['name']]['markup'] = array(
-      '#markup'		=> _wc_core_account_status($service['name'])
-    );
-		// If they are setup
+		
+		// If they are setup?
 		if (wc_check_service($service['name'])) :
+			// Show who they are
+	    $form[$service['name']]['who-are-you'] = array(
+	      '#markup'		=> _wc_core_account_status($service['name'])
+	    );
 			
 			$form['service-name'] = array('#type' => 'hidden', '#value' => $service['name']);
 			
