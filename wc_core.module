@@ -315,26 +315,37 @@ function _wc_core_oAuth_form_submit($form, $form_state)
 	if (! isset($values['service-name']) )
 		drupal_exit();
 	
-	$service = $values['service-name'];
+	// Service Config
+	$service_name = $values['service-name'];
+	$services = wc_get_services();
+	
+	// Validate
+	if (count($service['service']) == 0 OR ! isset($service['service'][$service_name]) )
+		drupal_exit();
+	else
+		$service_config = $service['service'][$service_name];
 	
 	if (! isset($values[$service]) )
 		drupal_exit();
 	
 	$fields = array(
-		'consumer_key' => $values[$service]['consumer-key'],
-		'consumer_secret' => $values[$service]['consumer-secret'],
+		'consumer_key' => $values[$service_name]['consumer-key'],
+		'consumer_secret' => $values[$service_name]['consumer-secret'],
 	);
 	
-	// Let's try validating it
-	if (wc_test_service($service, $fields['consumer_key'], $fields['consumer_secret']) ) :
-		// Passed
-		_wc_core_setServiceCreds($service, $fields);
+	// Give them the option to turn off validation
+	if ((! isset($service_config['validate'])) OR (isset($service_config['validate']) AND $service_config['validate'])) {
+		// Let's try validating it
+		if (wc_test_service($service_name, $fields['consumer_key'], $fields['consumer_secret']) ) :
+			// Passed
+			_wc_core_setServiceCreds($service_name, $fields);
 		
-		drupal_set_message(t('Service configuration saved.'));
-	else :
-		// Failed
-		drupal_set_message(t('Service configuration is invalid (check your consumer key/secret).'));
-	endif;
+			drupal_set_message(t('Service configuration saved.'));
+		else :
+			// Failed
+			drupal_set_message(t('Service configuration is invalid (check your consumer key/secret).'));
+		endif;
+	}
 } 
 
 function _wc_core_callback($service = '') {

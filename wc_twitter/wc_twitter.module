@@ -7,7 +7,12 @@ function wc_twitter_wc_config($config) {
   		'authenticateURL'		=> 'https://api.twitter.com/oauth/authenticate',
   		'authorizeURL'			=> 'https://api.twitter.com/oauth/authorize',
   		'requestTokenURL'		=> 'https://api.twitter.com/oauth/request_token',
-		'applicationCreateURL' => 'https://dev.twitter.com/apps/new',// Where to send them when they want to create an application
+			
+			// Where to send them when they want to create an application
+			'applicationCreateURL' => 'https://dev.twitter.com/apps/new',
+			
+			// Are we going to validate the OAuth Credentials (default is on)
+			'validate'					=> TRUE,
   ),
   );
   return $config;
