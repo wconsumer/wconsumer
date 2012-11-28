@@ -750,7 +750,7 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
 	if (! isset($services['service'][$service]) )
 		return FALSE;
 	
-	if ($consumer_key !== NULL AND $consumer_secret !== NULL) :
+	if ($consumer_key == NULL OR $consumer_secret == NULL) :
 		// Check if there are even config values
 		if (! wc_check_service($service))
 			return FALSE;
