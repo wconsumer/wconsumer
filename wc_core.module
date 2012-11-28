@@ -209,42 +209,38 @@ function _wc_core_manager() {
  * API Key for the service depending upon the authentication method.
  **/
 function _wc_core_service_manager($service = '') {
-        // Throw a 404 if nothing is passed
-    if ($service == '')
-            return drupal_not_found();
-          
-    //sets the default call back url
-    $config = array();
-    //$config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback/'.
-    //$service;
+	global $base_url;
+	
+	// Throw a 404 if nothing is passed
+	if ($service == '')
+		return drupal_not_found();
+	
+	//sets the default call back url
+	$config = array();
+	$config['oauthCallback'] = url('wc_core/callback/'.$service, array(
+		'absolute' => TRUE,
+	));
+	
+	// Get the list of files
+	$config = wc_get_services($config);
     
-    $config['oauthCallback'] = url('wc_core/callback/'.$service,
-    array('absolute' => TRUE));
-          
-    //calls to load the config hook from the module - this needs changed to only
-    //load config for the correct config per sub module
-    $config = module_invoke_all('wc_config', $config);
-    
-    // Only one array item (not counting oauthCallback)
-    if (! isset($config['service']) OR count($config['service']) == 0 OR !
-    isset($config['service'][$service]) )
-            return drupal_not_found();
-    
-    if (! isset($config['service'][$service]['authMethod']) )
-            $config['service'][$service]['authMethod'] = 'oauth';
-    
-    switch($config['service'][$service]['authMethod']) {
-      case 'apiKey' :
-              return drupal_get_form('_wc_core_apiAuth_form',
-              $config['service'][$service]);
-      break;
-      
-      // Defaults back to oauth Could change this in the future
-      default :
-              return drupal_get_form('_wc_core_oAuth_form',
-              $config['service'][$service]);
-      break;
-    }
+	// Only one array item (not counting oauthCallback)
+	if (! isset($config['service']) OR count($config['service']) == 0 OR ! isset($config['service'][$service]) )
+		return drupal_not_found();
+	
+	if (! isset($config['service'][$service]['authMethod']) )
+		$config['service'][$service]['authMethod'] = 'oauth';
+	
+	switch($config['service'][$service]['authMethod']) {
+		case 'apiKey' :
+			return drupal_get_form('_wc_core_apiAuth_form', $config['service'][$service]);
+		break;
+		
+		// Defaults back to oauth Could change this in the future
+		default :
+			return drupal_get_form('_wc_core_oAuth_form', $config['service'][$service]);
+		break;
+	}
 }
 
 /**
@@ -313,24 +309,32 @@ function _wc_core_oAuth_form($form, $form_state, $service) {
 **/
 function _wc_core_oAuth_form_submit($form, $form_state)
 {
-    // The POST Data
-    $values = $form_state['values'];
-    
-    if (! isset($values['service-name']) )
-            drupal_exit();
-    
-    $service = $values['service-name'];
-    
-    if (! isset($values[$service]) )
-            drupal_exit();
-    
-    $fields = array(
-      'consumer_key' => $values[$service]['consumer-key'],
-      'consumer_secret' => $values[$service]['consumer-secret'],
-      );
-    _wc_core_setServiceCreds($service, $fields);
-    
-    drupal_set_message(t('Service configuration saved.'));
+	// The POST Data
+	$values = $form_state['values'];
+	
+	if (! isset($values['service-name']) )
+		drupal_exit();
+	
+	$service = $values['service-name'];
+	
+	if (! isset($values[$service]) )
+		drupal_exit();
+	
+	$fields = array(
+		'consumer_key' => $values[$service]['consumer-key'],
+		'consumer_secret' => $values[$service]['consumer-secret'],
+	);
+	
+	// Let's try validating it
+	if (wc_test_service($service, $fields['consumer_key'], $fields['consumer_secret']) ) :
+		// Passed
+		_wc_core_setServiceCreds($service, $fields);
+		
+		drupal_set_message(t('Service configuration saved.'));
+	else :
+		// Failed
+		drupal_set_message(t('Service configuration is invalid (check your consumer key/secret).'));
+	endif;
 } 
 
 function _wc_core_callback($service = '') {
@@ -415,15 +419,7 @@ function forEachArray($array) {
   return $content;
 }
 function _wc_core_user_services() {
-  //    module_load_include('inc', 'wc_core', 'includes/oauth');
-  //    $config = array();
-  //    $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
-  //    $config = module_invoke_all('wc_config',$config);
-  //    $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
-  //    drupal_set_message(t('Unable to Connect to:', array('@var' => print_r($config, TRUE))), 'butterflies');
-  //print_r($config);
-  //    $content = '';
-  return drupal_get_form('_wc_core_user_services_form');
+	return drupal_get_form('_wc_core_user_services_form');
 }
 function _wc_core_user_services_form($form, &$form_state) {
   $config = array();
@@ -737,6 +733,47 @@ function wc_check_service_auth($service, $uid = 0)
 	}
 }
 
+/**
+ * Test a Service's Consumer Key/Secret
+ *
+ * @param		string
+ * @param		string Optionally pass a consumer key
+ * @param		strign Optionally pass a consumer secret
+ * @return  bool
+**/
+function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL) {
+	global $base_url;
+	
+	$services = wc_get_services();
+	$config = $services['service'][$service];
+	
+	if (! isset($services['service'][$service]) )
+		return FALSE;
+	
+	if ($consumer_key !== NULL AND $consumer_secret !== NULL) :
+		// Check if there are even config values
+		if (! wc_check_service($service))
+			return FALSE;
+		
+		$creds = _wc_core_getServiceCreds($service);
+		
+		$consumer_key = $creds['consumer_key'];
+		$consumer_secret = $creds['consumer_secret'];
+		
+	endif;
+	
+	// Make a new connection
+	$connection = new oauthConnectionDrupal($config['accessTokenURL'], $config['authenticateURL'], $config['authorizeURL'], $config['requestTokenURL']);
+  $connection->createConnection($consumer_key, $consumer_secret);
+	
+	// Make a test request to get a request token
+	$request_token = $connection->getRequestToken($base_url . '/wc_core/callback/'.$service);
+	
+	if (empty($request_token) OR $request_token == '')
+		return FALSE;
+	else
+		return TRUE;
+}
 
 /**
  * Get a list of active services
