@@ -120,5 +120,5 @@ function wc_twitter_permission() {
  * @return  string
  **/
 function _wc_twitter_welcome($setup = FALSE) {
-	return 'You are'.(($setup) ? 'setup' : 'not setup');
+	return '<p>You are '.(($setup) ? 'setup' : 'not setup').'</p>';
 }

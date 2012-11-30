@@ -452,13 +452,12 @@ function _wc_core_user_services_form($form, &$form_state) {
 		// If they are setup?
 		if (wc_check_service($service['name'])) :
 			// Show who they are
-			if (isset($config['service']['userInfoItem'])) {
-				if (function_exists($config['service']['userInfoItem'])) :
-					$string = call_user_func_array($config['service']['userInfoItem'], array(TRUE));
+			if (isset($service['userInfoItem'])) {
+				if (function_exists($service['userInfoItem'])) :
+					$string = call_user_func_array($service['userInfoItem'], array(TRUE));
 				else :
 					// Manually get their info
 				endif;
-				
 		    $form[$service['name']]['account-info'] = array( '#markup'		=> $string );
 			}
 			
