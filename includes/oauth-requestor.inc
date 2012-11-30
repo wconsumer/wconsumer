@@ -79,6 +79,13 @@ class OAuthRequestor extends ApiRequestor {
 			$this->setAccessTokens($data['access_token'], $data['access_token_secret']);
 	}
 	
+	/**
+	 * Set the Access Tokens
+	 *
+	 * @access	public
+	 * @param		string
+	 * @param		string
+	**/
 	public function setAccessTokens($token, $secret)
 	{
 		// Invalid Data
@@ -89,6 +96,21 @@ class OAuthRequestor extends ApiRequestor {
 			'access_token'				=> $token,
 			'access_token_secret'	=> $secret,
 		);
+	}
+	
+	public function makeRequest()
+	{
+		
+	}
+	
+	public function parseResponse()
+	{
+		
+	}
+	
+	public function encodeParameters()
+	{
+		
 	}
 }
 

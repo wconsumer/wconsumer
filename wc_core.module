@@ -843,3 +843,35 @@ function wc_clear_cache()
 {
 	return cache_clear_all('wc_', 'cache', TRUE);
 }
+
+/**
+ * Get an API Requestor Object
+ *
+ * @access	public
+ * @param		string The Service Name
+**/
+function wc_request_object($service)
+{
+	$services = wc_get_services();
+	
+	if (! isset($services['service'][$service]) )
+		return FALSE;
+	
+	$config = $services['service'][$service];
+	
+	// They can override the OAuth Requestor Class in the module config
+	if (isset($config['requestorClass'])) :
+		$class = $config['requestorClass'];
+	else
+		$class = 'oauthConnectionDrupal';
+	
+	// Sanitity Check
+	if (! class_exists($class)) :
+		watchdog('wc_core', "Class {$class} doesn't exist to create an object from", array($class), WATCHDOG_WARNING);
+		return NULL;
+	endif;
+	
+	// Create a new object here
+	// Todo: Add OAuth Creds passing, API key passing, etc
+	return new $class();
+}
