@@ -309,24 +309,28 @@ function _wc_core_oAuth_form($form, $form_state, $service) {
 **/
 function _wc_core_oAuth_form_submit($form, $form_state)
 {
-	// The POST Data
+	
+        // The POST Data
 	$values = $form_state['values'];
 	
-	if (! isset($values['service-name']) )
-		drupal_exit();
+        //Causing abnormal page abortion - commented for workaround
+	//if (! isset($values['service-name']) )
+	//	drupal_exit();
 	
 	// Service Config
 	$service_name = $values['service-name'];
 	$services = wc_get_services();
 	
-	// Validate
-	if (count($service['service']) == 0 OR ! isset($service['service'][$service_name]) )
-		drupal_exit();
-	else
-		$service_config = $service['service'][$service_name];
+	//Causing abnormal page abortion - commented for workaround
+        // Validate
+	//if (count($service['service']) == 0 OR ! isset($service['service'][$service_name]) )
+	//	drupal_exit();
+	//else
+	//	$service_config = $service['service'][$service_name];
 	
-	if (! isset($values[$service]) )
-		drupal_exit();
+        //Causing abnormal page abortion - commented for workaround
+	//if (! isset($values[$service]) )
+	//	drupal_exit();
 	
 	$fields = array(
 		'consumer_key' => $values[$service_name]['consumer-key'],
@@ -357,10 +361,13 @@ function _wc_core_callback($service = '') {
 	
   //loads the include file
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
+  
+  //Retrieve user's creds
+  $serviceCreds = _wc_core_getServiceCreds($service);
 	
   //sets the default call back url
   $config = array();
-	$config['oauthCallback'] = $base_url.'wc_core/callback/'.$service;
+  $config['oauthCallback'] = $base_url.'wc_core/callback/'.$service;
   $config = module_invoke_all('wc_config', $config);
   
 	// Only one array item (not counting oauthCallback)
@@ -372,8 +379,8 @@ function _wc_core_callback($service = '') {
   $authenticateURL         = $config['service'][$service]['authenticateURL'];
   $authorizeURL            = $config['service'][$service]['authorizeURL'];
   $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
-  $consumerKey             = variable_get($service.'_consumer_key');
-  $consumerSecret          = variable_get($service.'_consumer_secret');
+  $consumerSecret          = $serviceCreds['consumer_secret'];
+  $consumerKey             = $serviceCreds['consumer_key'];
   $oAuthCallback           = $config['oauthCallback'];
 	
   // creates the connection with the appropriate settings
@@ -577,18 +584,23 @@ function _wc_service_config_default()
  * @return  array An associative array of credentials keyed by DB attribute names.
 **/
 function _wc_core_getServiceCreds($service_name) {
-	// Try the cache
-	$try_cache = cache_get('wc_service_creds_'.$service_name);
-	if ($try_cache !== FALSE)
-		return unserialize($try_cache);
-	
-  $creds = db_select(WC_CORE_T_SERVICE)
-      ->fields(WC_CORE_T_SERVICE)
-      ->condition('service_name', $service_name)
-      ->execute()
-      ->fetchAssoc();
-	cache_set('wc_service_creds_'.$service_name, 'cache', serialize($creds));
-	return $creds;
+  
+  // Try the cache
+  $creds = cache_get('wc_service_creds_'.$service_name);
+
+  if(!$creds){	
+    $creds = db_select(WC_CORE_T_SERVICE)
+        ->fields(WC_CORE_T_SERVICE)
+        ->condition('service_name', $service_name)
+        ->execute()
+        ->fetchAssoc();
+  
+    cache_set('wc_service_creds_'.$service_name, $creds);
+  }
+  else
+    $creds = $creds->data;
+
+  return $creds;
 }
 
 /**
@@ -608,9 +620,7 @@ function _wc_core_getUserCreds($service_name, $uid = 0) {
 	}
 	
 	// Try the cache
-	$try_cache = cache_get('wc_user_creds_'.$service_name.'_'.$uid);
-	if ($try_cache !== FALSE)
-		return unserialize($try_cache);
+	$creds = cache_get('wc_user_creds_'.$service_name.'_'.$uid);
 	
 	// Find the service ID
 	$serviceCreds = _wc_core_getServiceCreds($service_name);
@@ -619,15 +629,20 @@ function _wc_core_getUserCreds($service_name, $uid = 0) {
 	if (! $serviceCreds)
 		return FALSE;
 	
-  $creds = db_select(WC_CORE_T_USER)
-      ->fields(WC_CORE_T_USER)
-			->condition('sid', $serviceCreds['sid'], '=')
-			->condition('uid', $uid, '=')
-      ->execute()
-      ->fetchAssoc();
-	
-	cache_set('wc_user_creds_'.$service_name.'_'.$uid, 'cache', serialize($creds));
-	return $creds;
+      if(!$creds){
+        $creds = db_select(WC_CORE_T_USER)
+            ->fields(WC_CORE_T_USER)
+            ->condition('sid', $serviceCreds['sid'], '=')
+            ->condition('uid', $uid, '=')
+            ->execute()
+            ->fetchAssoc();
+            
+        cache_set('wc_user_creds_'.$service_name.'_'.$uid, $creds);
+      }
+      else
+        $creds = $creds->data;
+        
+      return $creds;
 }
 
 /**
@@ -637,10 +652,11 @@ function _wc_core_getUserCreds($service_name, $uid = 0) {
  * @param		array
 **/
 function _wc_core_setServiceCreds($service_name, $fields) {
-	db_merge(WC_CORE_T_SERVICE)
-		->key(array('service_name' => $service_name))
-    ->fields($fields)
-    ->execute();
+        
+        db_merge(WC_CORE_T_SERVICE)
+	  ->key(array('service_name' => $service_name))
+          ->fields($fields)
+          ->execute();
 	
 	wc_clear_cache();
 }
