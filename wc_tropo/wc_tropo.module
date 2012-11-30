@@ -1,16 +1,18 @@
 <?php
 function wc_tropo_wc_config($config) {	
   $config['service'] = array(
-  	'tropo' => array(
-  		'name'							=> 'tropo',
-  		'accessTokenURL'		=> '',
-  		'authenticateURL'		=> '',
-  		'authorizeURL'			=> '',
-  		'requestTokenURL'		=> '',
-			
-			// Set it to use the API Key instead of OAuth
-			'authMethod'				=> 'apiKey',
-		),
+      'tropo' => array(
+          'name'		=> 'tropo',
+	  'authMethod'                => 'apiKey',
+	  'authCreds'                   => array(
+		     'apiKey'                         => '1234',
+	  ),
+		     'serviceAffinity'             => 'site',  // vs 'user'
+	  'affinityProps'                => array(
+	//Optional menu function to call when using this service
+	//	      'menu_callback'              => 'callback_functionName',
+	  ),
+        ),
   );
   return $config;
 }
