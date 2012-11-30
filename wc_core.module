@@ -862,9 +862,10 @@ function wc_request_object($service)
 	// They can override the OAuth Requestor Class in the module config
 	if (isset($config['requestorClass'])) :
 		$class = $config['requestorClass'];
-	else
+	else:
 		$class = 'oauthConnectionDrupal';
-	
+	endif;
+        
 	// Sanitity Check
 	if (! class_exists($class)) :
 		watchdog('wc_core', "Class {$class} doesn't exist to create an object from", array($class), WATCHDOG_WARNING);
