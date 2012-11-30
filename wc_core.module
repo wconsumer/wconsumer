@@ -759,7 +759,9 @@ function wc_check_service_auth($service, $uid = 0)
 		// OAuth
 		default :
 			// Todo: Add secondary checks here (perform oauth call)
-			if (! _wc_core_getUserCreds($service, $uid) )
+			$creds = _wc_core_getUserCreds($service, $uid);
+			
+			if (! $creds OR ($creds['access_token'] == NULL OR $creds['access_token_secret'] == NULL))
 				return FALSE;
 			else
 				return TRUE;
