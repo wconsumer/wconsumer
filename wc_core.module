@@ -309,11 +309,10 @@ function _wc_core_oAuth_form($form, $form_state, $service) {
 **/
 function _wc_core_oAuth_form_submit($form, $form_state)
 {
-	
-        // The POST Data
+	// The POST Data
 	$values = $form_state['values'];
 	
-        //Causing abnormal page abortion - commented for workaround
+	//Causing abnormal page abortion - commented for workaround
 	//if (! isset($values['service-name']) )
 	//	drupal_exit();
 	
@@ -321,14 +320,14 @@ function _wc_core_oAuth_form_submit($form, $form_state)
 	$service_name = $values['service-name'];
 	$services = wc_get_services();
 	
-	//Causing abnormal page abortion - commented for workaround
-        // Validate
+	// Causing abnormal page abortion - commented for workaround
+	// Validate
 	//if (count($service['service']) == 0 OR ! isset($service['service'][$service_name]) )
 	//	drupal_exit();
 	//else
 	//	$service_config = $service['service'][$service_name];
 	
-        //Causing abnormal page abortion - commented for workaround
+	// Causing abnormal page abortion - commented for workaround
 	//if (! isset($values[$service]) )
 	//	drupal_exit();
 	
