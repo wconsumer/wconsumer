@@ -19,7 +19,7 @@ function wc_twitter_wc_config($config) {
 			
 			// The item in the method above that is going to have the user information
 			// You can also specify a callback function
-			'userInfoItem'			=> 'screen_name',
+			'userInfoItem'			=> '_wc_twitter_welcome',
   ),
   );
   return $config;
@@ -113,3 +113,12 @@ function wc_twitter_permission() {
   ));
 }
 
+/**
+ * Welcome Function
+ *
+ * @access	public
+ * @return  string
+ **/
+function _wc_twitter_welcome($setup = FALSE) {
+	return 'You are'.(($setup) ? 'setup' : 'not setup');
+}
