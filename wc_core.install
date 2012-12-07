@@ -75,7 +75,6 @@ function wc_core_schema() {
       'request' => array(
         'type'        => 'blob',
         'size'        => 'big',
-        'default'     => '',
         'description' => 'The Request'
       ),
       'time' => array(
@@ -87,7 +86,6 @@ function wc_core_schema() {
       ),
       'response_data' => array(
         'type'        => 'blob',
-        'default'     => '',
         'size'        => 'big',
         'description' => 'The response of the request that we are going to be storing for an audit log.'
       )
