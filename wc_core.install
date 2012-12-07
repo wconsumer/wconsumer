@@ -68,27 +68,27 @@ function wc_core_schema() {
         'description' => 'Primary Key: Request ID'
       ),
       'suid' => array(
-        'type' => 'int',
-        'not null' => TRUE,
+        'type'        => 'int',
+        'not null'    => TRUE,
         'description' => 'Foreign Key: User service ID'
       ),
       'request' => array(
-        'type' => 'LONGBLOB',
-       // 'length' => 255,
-      //  'not null' => TRUE,
-        'default' => '',
+        'type'        => 'blob',
+        'size'        => 'long',
+        'default'     => '',
         'description' => 'The Request'
       ),
       'time' => array(
-        'type' => 'int',
-				'length' => 11,
-        'default' => 0,
-				'not null' => TRUE,
+        'type'        => 'int',
+        'length'      => 11,
+        'default'     => 0,
+        'not null'    => TRUE,
         'description' => 'The time that this request should be processed. Default is 0 for a request that is processed instantaneously.'
       ),
       'response_data' => array(
-        'type' => 'LONGBLOB',
-        'default' => '',
+        'type'        => 'blob',
+        'default'     => '',
+        'size'        => 'long',
         'description' => 'The response of the request that we are going to be storing for an audit log.'
       )
     ),
