@@ -254,7 +254,6 @@ function _wc_core_oAuth_form($form, $form_state, $service) {
     
     $serviceCreds = _wc_core_getServiceCreds($service['name']);
 
-    
     $form[$service['name']] = array(
       '#type' => 'fieldset',
       '#title' => t(ucwords($service['name']).' Service Configuration'), '#tree' => TRUE,
@@ -594,11 +593,12 @@ function _wc_core_getServiceCreds($service_name) {
 
   if(!$creds){	
     $creds = db_select(WC_CORE_T_SERVICE)
-        ->fields(WC_CORE_T_SERVICE)
+        ->fields(WC_CORE_T_SERVICE, array('credentials'))
         ->condition('service_name', $service_name)
         ->execute()
-        ->fetchAssoc();
-  
+        ->fetchField();
+    
+    $creds = unserialize($creds);
     cache_set('wc_service_creds_'.$service_name, $creds);
   }
   else
@@ -626,21 +626,16 @@ function _wc_core_getUserCreds($service_name, $uid = 0) {
 	// Try the cache
 	$creds = cache_get('wc_user_creds_'.$service_name.'_'.$uid);
 	
-	// Find the service ID
-	$serviceCreds = _wc_core_getServiceCreds($service_name);
-	
-	// Invalid service creds
-	if (! $serviceCreds)
-		return FALSE;
 	
       if(!$creds){
         $creds = db_select(WC_CORE_T_USER)
-            ->fields(WC_CORE_T_USER)
-            ->condition('sid', $serviceCreds['sid'], '=')
+            ->fields(WC_CORE_T_USER, array('credentials'))
+            ->condition('sid', _wc_core_getServiceId($service_name), '=')
             ->condition('uid', $uid, '=')
             ->execute()
-            ->fetchAssoc();
+            ->fetchField();
             
+	$creds = unserialize($creds);
         cache_set('wc_user_creds_'.$service_name.'_'.$uid, $creds);
       }
       else
@@ -659,7 +654,9 @@ function _wc_core_setServiceCreds($service_name, $fields) {
         
         db_merge(WC_CORE_T_SERVICE)
 	  ->key(array('service_name' => $service_name))
-          ->fields($fields)
+          ->fields(array(
+	    'credentials' => serialize($fields),
+	  ))
           ->execute();
 	
 	wc_clear_cache();
@@ -674,6 +671,8 @@ function _wc_core_setServiceCreds($service_name, $fields) {
 **/
 function _wc_core_setUserCreds($service_name, $fields, $uid = null){
 
+
+ 
   //If no user id passed, retrieve the current
   if(!$uid) {
     global $user;
@@ -684,15 +683,12 @@ function _wc_core_setUserCreds($service_name, $fields, $uid = null){
 	wc_clear_cache();
 	
   try {
-      $sid = db_select(WC_CORE_T_SERVICE)
-        ->fields(WC_CORE_T_SERVICE, array('sid'))
-        ->condition('service_name', $service_name)
-        ->execute()
-        ->fetchCol();
-      
+        
       db_merge(WC_CORE_T_USER)
-        ->key(array('sid' => $sid, 'uid' => $uid))
-        ->fields($fields)
+        ->key(array('sid' => _wc_core_getServiceId($service_name), 'uid' => $uid))
+        ->fields(array(
+	    'credentials' => serialize($fields),
+	  ))
         ->execute();
   }
   catch (Exception $e) {
@@ -701,6 +697,28 @@ function _wc_core_setUserCreds($service_name, $fields, $uid = null){
       return false;
   }
   return true;
+}
+
+/**
+ * Retrieve the service's db id.
+ * This may be used in conjunction with the user's id to retrieve their
+ * credentials for a particular service.
+ *
+ * @return  int
+ */
+function _wc_core_getServiceId($service_name){
+  
+
+
+	
+    $id = db_select(WC_CORE_T_SERVICE)
+        ->fields(WC_CORE_T_SERVICE, array('sid'))
+        ->condition('service_name', $service_name)
+        ->execute()
+        ->fetchField();
+
+
+  return $id;
 }
 
 /**
