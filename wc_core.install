@@ -73,11 +73,23 @@ function wc_core_schema() {
         'description' => 'Foreign Key: User service ID'
       ),
       'request' => array(
-        'type' => 'LONGTEXT',
+        'type' => 'LONGBLOB',
        // 'length' => 255,
       //  'not null' => TRUE,
         'default' => '',
         'description' => 'The Request'
+      ),
+      'time' => array(
+        'type' => 'int',
+				'length' => 11,
+        'default' => 0,
+				'not null' => TRUE,
+        'description' => 'The time that this request should be processed. Default is 0 for a request that is processed instantaneously.'
+      ),
+      'response_data' => array(
+        'type' => 'LONGBLOB',
+        'default' => '',
+        'description' => 'The response of the request that we are going to be storing for an audit log.'
       )
     ),
     'foreign keys' => array(
