@@ -909,3 +909,48 @@ function wc_request_object($service)
   // Todo: Add OAuth Creds passing, API key passing, etc
   return new $class();
 }
+
+/**
+ * Add an item to the Core Queue
+ *
+ * We are going to add this item to a queue or we are going to process it instantaniously
+ *
+ * @param    string
+ * @param    string The Endpoint on the API to request
+ * @param    string The HTTP method (get, put, post, delete)
+ * @param    int The time to perform the request (if = 0, will be performed right now)
+ * @param    mixed The callback to be performed, see {@link http://php.net/manual/en/function.call-user-func-array.php}
+ * @return   int The request ID for the database
+ */
+function wc_perform_request($service, $endPoint = NULL, $http_method = 'get', $time = 0, $callback = NULL)
+{
+
+}
+
+/**
+ * Retrieve a request from the queue
+ *
+ * We can see if the request was performed and retrieve information about the request.
+ *
+ * @param  int The request ID
+ * @return object
+**/
+function wc_retrieve_request($id)
+{
+
+}
+
+/**
+ * Perform a request from the queue
+ *
+ * This is used internally to perform a request from the queue
+ *
+ * @access  private
+ * @param   int The request ID
+ * @param   bool Force the request to be run even if it hasn't met it's scheduled time
+ * @return  object The `wc_retrieve_request` for the request
+ */
+function _wc_perform_request($id, $force = FALSE)
+{
+  
+}
