@@ -13,8 +13,11 @@ function wc_vimeo_install(){
     //Create the initial record for this service
     $sid = db_insert(WC_CORE_T_SERVICE)
         ->fields(array(
-            'consumer_key' => '',
+            /*
+             *'consumer_key' => '',
             'consumer_secret' => '',
+            */
+            'credentials' => '',
             'service_name' => WC_VIMEO_SERVICE_NAME,
         ))
         ->execute();
