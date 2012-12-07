@@ -73,8 +73,8 @@ function wc_core_schema() {
         'description' => 'Foreign Key: User service ID'
       ),
       'request' => array(
-        'type' => 'varchar',
-        'length' => 255,
+        'type' => 'text',
+       // 'length' => 255,
       //  'not null' => TRUE,
         'default' => '',
         'description' => 'The Request'
