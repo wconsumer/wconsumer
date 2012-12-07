@@ -6,12 +6,15 @@
 function wc_core_schema() {
   $schema['wc_core_service'] = array(
     'description' => 'Stores Services',
+    
     'fields' => array(
       'sid' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Service ID'
       ),
+      
+      /* Commented fields to work towards common use through credential serialization
       'consumer_key' => array(
         'type' => 'varchar',
         'length' => 255,
@@ -26,13 +29,23 @@ function wc_core_schema() {
         'default' => '',
         'description' => 'The Consumer Secret'
       ),
+       */
       'service_name' => array(
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
         'description' => 'The name of the associated service provider'
-      )
+      ),
+      'credentials' => array(
+        'type' => 'varchar',
+        'length' => 4000,
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+        'description' => 'The serialized credentials object for this user'
+      ),
+     
     ),
     'primary key' => array(
       'sid'
@@ -106,6 +119,8 @@ function wc_core_schema() {
         'not null' => TRUE,
         'description' => 'Foreign Key: User ID'
       ),
+      
+      /* Commented fields to work towards common use through credential serialization
       'access_token' => array(
         'type' => 'varchar',
         'length' => 255,
@@ -119,6 +134,17 @@ function wc_core_schema() {
        // 'not null' => TRUE,
         'default' => '',
         'description' => 'The oAuth access token secret'
+      ),
+      */
+      
+      'credentials' => array(
+        'type' => 'varchar',
+        'length' => 4000,
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+        'description' => 'The serialized credentials object for this user'
+       
       )
     ),
     'foreign keys' => array(
