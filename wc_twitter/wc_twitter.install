@@ -1,6 +1,7 @@
 <?php
-if (! defined('WC_CORE_T_SERVICE'))
+if (! defined('WC_CORE_T_SERVICE')){
 	module_load_include('module', 'wc_core', 'wc_core');
+}
 
 //Define service specific values
 define('WC_TWITTER_SERVICE_NAME', 'twitter');
@@ -21,8 +22,11 @@ function wc_twitter_install(){
     //Create the initial record for this service
     $sid = db_insert(WC_CORE_T_SERVICE)
         ->fields(array(
-            'consumer_key' => '',
+            /*
+	    'consumer_key' => '',
             'consumer_secret' => '',
+            */
+	    'credentials' => '',
             'service_name' => WC_TWITTER_SERVICE_NAME,
         ))
         ->execute();
