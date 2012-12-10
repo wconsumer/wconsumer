@@ -895,3 +895,10 @@ function wc_clear_cache()
 {
   return cache_clear_all('wc_', 'cache', TRUE);
 }
+
+/**
+ *  Exception class we will be throwing in the module
+ *
+ * @package wc_core
+**/
+class WConsumerException extends Exception { }
