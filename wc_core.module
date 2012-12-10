@@ -460,6 +460,14 @@ function _wc_core_user_services_form($form, &$form_state)
 {
   $config = wc_get_services();
   
+  // If they don't have any services active
+  if (count($config) == 0) :
+    $form['no-active-services'] = array(
+          '#markup' => 'There are no Web Consumer Services active to manage.'
+        );
+    return $form;
+  endif;
+
   foreach ($config['service'] as $service) {
     $form[$service['name']] = array(
       '#type' => 'fieldset',
@@ -611,7 +619,11 @@ function _wc_core_token_request($service = '')
  **/
 function _wc_service_config_default()
 {
-  return 'Please select a service to manage from the tabs above.';
+  $services = wc_get_services();
+  if (count($services) == 0)
+    return 'You have no Web Consumer Services active to manage.';
+  else
+    return 'Please select a service to manage from the tabs above.';
 }
 
 /**
