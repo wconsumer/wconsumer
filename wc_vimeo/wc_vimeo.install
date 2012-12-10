@@ -1,4 +1,6 @@
 <?php
+if  (!defined('WC_CORE_T_SERVICE'))
+    module_load_include('module', 'wc_core', 'wc_core');
 
 //Define service specific values
 define('WC_VIMEO_SERVICE_NAME', 'vimeo');
