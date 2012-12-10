@@ -760,6 +760,22 @@ function _wc_core_getServiceId($service_name)
 }
 
 /**
+ * Retrieve the service's name from the id
+ *
+ * @param  int
+ * @return  string|void
+ */
+function _wc_core_getServiceName($sid)
+{
+  $id = db_select(WC_CORE_T_SERVICE)->fields(WC_CORE_T_SERVICE, array(
+    'service_name'
+  ))->condition('sid', $sid)->execute()->fetchField();
+  
+  
+  return $id;
+}
+
+/**
  * Check if a service has been setup
  * For OAuth, this means check if the consumer key/secret are set
  *

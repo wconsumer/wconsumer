@@ -40,8 +40,12 @@ function wc_perform_request($service, $endPoint = NULL, $arguments = array(), $h
     $time = (int) time;
     if ($time < 0) $time = 0;
 
+    // Get the user
+    global $user;
+    $uid = $user->uid;
+
     // Formulate the request
-    $request = compact($endPoint, $arguments, $http_method, $callback);
+    $request = compact($endPoint, $arguments, $http_method, $callback, $uid);
 
     // Store the request
     try {
@@ -111,7 +115,12 @@ function wc_retrieve_request($id)
  */
 function _wc_perform_request($id, $force = FALSE)
 {
-  
+    $request = db_select(WC_CORE_T_REQUEST)
+    ->fields(WC_CORE_T_REQUEST, array(
+        'suid', 'request', 'time', 'response_data'
+    ))
+    ->condition('service_name', $service_name)
+    ->execute()->fetchAssoc();
 }
 
 /**
