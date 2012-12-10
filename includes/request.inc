@@ -14,14 +14,14 @@
  *
  * @param    string
  * @param    string The Endpoint on the API to request
- * @param    array Optional Parameters to pass
+ * @param    array Optional Arguments to pass
  * @param    string The HTTP method (get, put, post, delete)
  * @param    int The time to perform the request (if = 0, will be performed right now)
  * @param    mixed The callback to be performed, see {@link http://php.net/manual/en/function.call-user-func-array.php}
  * @return    int|bool The request ID for the database or FALSE if it is failed
  * @throws   WConsumerException
  */
-function wc_perform_request($service, $endPoint = NULL, $http_method = 'get', $time = 0, $callback = NULL)
+function wc_perform_request($service, $endPoint = NULL, $arguments = array(), $http_method = 'get', $time = 0, $callback = NULL)
 {
     $services = wc_get_services();
 
@@ -40,7 +40,25 @@ function wc_perform_request($service, $endPoint = NULL, $http_method = 'get', $t
     $time = (int) time;
     if ($time < 0) $time = 0;
 
+    // Formulate the request
+    $request = compact($endPoint, $arguments, $http_method, $callback);
+
     // Store the request
+    try {
+        db_insert(WC_CORE_T_REQUEST)
+        ->fields(array(
+            'sid'                   =>_wc_core_getServiceId($service),
+            'request'           => serialize($request),
+            'time'                 => $time,
+            'response_data'     =>NULL,
+        ))->execute();
+    }
+    catch (Exception $e) {
+        watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
+        return FALSE;
+    }
+
+    $request_id = db_last_insert_id(WC_CORE_T_REQUEST, 'rid');
 
     // Are we going to perform it right now?
     return ($time == 0)  ? _wc_perform_request($request_id) : $request_id;
@@ -52,7 +70,7 @@ function wc_perform_request($service, $endPoint = NULL, $http_method = 'get', $t
  * We can see if the request was performed and retrieve information about the request.
  *
  * @param  int The request ID
- * @return object
+ * @return  object|void
 **/
 function wc_retrieve_request($id)
 {
@@ -69,7 +87,7 @@ function wc_retrieve_request($id)
     ->execute()->fetchAssoc();
 
     if ($request == FALSE)
-        return FALSE;
+        return NULL;
 
     // Automatically unserialize some things
     if (!is_null($request->request))
