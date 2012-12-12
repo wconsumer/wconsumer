@@ -146,10 +146,8 @@ function _wc_perform_request($id, $force = FALSE)
 
   // Get the service
   $service = _wc_core_getServiceName($request->suid);
-  if (! $service) :
+  if (! $service)
     throw new WConsumerException("Unknown service '{$request->suid}' for request '{$id}'.")
-    return FALSE;
-  endif;
 
   $config = wc_get_services();
   $serviceCreds = _wc_core_getServiceCreds($service);
