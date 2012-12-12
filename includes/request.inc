@@ -171,7 +171,7 @@ function _wc_perform_request($id, $force = FALSE)
 
   try {
     $perform = $object->oAuthRequest($url, strtoupper($requestData['http_method']), $requestData['arguments']);
-  } catch(Exception $e) {
+  } catch(OAuthException $e) {
     $isError = TRUE;
     $requestData['error'] = $e;
   }
