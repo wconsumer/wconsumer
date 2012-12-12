@@ -14,7 +14,7 @@ define('WC_CORE_T_REQUEST', 'wc_core_request');
 define('WC_CORE_EXCEPTION_CATEGORY', 'wc_core');
 
 // Load the request functions
-module_load_include('inc', 'wc_core', 'request');
+require_once(dirname(__FILE__).'/includes/request.inc');
 
 function wc_core_menu()
 {
