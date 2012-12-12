@@ -88,6 +88,14 @@ function wc_core_schema() {
         'type'        => 'blob',
         'size'        => 'big',
         'description' => 'The response of the request that we are going to be storing for an audit log.'
+      ),
+      'status'   => array(
+        'type'        => 'varchar',
+        'length'      => 20,
+        'not null'    => TRUE,
+        'default'     => 'pending',
+        'description' => 'The status of the request.'
+       
       )
     ),
     'foreign keys' => array(
