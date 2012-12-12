@@ -3,6 +3,7 @@ function wc_twitter_wc_config($config) {
   $config['service'] = array(
   	'twitter' => array(
   		'name'							=> 'twitter',
+      'apiBase'           => 'https://api.twitter.com/1.1/',
   		'accessTokenURL'		=> 'https://api.twitter.com/oauth/access_token',
   		'authenticateURL'		=> 'https://api.twitter.com/oauth/authenticate',
   		'authorizeURL'			=> 'https://api.twitter.com/oauth/authorize',
