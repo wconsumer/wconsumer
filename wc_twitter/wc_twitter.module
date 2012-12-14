@@ -110,7 +110,8 @@ print_r($connection);
 function wc_twitter_permission() {
   return array(
     'manage twitter' => array(
-      'title' => t('manage twitter')
+      'title' => t('Manage twitter'),
+			'description' => 't(Permits user to interact with this service)',
   ));
 }
 
