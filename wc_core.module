@@ -28,13 +28,12 @@ function wc_core_menu()
     // determines whether the current user should have access. The default is
     // user_access(), which we'll use in this case. Since it's the default,
     // we don't even have to enter it.
-    'access callback' => 'user_access',
+    'access callback' => 'wc_core_custom_access',
     // The 'access arguments' are passed to the 'access callback' to help it
     // do its job. In the case of user_access(), we need to pass a permission
     // as the first argument.
-    'access arguments' => array(
-      'manage twitter'
-    )
+    'access arguments' => array('authenticated user')
+    
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
@@ -547,10 +546,27 @@ function wc_core_permission()
 {
   return array(
     'manage web consumer' => array(
-      'title' => t('manage web consumer')
+      'title' => t('Manage web consumer'),
+			'description' => t('Grants access to settings/configuration pages which
+												 control child modules.'),
+			'restrict access' => TRUE,
     )
   );
 }
+
+/**
+ * Determine whether the current user has the role specified.
+ *
+ * @param $role_name
+ *   The role required for access
+ * @return bool
+ *   True if the acting user has the role specified.
+ */
+function wc_core_custom_access($role_name){
+  $access_granted = in_array($role_name, $GLOBALS['user']->roles);
+  return $access_granted;
+}
+
 function getAuthorizationURL($service)
 {
   global $base_url;
