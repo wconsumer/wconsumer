@@ -26,8 +26,7 @@ function wc_twitter_wc_config($config) {
   return $config;
 }
 function wc_twitter_menu() {
-	return;
-$items['wc_core/service/twitter/manager']                   = array(
+  $items['twitter']                   = array(
     // The title - do NOT use t() as t() is called automatically.
     'title' => 'Twitter',
     'type' => MENU_NORMAL_ITEM,
@@ -74,8 +73,18 @@ $items['wc_core/service/twitter/manager']                   = array(
 }
 
 function _wc_twitter() {
-	$message = 'manager';
-	return $message;
+  $object = new oAuthRequestor('twitter');
+  // var_dump($object->isSetup());
+  try {
+    $request = $object->request('search/tweets.json', array(
+      'q' => 'apple',
+    ));
+  } catch (WConsumerException $e) {
+    var_dump($e->getMessage());
+    exit;
+  }
+  $request = $object->retrieve(24);
+  var_dump($request);
 }
 function _wc_twitter_my_twitter() {
   $msg = 'test';
