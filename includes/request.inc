@@ -477,8 +477,6 @@ class oAuthRequestor
       ->condition('rid', $id)
       ->execute();
     } catch (Exception $e) {
-      var_dump($e->getMessage());
-      exit;
       watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
     }
 
