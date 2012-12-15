@@ -13,23 +13,6 @@ function wc_core_schema() {
         'not null' => TRUE,
         'description' => 'Primary Key: Service ID'
       ),
-      
-      /* Commented fields to work towards common use through credential serialization
-      'consumer_key' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-        'description' => 'The Consumer Key'
-      ),
-      'consumer_secret' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-        'description' => 'The Consumer Secret'
-      ),
-       */
       'service_name' => array(
         'type' => 'varchar',
         'length' => 255,
@@ -78,9 +61,10 @@ function wc_core_schema() {
         'description' => 'The Request'
       ),
       'time' => array(
-        'type'        => 'int',
-        'length'      => 11,
+        'type'        => 'numeric',
         'default'     => 0,
+        'precision'   => 11,
+        'scale'       => 0,
         'not null'    => TRUE,
         'description' => 'The time that this request should be processed. Default is 0 for a request that is processed instantaneously.'
       ),
@@ -95,8 +79,26 @@ function wc_core_schema() {
         'not null'    => TRUE,
         'default'     => 'pending',
         'description' => 'The status of the request.'
-       
-      )
+      ),
+      'moderate' => array(
+       'type'        => 'varchar',
+        'length'      => 1,
+        'default'     => 'Y',
+        'binary'      => TRUE,
+        'description' => 'Indication of need for moderation'
+      ),
+      'approver_uid' => array(
+       'type'        => 'int',
+        'size'      => 'big',
+        'description' => 'UID of request approver'
+      ),
+      'created_date' => array(
+       'type'        => 'numeric',
+        'precision'   => 11,
+        'scale'       => 0,
+        'not null'    => TRUE,
+        'description' => 'UID of request approver'
+      ),
     ),
     'foreign keys' => array(
       'suid' => array(
@@ -137,24 +139,6 @@ function wc_core_schema() {
         'not null' => TRUE,
         'description' => 'Foreign Key: User ID'
       ),
-      
-      /* Commented fields to work towards common use through credential serialization
-      'access_token' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        //'not null' => TRUE,
-        'default' => '',
-        'description' => 'The oAuth access token'
-      ),
-      'access_token_secret' => array(
-        'type' => 'varchar',
-        'length' => 255,
-       // 'not null' => TRUE,
-        'default' => '',
-        'description' => 'The oAuth access token secret'
-      ),
-      */
-      
       'credentials' => array(
         'type' => 'varchar',
         'length' => 4000,
