@@ -409,33 +409,28 @@ function _wc_core_callback($service = '')
   // creates the connection with the appropriate settings
   $connection = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret, $_SESSION[$service . '_oauth_token'], $_SESSION[$service . '_oauth_token_secret']);
-  print_r($connection);
+
   // gets the access tokens
   $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
-  // print_r($access_tokens);
-  //echo $service;
 
   $fields = array(
     'access_token' => $access_tokens['oauth_token'],
     'access_token_secret' => $access_tokens['oauth_token_secret']
   );
+
+  // Set the credentials
   _wc_core_setUserCreds($service, $fields);
-
-
   global $user;
 
   // If HTTP response is 200 continue otherwise send to connect page to retry this
   // needs fixed to get it to work right with reauthentication  currently this is
   // set to allways authenticate and it needs set to forward to the correct page,
   // but it might be possible to have a common page that they all go to
-  print_r($connection);
   if (200 == $connection->http_code) {
-    /* The user has been verified and the access tokens can be saved for future use */
-    //$_SESSION['status'] = 'verified';
     header('Location: ' . $base_url . '/user/' . $user->uid . '/wc_core');
-  } //200 == $connection->http_code
-  else {
-    /* Save HTTP status for error dialog on connnect page.*/
+  } else {
+    // Save HTTP status for error dialog on connnect page.
+    print_r($connection);
     header('Location: ./');
   }
 
@@ -562,10 +557,8 @@ function wc_core_permission()
 /**
  * Determine whether the current user has the role specified.
  *
- * @param $role_name
- *   The role required for access
- * @return bool
- *   True if the acting user has the role specified.
+ * @param $role_name The role required for access
+ * @return bool True if the acting user has the role specified.
  */
 function wc_core_custom_access($role_name){
   $access_granted = in_array($role_name, $GLOBALS['user']->roles);
