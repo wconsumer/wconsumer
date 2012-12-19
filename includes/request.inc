@@ -112,6 +112,7 @@ class oAuthRequestor
         'time' => $time,
         'response_data' => NULL,
         'status' => 'pending',
+        'moderate' => 'N',
         'created_date' => time()
       ))->execute();
     }
