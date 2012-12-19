@@ -534,12 +534,17 @@ function _wc_core_account_status($service)
 }
 function _wc_core_user_services_form_submit($form, &$form_state)
 {
-  if (wc_check_service_auth($form_state['values']['service-name'])):
+  if (! isset($form_state['clicked_button']) || !isset($form_state['clicked_button']['#name']))
+    drupal_exit();
+
+  $service = $form_state['clicked_button']['#name'];
+
+  if (wc_check_service_auth($service)) :
   // Revoking
-    _wc_core_revoke($form_state['values']['service-name']);
+    _wc_core_revoke($service);
     drupal_set_message(t('Service revoked'));
   else:
-    getAuthorizationURL($form_state['values']['service-name']);
+    getAuthorizationURL($service);
   endif;
 }
 function wc_core_permission()
