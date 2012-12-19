@@ -1,23 +1,23 @@
 <?php
-function wc_twitter_wc_config($config) {	
+function wc_twitter_wc_config($config) {
   $config['service'] = array(
-  	'twitter' => array(
-  		'name'							=> 'twitter',
-      'apiBase'           => 'https://api.twitter.com/1.1/',
-  		'accessTokenURL'		=> 'https://api.twitter.com/oauth/access_token',
-  		'authenticateURL'		=> 'https://api.twitter.com/oauth/authenticate',
-  		'authorizeURL'			=> 'https://api.twitter.com/oauth/authorize',
-  		'requestTokenURL'		=> 'https://api.twitter.com/oauth/request_token',
-			
+    'twitter' => array(
+      'name' => 'twitter',
+      'apiBase' => 'https://api.twitter.com/1.1/',
+      'accessTokenURL' => 'https://api.twitter.com/oauth/access_token',
+      'authenticateURL' => 'https://api.twitter.com/oauth/authenticate',
+      'authorizeURL' => 'https://api.twitter.com/oauth/authorize',
+      'requestTokenURL' => 'https://api.twitter.com/oauth/request_token',
+
 			// Where to send them when they want to create an application
 			'applicationCreateURL' => 'https://dev.twitter.com/apps/new',
-			
+
 			// Are we going to validate the OAuth Credentials (default is on)
 			'validate'					=> TRUE,
-			
+
 			// What they're going to call to load information about the user
 			'userInfoMethod'		=> 'account/verify_credentials',
-			
+
 			// The item in the method above that is going to have the user information
 			// You can also specify a callback function
 			'userInfoItem'			=> '_wc_twitter_welcome',
@@ -67,8 +67,8 @@ function wc_twitter_menu() {
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
 
-      
-  
+
+
     return $items;
 }
 
@@ -95,7 +95,7 @@ $config                  = array();
 
   //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
   $config                  = module_invoke_all('wc_config', $config);
-  
+
 $service = 'twitter';
   // this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
   $accessTokenURL          = $config['service'][$service]['accessTokenURL'];

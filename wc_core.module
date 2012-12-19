@@ -369,7 +369,7 @@ function _wc_core_oAuth_form_submit($form, $form_state)
       drupal_set_message(t('Service configuration saved.'));
     else:
       // Failed
-      drupal_set_message(t('Service configuration is invalid (check your consumer key/secret).'));
+      drupal_set_message(t('Service configuration is invalid (check your consumer key/secret).'), 'error');
     endif;
   }
 }
