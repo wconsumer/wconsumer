@@ -8,7 +8,7 @@
 
 /**
  * API Requestor Class
- * 
+ *
  * @package wc_core
  */
 class oAuthRequestor
@@ -18,7 +18,6 @@ class oAuthRequestor
 
   /**
    *  Constructor
-   * 
    */
   public function __construct($service)
   {
@@ -57,7 +56,7 @@ class oAuthRequestor
 
     if (!is_null($request->response_data))
         $request->response_data = unserialize($request->response_data);
-    
+
     return $request;
   }
 
@@ -108,11 +107,12 @@ class oAuthRequestor
     try {
         $insert = db_insert(WC_CORE_T_REQUEST)
         ->fields(array(
-            'suid'          => $this->serviceId,
-            'request'     => serialize($request),
-            'time'          => $time,
-            'response_data'   => NULL,
-            'status'        => 'pending',
+        'suid'        => $this->serviceId,
+        'request'   => serialize($request),
+        'time'        => $time,
+        'response_data'  => NULL,
+        'status'              => 'pending',
+        'created_date'  => time(),
         ))->execute();
     }
     catch (Exception $e) {
@@ -121,10 +121,10 @@ class oAuthRequestor
         throw new WConsumerException($e->getMessage());
         return FALSE;
     }
-    
+
     // It returns the insert ID as a string
     $insert = (int) $insert;
-    
+
     // Are we going to perform it right now?
     return ($time == 0)  ? $this->perform($insert) : $insert;
   }

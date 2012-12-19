@@ -97,7 +97,7 @@ function wc_core_schema() {
         'precision'   => 11,
         'scale'       => 0,
         'not null'    => TRUE,
-        'description' => 'UID of request approver'
+        'description' => 'Time of request creation',
       ),
     ),
     'foreign keys' => array(
