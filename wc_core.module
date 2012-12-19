@@ -769,8 +769,7 @@ function _wc_core_getServiceId($service_name)
     'sid'
   ))->condition('service_name', $service_name)->execute()->fetchField();
 
-
-  return $id;
+  return (int) $id;
 }
 
 /**
@@ -781,12 +780,9 @@ function _wc_core_getServiceId($service_name)
  */
 function _wc_core_getServiceName($sid)
 {
-  $id = db_select(WC_CORE_T_SERVICE)->fields(WC_CORE_T_SERVICE, array(
+  return db_select(WC_CORE_T_SERVICE)->fields(WC_CORE_T_SERVICE, array(
     'service_name'
   ))->condition('sid', $sid)->execute()->fetchField();
-
-
-  return $id;
 }
 
 /**
