@@ -33,7 +33,7 @@ function wc_core_menu()
     // do its job. In the case of user_access(), we need to pass a permission
     // as the first argument.
     'access arguments' => array('authenticated user')
-    
+
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
@@ -56,33 +56,33 @@ function wc_core_menu()
     // The optional weight element tells how to order the submenu items.
     // Higher weights are "heavier", dropping to the bottom of the menu.
   );
-  
+
   // Service Settings
   $items['wc_core/settings'] = array(
     'title' => 'Settings',
     'type' => MENU_NORMAL_ITEM,
     'description' => 'Manage Service Settings',
     'page callback' => '_wc_service_config_default',
-    
+
     // For a permissioned menu entry, we provide an access callback which
     // determines whether the current user should have access. The default is
     // user_access(), which we'll use in this case. Since it's the default,
     // we don't even have to enter it.
     'access callback' => 'user_access',
-    
+
     'access arguments' => array(
       'manage web consumer'
     )
   );
-  
+
   // Default Tab
-  
+
   $items['wc_core/settings/default'] = array(
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'title' => 'Settings Management',
     'weight' => 1
   );
-  
+
   $config = array();
   $config = module_invoke_all('wc_config', $config);
   // Only one array item (not counting oauthCallback)
@@ -96,12 +96,12 @@ function wc_core_menu()
         'type' => MENU_LOCAL_TASK,
         'description' => 'Manage Service',
         'page callback' => '_wc_core_service_manager',
-        
+
         // The service name
         'page arguments' => array(
           2
         ),
-        
+
         // For a permissioned menu entry, we provide an access callback which
         // determines whether the current user should have access. The default is
         // user_access(), which we'll use in this case. Since it's the default,
@@ -119,8 +119,8 @@ function wc_core_menu()
       );
     endforeach;
   endif;
-  
-  
+
+
   $items['wc_core/callback/%'] = array(
     // A type of MENU_CALLBACK means leave the path completely out of the menu
     // links.
@@ -128,17 +128,17 @@ function wc_core_menu()
     // The title is still used for the page title, even though it's not used
     // for the menu link text, since there's no menu link.
     'title' => 'Callback Only',
-    
+
     'page callback' => '_wc_core_callback',
-    
+
     // They pass the first argument as the service name
     'page arguments' => array(
       2
     ),
-    
+
     'access callback' => TRUE
   );
-  
+
   /*
   // Now provide the actual permissioned menu item.
   $items['user/%/wc_core/authorize/%'] = array(
@@ -152,10 +152,10 @@ function wc_core_menu()
   // user_access(), which we'll use in this case. Since it's the default,
   // we don't even have to enter it.
   'access callback' => 'user_access',
-  
+
   // Service Name
   'page arguments' => array(1),
-  
+
   // The 'access arguments' are passed to the 'access callback' to help it
   // do its job. In the case of user_access(), we need to pass a permission
   // as the first argument.
@@ -171,10 +171,10 @@ function wc_core_menu()
   'type'            => MENU_LOCAL_TASK,
   'description'   => 'Get Oauth Tokens',
   'page callback' => '_wc_core_revoke',
-  
+
   // The service name
   'page arguments'  => array(1),
-  
+
   // For a permissioned menu entry, we provide an access callback which
   // determines whether the current user should have access. The default is
   // user_access(), which we'll use in this case. Since it's the default,
@@ -196,10 +196,10 @@ function _wc_core_revoke($service = '')
 {
   if ($service == '')
     drupal_exit();
-  
+
   unset($_SESSION[$service . '_oauth_token']);
   unset($_SESSION[$service . '_oauth_token_secret']);
-  
+
   $fields = array(
     'access_token' => null,
     'access_token_secret' => null
@@ -207,9 +207,9 @@ function _wc_core_revoke($service = '')
   //Blank the credentials, records should stay in place to prevent orphans
   //due to requests which may have already been made.
   _wc_core_setUserCreds($service, $fields);
-  
+
   $message = 'done';
-  
+
   return $message;
 }
 function _wc_core_manager()
@@ -226,32 +226,32 @@ function _wc_core_manager()
 function _wc_core_service_manager($service = '')
 {
   global $base_url;
-  
+
   // Throw a 404 if nothing is passed
   if ($service == '')
     return drupal_not_found();
-  
+
   //sets the default call back url
   $config                  = array();
   $config['oauthCallback'] = url('wc_core/callback/' . $service, array(
     'absolute' => TRUE
   ));
-  
+
   // Get the list of files
   $config = wc_get_services($config);
-  
+
   // Only one array item (not counting oauthCallback)
   if (!isset($config['service']) OR count($config['service']) == 0 OR !isset($config['service'][$service]))
     return drupal_not_found();
-  
+
   if (!isset($config['service'][$service]['authMethod']))
     $config['service'][$service]['authMethod'] = 'oauth';
-  
+
   switch ($config['service'][$service]['authMethod']) {
     case 'apiKey':
       return drupal_get_form('_wc_core_apiAuth_form', $config['service'][$service]);
       break;
-    
+
     // Defaults back to oauth Could change this in the future
     default:
       return drupal_get_form('_wc_core_oAuth_form', $config['service'][$service]);
@@ -269,21 +269,21 @@ function _wc_core_service_manager($service = '')
 function _wc_core_oAuth_form($form, $form_state, $service)
 {
   $serviceCreds = _wc_core_getServiceCreds($service['name']);
-  
+
   $form[$service['name']] = array(
     '#type' => 'fieldset',
     '#title' => t(ucwords($service['name']) . ' Service Configuration'),
     '#tree' => TRUE,
     '#access' => _wc_core_user_account_access($service['name'])
   );
-  
+
   if (isset($service['applicationCreateURL'])):
     $form[$service['name']]['create_app_url'] = array(
       '#markup' => t('You can create an application at <a
                       href="' . $service['applicationCreateURL'] . '">' . $service['applicationCreateURL'] . '</a>.')
     );
   endif;
-  
+
   $form[$service['name']]['createAppUrl'] = array(
     '#type' => 'item',
     '#title' => 'Application Callback URL',
@@ -292,8 +292,8 @@ function _wc_core_oAuth_form($form, $form_state, $service)
       'absolute' => TRUE
     ))
   );
-  
-  
+
+
   $form[$service['name']]['consumer-key'] = array(
     '#type' => 'textfield',
     '#title' => 'Consumer Key',
@@ -303,7 +303,7 @@ function _wc_core_oAuth_form($form, $form_state, $service)
     '#default_value' => $serviceCreds['consumer_key'],
     '#required' => TRUE
   );
-  
+
   $form[$service['name']]['consumer-secret'] = array(
     '#type' => 'textfield',
     '#title' => 'Consumer Secret',
@@ -313,17 +313,17 @@ function _wc_core_oAuth_form($form, $form_state, $service)
     '#default_value' => $serviceCreds['consumer_secret'],
     '#required' => TRUE
   );
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save Configuration')
   );
-  
+
   $form['service-name'] = array(
     '#type' => 'hidden',
     '#value' => $service['name']
   );
-  
+
   return $form;
 }
 
@@ -334,38 +334,38 @@ function _wc_core_oAuth_form_submit($form, $form_state)
 {
   // The POST Data
   $values = $form_state['values'];
-  
+
   //Causing abnormal page abortion - commented for workaround
   //if (! isset($values['service-name']) )
   //  drupal_exit();
-  
+
   // Service Config
   $service_name = $values['service-name'];
   $services     = wc_get_services();
-  
+
   // Causing abnormal page abortion - commented for workaround
   // Validate
   //if (count($service['service']) == 0 OR ! isset($service['service'][$service_name]) )
   //  drupal_exit();
   //else
   //  $service_config = $service['service'][$service_name];
-  
+
   // Causing abnormal page abortion - commented for workaround
   //if (! isset($values[$service]) )
   //  drupal_exit();
-  
+
   $fields = array(
     'consumer_key' => $values[$service_name]['consumer-key'],
     'consumer_secret' => $values[$service_name]['consumer-secret']
   );
-  
+
   // Give them the option to turn off validation
   if ((!isset($service_config['validate'])) OR (isset($service_config['validate']) AND $service_config['validate'])) {
     // Let's try validating it
     if (wc_test_service($service_name, $fields['consumer_key'], $fields['consumer_secret'])):
     // Passed
       _wc_core_setServiceCreds($service_name, $fields);
-      
+
       drupal_set_message(t('Service configuration saved.'));
     else:
       // Failed
@@ -377,26 +377,26 @@ function _wc_core_oAuth_form_submit($form, $form_state)
 function _wc_core_callback($service = '')
 {
   global $base_url;
-  
+
   // Throw a 404 if nothing is passed
   if ($service == '')
     return drupal_not_found();
-  
+
   //loads the include file
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
-  
+
   //Retrieve user's creds
   $serviceCreds = _wc_core_getServiceCreds($service);
-  
+
   //sets the default call back url
   $config                  = array();
   $config['oauthCallback'] = $base_url . 'wc_core/callback/' . $service;
   $config                  = module_invoke_all('wc_config', $config);
-  
+
   // Only one array item (not counting oauthCallback)
   if (!isset($config['service']) OR count($config['service']) == 0 OR !isset($config['service'][$service]))
     return drupal_not_found();
-  
+
   // this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
   $accessTokenURL  = $config['service'][$service]['accessTokenURL'];
   $authenticateURL = $config['service'][$service]['authenticateURL'];
@@ -405,7 +405,7 @@ function _wc_core_callback($service = '')
   $consumerSecret  = $serviceCreds['consumer_secret'];
   $consumerKey     = $serviceCreds['consumer_key'];
   $oAuthCallback   = $config['oauthCallback'];
-  
+
   // creates the connection with the appropriate settings
   $connection = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret, $_SESSION[$service . '_oauth_token'], $_SESSION[$service . '_oauth_token_secret']);
@@ -413,17 +413,17 @@ function _wc_core_callback($service = '')
   // gets the access tokens
   $access_tokens = $connection->getAccessToken($_REQUEST['oauth_verifier']);
   // print_r($access_tokens);
-  //echo $service;   
-  
+  //echo $service;
+
   $fields = array(
     'access_token' => $access_tokens['oauth_token'],
     'access_token_secret' => $access_tokens['oauth_token_secret']
   );
   _wc_core_setUserCreds($service, $fields);
-  
-  
+
+
   global $user;
-  
+
   // If HTTP response is 200 continue otherwise send to connect page to retry this
   // needs fixed to get it to work right with reauthentication  currently this is
   // set to allways authenticate and it needs set to forward to the correct page,
@@ -438,8 +438,8 @@ function _wc_core_callback($service = '')
     /* Save HTTP status for error dialog on connnect page.*/
     header('Location: ./');
   }
-  
-  
+
+
 }
 function forEachArray($array)
 {
@@ -467,7 +467,7 @@ function _wc_core_user_services()
 function _wc_core_user_services_form($form, &$form_state)
 {
   $config = wc_get_services();
-  
+
   // If they don't have any services active
   if (count($config) == 0) :
     $form['no-active-services'] = array(
@@ -483,7 +483,7 @@ function _wc_core_user_services_form($form, &$form_state)
       '#tree' => TRUE,
       '#access' => _wc_core_user_account_access($service['name'])
     );
-    
+
     // If they are setup?
     if (wc_check_service($service['name'])):
     // Show who they are
@@ -508,7 +508,7 @@ function _wc_core_user_services_form($form, &$form_state)
         '#name' => $service['name'],
         '#value' => (!wc_check_service_auth($service['name'])) ? t('Authenticate ' . ucfirst($service['name'])) : t('Revoke ' . ucfirst($service['name'])),
         '#executes_submit_callback' => TRUE
-        //'#submit' => array('_wc_core_user_services_form_submit'), 
+        //'#submit' => array('_wc_core_user_services_form_submit'),
       );
     else:
     // Not setup yet
@@ -516,7 +516,7 @@ function _wc_core_user_services_form($form, &$form_state)
         '#markup' => 'You haven\'t setup this service yet so you may not authenticate with it.'
       );
     endif;
-    
+
   } //$config['service'] as $service
   return $form;
 }
@@ -570,16 +570,16 @@ function wc_core_custom_access($role_name){
 function getAuthorizationURL($service)
 {
   global $base_url;
-  
+
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
   $config = wc_get_services();
-  
+
   drupal_set_message(t('Config : @var', array(
     '@var' => print_r($config['service'][$service], TRUE)
   )), 'butterflies');
-  
+
   $serviceCreds = _wc_core_getServiceCreds($service);
-  
+
   $serviceName     = $service;
   $accessTokenURL  = $config['service'][$service]['accessTokenURL'];
   $authenticateURL = $config['service'][$service]['authenticateURL'];
@@ -587,20 +587,20 @@ function getAuthorizationURL($service)
   $requestTokenURL = $config['service'][$service]['requestTokenURL'];
   $consumerKey     = $serviceCreds['consumer_key'];
   $consumerSecret  = $serviceCreds['consumer_secret'];
-  
-  
+
+
   // $oAuthCallback   = 'http://www.webizly.biz/wc_core/callback/'.$service;
   $oAuthCallback = $base_url . '/wc_core/callback/' . $service;
   echo 'service';
-  
+
   $connection = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
   $connection->createConnection($consumerKey, $consumerSecret);
   $request_token = $connection->getRequestToken($oAuthCallback);
-  
+
   $_SESSION[$service . '_oauth_token']        = $token = $request_token['oauth_token'];
   $_SESSION[$service . '_oauth_token_secret'] = $request_token['oauth_token_secret'];
   $url                                        = $connection->createAuthorizeURL($_SESSION[$service . '_oauth_token'], FALSE);
-  
+
   drupal_set_message(t('Config : @var @appData', array(
     '@var' => print_r($request_token, TRUE),
     '@appData' => print_r(array(
@@ -609,7 +609,7 @@ function getAuthorizationURL($service)
       $oAuthCallback
     ), TRUE)
   )), 'butterflies');
-  
+
   drupal_goto($url, array(
     'external' => TRUE
   ));
@@ -618,15 +618,15 @@ function _wc_core_token_request($service = '')
 {
   if ($service == '')
     drupal_exit();
-  
-  
+
+
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
   module_load_include('inc', 'wc_core', 'includes/twitteroauth');
-  
+
   $serviceCreds = _wc_core_getServiceCreds($service);
-  
+
   define($service . 'OAUTH_CALLBACK', url('wc_core/callback/' . $service));
-  
+
   $connection                                 = new TwitterOAuth($serviceCreds['consumer_key'], $serviceCreds['consumer_secret']);
   /* Get temporary credentials. */
   $request_token                              = $connection->getRequestToken(OAUTH_CALLBACK);
@@ -661,17 +661,17 @@ function _wc_core_getServiceCreds($service_name)
 {
   // Try the cache
   $creds = cache_get('wc_service_creds_' . $service_name);
-  
+
   if (!$creds) {
     $creds = db_select(WC_CORE_T_SERVICE)->fields(WC_CORE_T_SERVICE, array(
       'credentials'
     ))->condition('service_name', $service_name)->execute()->fetchField();
-    
+
     $creds = unserialize($creds);
     cache_set('wc_service_creds_' . $service_name, $creds);
   } else
     $creds = $creds->data;
-  
+
   return $creds;
 }
 
@@ -690,21 +690,21 @@ function _wc_core_getUserCreds($service_name, $uid = 0)
   } else {
     $uid = (int) $uid;
   }
-  
+
   // Try the cache
   $creds = cache_get('wc_user_creds_' . $service_name . '_' . $uid);
-  
-  
+
+
   if (!$creds) {
     $creds = db_select(WC_CORE_T_USER)->fields(WC_CORE_T_USER, array(
       'credentials'
     ))->condition('sid', _wc_core_getServiceId($service_name), '=')->condition('uid', $uid, '=')->execute()->fetchField();
-    
+
     $creds = unserialize($creds);
     cache_set('wc_user_creds_' . $service_name . '_' . $uid, $creds);
   } else
     $creds = $creds->data;
-  
+
   return $creds;
 }
 
@@ -721,7 +721,7 @@ function _wc_core_setServiceCreds($service_name, $fields)
   ))->fields(array(
     'credentials' => serialize($fields)
   ))->execute();
-  
+
   wc_clear_cache();
 }
 
@@ -739,10 +739,10 @@ function _wc_core_setUserCreds($service_name, $fields, $uid = null)
     global $user;
     $uid = $user->uid;
   }
-  
+
   // Clear the cache before everything
   wc_clear_cache();
-  
+
   try {
     db_merge(WC_CORE_T_USER)->key(array(
       'sid' => _wc_core_getServiceId($service_name),
@@ -770,8 +770,8 @@ function _wc_core_getServiceId($service_name)
   $id = db_select(WC_CORE_T_SERVICE)->fields(WC_CORE_T_SERVICE, array(
     'sid'
   ))->condition('service_name', $service_name)->execute()->fetchField();
-  
-  
+
+
   return $id;
 }
 
@@ -786,8 +786,8 @@ function _wc_core_getServiceName($sid)
   $id = db_select(WC_CORE_T_SERVICE)->fields(WC_CORE_T_SERVICE, array(
     'service_name'
   ))->condition('sid', $sid)->execute()->fetchField();
-  
-  
+
+
   return $id;
 }
 
@@ -803,15 +803,15 @@ function wc_check_service($service)
   $services = wc_get_services();
   if (!isset($services['service']) OR !isset($services['service'][$service]))
     return FALSE;
-  
+
   if (!isset($services['service'][$service]['authMethod']))
     $services['service'][$service]['authMethod'] = 'oauth';
-  
+
   switch ($services['service'][$service]['authMethod']) {
     case 'apiKey':
-      
+
       break;
-    
+
     // OAuth
     default:
       // Todo: add secondary checks here
@@ -837,20 +837,20 @@ function wc_check_service_auth($service, $uid = 0)
   $services = wc_get_services();
   if (!isset($services['service']) OR !isset($services['service'][$service]))
     return FALSE;
-  
+
   if (!isset($services['service'][$service]['authMethod']))
     $services['service'][$service]['authMethod'] = 'oauth';
-  
+
   switch ($services['service'][$service]['authMethod']) {
     case 'apiKey':
-      
+
       break;
-    
+
     // OAuth
     default:
       // Todo: Add secondary checks here (perform oauth call)
       $creds = _wc_core_getUserCreds($service, $uid);
-      
+
       if (!$creds OR ($creds['access_token'] == NULL OR $creds['access_token_secret'] == NULL))
         return FALSE;
       else
@@ -870,13 +870,13 @@ function wc_check_service_auth($service, $uid = 0)
 function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL)
 {
   global $base_url;
-  
+
   $services = wc_get_services();
   $config   = $services['service'][$service];
-  
+
   if (!isset($services['service'][$service]))
     return FALSE;
-  
+
   if ($consumer_key == NULL OR $consumer_secret == NULL):
   // Check if there are even config values
     if (!wc_check_service($service))
@@ -885,23 +885,23 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
     $consumer_key    = $creds['consumer_key'];
     $consumer_secret = $creds['consumer_secret'];
   endif;
-  
+
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
-  
+
   // Make a new connection
   $connection = new oauthConnectionDrupal($config['accessTokenURL'], $config['authenticateURL'], $config['authorizeURL'], $config['requestTokenURL']);
   $connection->createConnection($consumer_key, $consumer_secret);
-  
+
   // Make a test request to get a request token
-  
+
   // We need to make a manual request because it will throw an error if it's invalid
   $parameters = array(
     'oauth_callback' => $base_url . '/wc_core/callback/' . $service
   );
-  
+
   $request       = $connection->oAuthRequest($connection->getRequestTokenURL(), 'GET', $parameters);
   $request_token = OAuthUtil::parse_parameters($request);
-  
+
   if (!is_array($request_token) OR !isset($request_token['oauth_callback_confirmed']))
     return FALSE;
   else

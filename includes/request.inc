@@ -21,7 +21,7 @@ class oAuthRequestor
    */
   public function __construct($service)
   {
-    $this->service = $service;
+    $this->service   = $service;
     $this->serviceId = _wc_core_getServiceId($service);
   }
 
@@ -32,30 +32,30 @@ class oAuthRequestor
    *
    * @param  int The request ID
    * @return  array|void A database row with the request and response data unserialized
-  **/
+   **/
   public function retrieve($id)
   {
     // Sanitize
     $id = (int) $id;
-    if ($id <= 0) return NULL;
+    if ($id <= 0)
+      return NULL;
 
-    $request = db_select(WC_CORE_T_REQUEST)
-      ->fields(WC_CORE_T_REQUEST, array(
-        'request', 'response_data', 'time', 'status'
-      ))
-      ->condition('rid', $id)
-      ->condition('suid', $this->serviceId)
-      ->execute()->fetchAssoc();
+    $request = db_select(WC_CORE_T_REQUEST)->fields(WC_CORE_T_REQUEST, array(
+      'request',
+      'response_data',
+      'time',
+      'status'
+    ))->condition('rid', $id)->condition('suid', $this->serviceId)->execute()->fetchAssoc();
 
     if ($request == FALSE)
-        return NULL;
+      return NULL;
 
     // Automatically unserialize some things
     if (!is_null($request->request))
-        $request->request = unserialize($request->request);
+      $request->request = unserialize($request->request);
 
     if (!is_null($request->response_data))
-        $request->response_data = unserialize($request->response_data);
+      $request->response_data = unserialize($request->response_data);
 
     return $request;
   }
@@ -86,15 +86,16 @@ class oAuthRequestor
     $services = wc_get_services();
 
     // Sanitize the arguments
-    if (! isset($services['service'][$this->service]))
-        throw new WConsumerException('Unknown service passed: '.$service);
+    if (!isset($services['service'][$this->service]))
+      throw new WConsumerException('Unknown service passed: ' . $service);
 
-    if ($callback !== NULL && ! is_callable($callback))
-        throw new WConsumerException('Unknown callback '.print_r($callback, TRUE));
+    if ($callback !== NULL && !is_callable($callback))
+      throw new WConsumerException('Unknown callback ' . print_r($callback, TRUE));
 
     $http_method = (is_null($http_method)) ? 'get' : strtolower($http_method);
-    $time = (int) time;
-    if ($time < 0) $time = 0;
+    $time        = (int) time;
+    if ($time < 0)
+      $time = 0;
 
     // Get the user
     global $user;
@@ -105,28 +106,27 @@ class oAuthRequestor
 
     // Store the request
     try {
-        $insert = db_insert(WC_CORE_T_REQUEST)
-        ->fields(array(
-        'suid'        => $this->serviceId,
-        'request'   => serialize($request),
-        'time'        => $time,
-        'response_data'  => NULL,
-        'status'              => 'pending',
-        'created_date'  => time(),
-        ))->execute();
+      $insert = db_insert(WC_CORE_T_REQUEST)->fields(array(
+        'suid' => $this->serviceId,
+        'request' => serialize($request),
+        'time' => $time,
+        'response_data' => NULL,
+        'status' => 'pending',
+        'created_date' => time()
+      ))->execute();
     }
     catch (Exception $e) {
-        watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
+      watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
 
-        throw new WConsumerException($e->getMessage());
-        return FALSE;
+      throw new WConsumerException($e->getMessage());
+      return FALSE;
     }
 
     // It returns the insert ID as a string
     $insert = (int) $insert;
 
     // Are we going to perform it right now?
-    return ($time == 0)  ? $this->perform($insert) : $insert;
+    return ($time == 0) ? $this->perform($insert) : $insert;
   }
 
   /**
@@ -141,33 +141,33 @@ class oAuthRequestor
    */
   public function perform($id, $force = FALSE)
   {
-    $request = db_select(WC_CORE_T_REQUEST)
-      ->fields(WC_CORE_T_REQUEST, array(
-        'suid', 'request', 'time', 'response_data', 'status'
-      ))
-      ->condition('rid', $id)
-      ->condition('suid', $this->serviceId)
-      ->execute()->fetchAssoc();
+    $request = db_select(WC_CORE_T_REQUEST)->fields(WC_CORE_T_REQUEST, array(
+      'suid',
+      'request',
+      'time',
+      'response_data',
+      'status'
+    ))->condition('rid', $id)->condition('suid', $this->serviceId)->execute()->fetchAssoc();
 
     // Nothing Found
-    if (! $request)
+    if (!$request)
       return FALSE;
 
     // Tear apart the variables
     $requestData = unserialize($request['request']);
 
     // It is already complete
-    if (($request->status == 'completed' || $request->status == 'error') && ! $force)
+    if (($request->status == 'completed' || $request->status == 'error') && !$force)
       return $this->retrieve($id);
 
     // Check the time
-    if ($request->time > time() && ! $force)
+    if ($request->time > time() && !$force)
       return $this->retrieve($id);
 
     // Get the service
-    $config = wc_get_services();
+    $config       = wc_get_services();
     $serviceCreds = _wc_core_getServiceCreds($this->service);
-    $userCreds = _wc_core_getUserCreds($this->service);
+    $userCreds    = _wc_core_getUserCreds($this->service);
 
     $accessTokenURL  = $config['service'][$this->service]['accessTokenURL'];
     $authenticateURL = $config['service'][$this->service]['authenticateURL'];
@@ -177,20 +177,21 @@ class oAuthRequestor
     $consumerSecret  = $serviceCreds['consumer_secret'];
 
     if (!class_exists('oauthConnectionDrupal'))
-      require_once(dirname(__FILE__).'/oauth-class.inc');
+      require_once(dirname(__FILE__) . '/oauth-class.inc');
 
     $object = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
     $object->createConnection($consumerKey, $consumerSecret, $userCreds['access_token'], $userCreds['access_token_secret']);
 
     // Make the Request
-    $url = $config['service'][$this->service]['apiBase'].$requestData['endPoint'];
-    $isError = FALSE;
+    $url                  = $config['service'][$this->service]['apiBase'] . $requestData['endPoint'];
+    $isError              = FALSE;
     $requestData['error'] = NULL;
 
     try {
       $perform = $object->oAuthRequest($url, strtoupper($requestData['http_method']), $requestData['arguments']);
-    } catch(OAuthException $e) {
-      $isError = TRUE;
+    }
+    catch (OAuthException $e) {
+      $isError              = TRUE;
       $requestData['error'] = $e;
     }
 
@@ -207,15 +208,13 @@ class oAuthRequestor
 
     // Update the database
     try {
-      $update = db_update(WC_CORE_T_REQUEST)
-      ->fields(array(
-        'request'               => serialize($requestData),
-        'response_data'   => serialize($response),
-        'status'                  => ($isError) ? 'error' : 'completed',
-      ))
-      ->condition('rid', $id)
-      ->execute();
-    } catch (Exception $e) {
+      $update = db_update(WC_CORE_T_REQUEST)->fields(array(
+        'request' => serialize($requestData),
+        'response_data' => serialize($response),
+        'status' => ($isError) ? 'error' : 'completed'
+      ))->condition('rid', $id)->execute();
+    }
+    catch (Exception $e) {
       watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
     }
 
@@ -233,22 +232,25 @@ class oAuthRequestor
    * @return  mixed
    * @access  private
    */
-  private function interpretResponse($rawResponse, $format = 'json') {
-    switch(strtolower($format)) :
-      case 'json' :
+  private function interpretResponse($rawResponse, $format = 'json')
+  {
+    switch (strtolower($format)):
+      case 'json':
         try {
           $data = json_decode($rawResponse);
-        } catch(Exception $e) {
+        }
+        catch (Exception $e) {
           throw new WConsumerException('Error decoding response to JSON');
         }
 
         return $data;
         break;
 
-      case 'serialize' :
+      case 'serialize':
         try {
           $data = unserialize($rawResponse);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
           throw new WConsumerException('Error decoding response to serialzied format');
         }
 
@@ -256,7 +258,7 @@ class oAuthRequestor
         break;
 
       // raw format
-      default :
+      default:
         return $data;
     endswitch;
   }
@@ -267,8 +269,9 @@ class oAuthRequestor
    * @return bool
    * @param int
    */
-  public function isSetup($uid = 0) {
-    if ($uid == 0) :
+  public function isSetup($uid = 0)
+  {
+    if ($uid == 0):
       global $user;
       $uid = $user->uid;
     endif;
@@ -277,10 +280,10 @@ class oAuthRequestor
       return FALSE;
 
     // Check the application
-    if (! wc_check_service($this->service))
+    if (!wc_check_service($this->service))
       return FALSE;
 
-    if (! wc_check_service_auth($this->service, $uid))
+    if (!wc_check_service_auth($this->service, $uid))
       return FALSE;
 
     return TRUE;
