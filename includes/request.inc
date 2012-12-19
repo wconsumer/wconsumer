@@ -51,11 +51,11 @@ class oAuthRequestor
       return NULL;
 
     // Automatically unserialize some things
-    if (!is_null($request->request))
-      $request->request = unserialize($request->request);
+    if (!is_null($request['request']))
+      $request['request'] = unserialize($request['request']);
 
-    if (!is_null($request->response_data))
-      $request->response_data = unserialize($request->response_data);
+    if (!is_null($request['response_data']))
+      $request['response_data'] = unserialize($request['response_data']);
 
     return $request;
   }
