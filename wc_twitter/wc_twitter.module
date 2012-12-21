@@ -120,7 +120,7 @@ function wc_twitter_permission() {
   return array(
     'manage twitter' => array(
       'title' => t('Manage Twitter'),
-			'description' => 't(Permits user to interact with this service)',
+			'description' => t('Permits user to interact with this service'),
   ));
 }
 
