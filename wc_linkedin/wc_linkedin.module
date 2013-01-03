@@ -1,13 +1,125 @@
 <?php
 function wc_linkedin_wc_config($config) {	
   $config['service'] = array(
+  //LinkedIn only referenced 3/4 of these, but omitting the "unused" one threw errors.
   	'linkedin' => array(
   		'name'							=> 'linkedin',
-  		'accessTokenURL'		=> '',
-  		'authenticateURL'		=> '',
-  		'authorizeURL'			=> '',
-  		'requestTokenURL'		=> '',
+  		'accessTokenURL'		=> 'https://api.linkedin.com/uas/oauth/accessToken',
+  		'authenticateURL'		=> 'https://api.linkedin.com/uas/oauth/authenticate',	
+  		'authorizeURL'			=> 'https://api.linkedin.com/uas/oauth/authenticate',
+  		'requestTokenURL'		=> 'https://api.linkedin.com/uas/oauth/requestToken',
 		),
   );
   return $config;
+}
+function wc_linkedin_menu() {
+  $items['linkedin']                   = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'linkedin',
+    'type' => MENU_NORMAL_ITEM,
+    'description' => 'Page to manage linkedin',
+    'page callback' => '_wc_linkedin',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage linkedin'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+  $items['user/%/wc_core/service/linkedin'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'My linkedin',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'User linkedin Account',
+    'page callback' => '_wc_linkedin_my_linkedin',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage linkedin'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+    return $items;
+}
+
+function _wc_linkedin() {
+  $object = new ServiceRequest('linkedin');
+  try {
+	echo "Object<pre>";
+	print_r($object);
+	echo "</pre>";
+	//params for request
+	//request($endPoint = NULL, $arguments = array(), $http_method = 'GET', $time = 0, $callback = NULL, $responseFormat = 'json')
+    $request = $object->request('http://api.linkedin.com/v1/people/~');
+	//Triggers the API call on LinkedIn (the counter goes up) but returns NULL
+	echo "Request<pre>";
+	print_r($request);
+	echo "</pre>";
+  } catch (WConsumerException $e) {
+    var_dump($e->getMessage());
+    exit;
+  }
+}
+
+function _wc_linkedin_my_linkedin() {
+  $msg = module_load_include('inc', 'wc_core', 'includes/oauth-class');
+  print_r($msg);
+$config                  = array();
+  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';//change
+
+  //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
+  $config                  = module_invoke_all('wc_config', $config);
+
+$service = 'linkedin';
+  // this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
+  $accessTokenURL          = $config['service'][$service]['accessTokenURL'];
+  $authenticateURL         = $config['service'][$service]['authenticateURL'];
+  $authorizeURL            = $config['service'][$service]['authorizeURL'];
+  $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
+  $consumerKey             = $config['service'][$service]['consumerKey'];
+  $consumerSecret          = $config['service'][$service]['consumerSecret'];
+  $oAuthCallback           = $config['oauthCallback'];
+
+  // creates the connection with the appropriate settings
+  $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
+  $connection->createConnection($consumerKey, $consumerSecret, variable_get('linkedin_oauth_token'), variable_get('linkedin_oauth_token_secret'));
+print_r($connection);
+
+  $results    = $connection->get('v1/people/~');
+  $message = 'Your account = ' . $results->name;
+  echo $message;
+//	print_r($_SESSION);
+	return $message;
+}
+
+function wc_linkedin_permission() {
+  return array(
+    'manage linkedin' => array(
+      'title' => t('Manage linkedin'),
+			'description' => t('Permits user to interact with this service'),
+  ));
+}
+
+/**
+ * Welcome Function
+ *
+ * @access	public
+ * @return  string
+ **/
+function _wc_linkedin_welcome($setup = FALSE) {
+	return '<p>You are '.(($setup) ? 'setup' : 'not setup').'</p>';
 }
