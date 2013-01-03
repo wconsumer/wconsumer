@@ -2,11 +2,16 @@
 function wc_linkedin_wc_config($config) {	
   $config['service'] = array(
   //LinkedIn only referenced 3/4 of these, but omitting the "unused" one threw errors.
+    /*
+    request_token_url      = 'https://api.linkedin.com/uas/oauth/requestToken'
+    access_token_url       = 'https://api.linkedin.com/uas/oauth/accessToken'
+    authorize_url              = 'https://www.linkedin.com/uas/oauth/authenticate'
+    */
   	'linkedin' => array(
   		'name'							=> 'linkedin',
   		'accessTokenURL'		=> 'https://api.linkedin.com/uas/oauth/accessToken',
   		'authenticateURL'		=> 'https://api.linkedin.com/uas/oauth/authenticate',	
-  		'authorizeURL'			=> 'https://api.linkedin.com/uas/oauth/authenticate',
+  		'authorizeURL'			=> 'https://www.linkedin.com/uas/oauth/authenticate',
   		'requestTokenURL'		=> 'https://api.linkedin.com/uas/oauth/requestToken',
 		),
   );
@@ -64,10 +69,10 @@ function _wc_linkedin() {
 	echo "</pre>";
 	//params for request
 	//request($endPoint = NULL, $arguments = array(), $http_method = 'GET', $time = 0, $callback = NULL, $responseFormat = 'json')
-    $request = $object->request('http://api.linkedin.com/v1/people/~');
-	//Triggers the API call on LinkedIn (the counter goes up) but returns NULL
+    $request = $object->request('http://api.linkedin.com/v1/people/~?format=json');//needs full URL
+	//If just 'v1/people/~' Fatal error: Class 'OAuthException' not found in ...
 	echo "Request<pre>";
-	print_r($request);
+	var_dump($request);
 	echo "</pre>";
   } catch (WConsumerException $e) {
     var_dump($e->getMessage());
