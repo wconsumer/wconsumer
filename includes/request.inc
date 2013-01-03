@@ -104,7 +104,7 @@ class ServiceRequest {
     if ($callback !== NULL && !is_callable($callback))
       throw new WConsumerException('Unknown callback ' . print_r($callback, TRUE));
 
-    $http_method = (is_null($http_method)) ? 'get' : strtoupper($http_method);
+    $http_method = (is_null($http_method)) ? 'GET' : strtoupper($http_method);
     $time = (int) $time;
 
     if ($time < 0) $time = 0;
@@ -358,10 +358,10 @@ class oAuthRequester extends ServiceRequestExtender
 
     $object = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
     $object->createConnection($consumerKey, $consumerSecret, $userCreds['access_token'], $userCreds['access_token_secret']);
-    $object->host = $this->ServiceRequest->serviceInfo['apiBase'];
+    $object->host = $config['apiBase'];
 
     // Make the Request
-    $url = $this->ServiceRequest->serviceInfo['apiBase'] . $requestData['endPoint'];
+    $url = $config['apiBase'] . $requestData['endPoint'];
     $isError = FALSE;
     $requestData['error'] = NULL;
 
