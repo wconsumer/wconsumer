@@ -34,13 +34,13 @@ class ServiceRequest {
     $this->serviceId = _wc_core_getServiceId($service);
 
     if ($this->serviceId == 0)
-      throw new WConsumerException("Service {$service} is not registered.");
+      throw new WConsumerException("Service {$this->service} is not registered.");
 
     // Retrieve Service Information
     $services = wc_get_services();
 
     if (! isset($services['service'][$service]))
-      throw new WConsumerException("Service {$service} cannot be found in the internal configuration.");
+      throw new WConsumerException("Service {$this->service} cannot be found in the internal configuration.");
 
     $this->serviceInfo = $services['service'][$service];
   }
@@ -90,7 +90,7 @@ class ServiceRequest {
    *
    * @param   string
    * @param   string The Endpoint on the API to request
-   * @param   array Optional Arguments to pass
+   * @param   array Optional Arguments to pass (GET would have them passed as a query argument, POST would be posted arguments, etc)
    * @param   string The HTTP method (get, put, post, delete)
    * @param   int The time to perform the request (if = 0, will be performed right now)
    * @param   mixed The callback to be performed, see {@link http://php.net/manual/en/function.call-user-func-array.php}
@@ -311,7 +311,7 @@ class oAuthRequester extends ServiceRequestExtender
    * @access  private
    * @param   int The request ID
    * @param   bool Force the request to be run even if it hasn't met it's scheduled time or was already executed
-   * @return  object|void The `wc_retrieve_request` for the request or NULL when request not found
+   * @return  object|void The response for the request or NULL when request not found
    */
   public function perform($id, $force = FALSE)
   {
@@ -411,8 +411,120 @@ class oAuthRequester extends ServiceRequestExtender
  */
 class apiRequester extends ServiceRequestExtender
 {
+  /**
+   * Internal API Auth Service Requester
+   * 
+   * @param  int  $id The request ID
+   * @param  boolean $force Force the request again
+   * @return object|void The response for the request or NULL when request not found
+   * @access  private
+   */
   public function perform($id, $force = FALSE)
   {
+    $request = db_select(WC_CORE_T_REQUEST)
+      ->fields(WC_CORE_T_REQUEST, array(
+        'suid',
+        'request',
+        'time',
+        'response_data',
+        'status'
+      ))
+      ->condition('rid', $id)
+      ->condition('suid', $this->ServiceRequest->serviceId)
+      ->execute()
+      ->fetchAssoc();
 
+    // Nothing Found
+    if (!$request) return NULL;
+
+    // Tear apart the variables
+    $requestData = unserialize($request['request']);
+    $http_method = strtolower($requestData['http_method']);
+
+    // It is already complete
+    if (($request->status == 'completed' || $request->status == 'error') && !$force)
+      return $this->ServiceRequest->retrieve($id);
+
+    // Check the time
+    if ($request->time !== 0 && $request->time > time() && !$force)
+      return $this->ServiceRequest->retrieve($id);
+
+    // Get the service
+    $config = $this->ServiceRequest->serviceInfo;
+    $serviceCreds = _wc_core_getServiceCreds($this->ServiceRequest->service);
+    $userCreds    = _wc_core_getUserCreds($this->ServiceRequest->service);
+
+    // Formulate the request
+    $url = $this->ServiceRequest->serviceInfo['apiBase'] . $requestData['endPoint'];
+
+    // Query Arguments
+    if ($http_method == 'get' AND is_array($requestData['arguments']) AND count($requestData['arguments']) > 0)
+      $url .= '?'.http_build_query($requestData['arguments'], NULL, '&');
+
+    if (!class_exists('Curl')) require_once(dirname(__FILE__) . '/curl-class.inc');
+
+    $object = new Curl($url);
+    
+    // Username/password
+    if (isset($config['auth_username']) AND isset($config['auth_password']))
+      $object->http_login($config['auth_username'], $config['auth_password']);
+    elseif(isset($config['auth_username']))
+      $object->http_login($config['auth_username']);
+    elseif(isset($config['auth_password']))
+      $object->http_login('', $config['auth_password']);
+
+    // cURL Options
+    if (isset($config['curl_options'])) :
+      foreach($config['curl_options'] as $k => $v) $object->option($k, $v);
+    endif;
+
+    // Specific HTTP headers
+    if (isset($config['http_headers'])) :
+      foreach($config['http_headers'] as $k => $v) $object->http_header($k, $v);
+    endif;
+
+    // Arguments
+    if ($http_method !== 'get')
+      $object->{$http_method}($requestData['arguments']);
+
+    // Make the Request
+    $isError = FALSE;
+    $requestData['error'] = NULL;
+
+    // This returns FALSE on error or the raw response
+    $perform = $object->execute();
+
+    if ($object->error_code !== NULL) :
+      $isError = TRUE;
+      $requestData['error']  = $object->error_string;
+    endif;
+
+    // Process the Response
+    $response = $this->ServiceRequest->interpretResponse($perform, $requestData['responseFormat']);
+
+    // Request Callback
+    if ($requestData['callback'] !== NULL)
+      call_user_func_array($requestData['callback'], array(
+        $response,
+        $isError,
+        $requestData
+      ));
+
+    // Update the database
+    try {
+      $update = db_update(WC_CORE_T_REQUEST)
+        ->fields(array(
+          'request' => serialize($requestData),
+          'response_data' => serialize($response),
+          'status' => ($isError) ? 'error' : 'completed'
+        ))
+        ->condition('rid', $id)
+        ->execute();
+    }
+    catch (Exception $e) {
+      watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
+    }
+
+    return $response;
   }
 }
