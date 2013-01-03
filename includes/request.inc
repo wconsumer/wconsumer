@@ -7,14 +7,23 @@
  */
 
 /**
- * API Requestor Class
+ * A request base to centralize requests made for Consumer Services
  *
+ * This class will facilitate the requests for the services. It also needs to handle
+ * different authentication methods. You can look at the `oAuthRequester` or
+ * `apiRequester` classes for the specific authentication method implementation.
+ * 
  * @package wc_core
  */
-class oAuthRequestor
-{
-  private $service = NULL;
-  private $serviceId = 0;
+class ServiceRequest {
+  // The name of the service
+  public $service;
+
+  // The internal ID of the service
+  public $serviceId = 0;
+
+  // Internal configuration for the service
+  public $serviceInfo;
 
   /**
    *  Constructor
@@ -23,53 +32,61 @@ class oAuthRequestor
   {
     $this->service   = $service;
     $this->serviceId = _wc_core_getServiceId($service);
+
+    if ($this->serviceId == 0)
+      throw new WConsumerException("Service {$service} is not registered.");
+
+    // Retrieve Service Information
+    $services = wc_get_services();
+
+    if (! isset($services['service'][$service]))
+      throw new WConsumerException("Service {$service} cannot be found in the internal configuration.");
+
+    $this->serviceInfo = $services['service'][$service];
   }
 
   /**
-   * Retrieve a request from the queue
+   * Ensure the user and the application are setup
    *
-   * We can see if the request was performed and retrieve information about the request.
-   *
-   * @param  int The request ID
-   * @return  array|void A database row with the request and response data unserialized
-   **/
-  public function retrieve($id)
+   * @return bool
+   * @param int
+   */
+  public function isSetup($uid = 0)
   {
-    // Sanitize
-    $id = (int) $id;
-    if ($id <= 0)
-      return NULL;
+    if ($uid == 0):
+      global $user;
+      $uid = (int) $user->uid;
+    else :
+      $uid = (int) $uid;
+    endif;
 
-    $request = db_select(WC_CORE_T_REQUEST)->fields(WC_CORE_T_REQUEST, array(
-      'request',
-      'response_data',
-      'time',
-      'status'
-    ))->condition('rid', $id)->condition('suid', $this->serviceId)->execute()->fetchAssoc();
+    // Sanitize the User ID
+    if ($uid == 0) return FALSE;
 
-    if ($request == FALSE)
-      return NULL;
+    // Check the application
+    if (! wc_check_service($this->service))
+      return FALSE;
 
-    // Automatically unserialize some things
-    if (!is_null($request['request']))
-      $request['request'] = unserialize($request['request']);
+    if (!wc_check_service_auth($this->service, $uid))
+      return FALSE;
 
-    if (!is_null($request['response_data']))
-      $request['response_data'] = unserialize($request['response_data']);
-
-    return $request;
+    return TRUE;
   }
 
   /**
-   * Perform a Request
+   * Perform a Request on a Service
    *
-   * We are going to add this item to a queue or we are going to process it instantaniously
+   * We are going to add this item to a queue or we are going to process it instantaneously.
    *
    * For the callbacks, we pass them three arguments:
    *  - mixed  The Raw Response
    *  - bool   Is it an error?
    *  - array  The original Request Data
+   *
    * You can pass any callback function that would work with {@link http://php.net/call_user_func_array}.
+   *
+   * This is an intermediary to the Authentication Specific Classes. We will pass it off to the API Auth/OAuth/etc class
+   * to handle the request.
    *
    * @param   string
    * @param   string The Endpoint on the API to request
@@ -81,21 +98,16 @@ class oAuthRequestor
    * @return   int|bool The request ID for the database or FALSE if it is failed
    * @throws  WConsumerException
    */
-  public function request($endPoint = NULL, $arguments = array(), $http_method = 'get', $time = 0, $callback = NULL, $responseFormat = 'json')
+  public function request($endPoint = NULL, $arguments = array(), $http_method = 'GET', $time = 0, $callback = NULL, $responseFormat = 'json')
   {
-    $services = wc_get_services();
-
     // Sanitize the arguments
-    if (!isset($services['service'][$this->service]))
-      throw new WConsumerException('Unknown service passed: ' . $service);
-
     if ($callback !== NULL && !is_callable($callback))
       throw new WConsumerException('Unknown callback ' . print_r($callback, TRUE));
 
-    $http_method = (is_null($http_method)) ? 'get' : strtolower($http_method);
+    $http_method = (is_null($http_method)) ? 'get' : strtoupper($http_method);
     $time = (int) $time;
-    if ($time < 0)
-      $time = 0;
+
+    if ($time < 0) $time = 0;
 
     // Get the user
     global $user;
@@ -106,15 +118,17 @@ class oAuthRequestor
 
     // Store the request
     try {
-      $insert = db_insert(WC_CORE_T_REQUEST)->fields(array(
-        'suid' => $this->serviceId,
-        'request' => serialize($request),
-        'time' => $time,
-        'response_data' => NULL,
-        'status' => 'pending',
-        'moderate' => 'N',
-        'created_date' => time()
-      ))->execute();
+      $insert = db_insert(WC_CORE_T_REQUEST)
+        ->fields(array(
+          'suid' => $this->serviceId,
+          'request' => serialize($request),
+          'time' => $time,
+          'response_data' => NULL,
+          'status' => 'pending',
+          'moderate' => 'N',
+          'created_date' => time()
+        ))
+        ->execute();
     }
     catch (Exception $e) {
       watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
@@ -142,90 +156,74 @@ class oAuthRequestor
    */
   public function perform($id, $force = FALSE)
   {
-    $request = db_select(WC_CORE_T_REQUEST)->fields(WC_CORE_T_REQUEST, array(
-      'suid',
-      'request',
-      'time',
-      'response_data',
-      'status'
-    ))->condition('rid', $id)->condition('suid', $this->serviceId)->execute()->fetchAssoc();
+    if (! $this->isSetup())
+      throw new WConsumerException("Service {$this->service} is not setup yet and cannot be requested upon.");
 
-    // Nothing Found
-    if (!$request)
-      return FALSE;
+    if (! isset($this->serviceInfo['authMethod']))
+      $this->serviceInfo['authMethod'] = 'oauth';
 
-    // Tear apart the variables
-    $requestData = unserialize($request['request']);
+      // We're going to lowercase it for simplicity
+      switch(strtolower($this->serviceInfo['authMethod'])) :
+        case 'apikey' :
+          $object = new apiRequester($this);
+          return $object->perform($id, $force);
 
-    // It is already complete
-    if (($request->status == 'completed' || $request->status == 'error') && !$force)
-      return $this->retrieve($id);
+          break;
 
-    // Check the time
-    if ($request->time > time() && !$force)
-      return $this->retrieve($id);
+        case 'oauth' :
+          $object = new oAuthRequester($this);
+          return $object->perform($id, $force);
 
-    // Get the service
-    $config       = wc_get_services();
-    $serviceCreds = _wc_core_getServiceCreds($this->service);
-    $userCreds    = _wc_core_getUserCreds($this->service);
+          break;
 
-    $accessTokenURL  = $config['service'][$this->service]['accessTokenURL'];
-    $authenticateURL = $config['service'][$this->service]['authenticateURL'];
-    $authorizeURL    = $config['service'][$this->service]['authorizeURL'];
-    $requestTokenURL = $config['service'][$this->service]['requestTokenURL'];
-    $consumerKey     = $serviceCreds['consumer_key'];
-    $consumerSecret  = $serviceCreds['consumer_secret'];
-
-    if (!class_exists('oauthConnectionDrupal'))
-      require_once(dirname(__FILE__) . '/oauth-class.inc');
-
-    $object = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
-    $object->createConnection($consumerKey, $consumerSecret, $userCreds['access_token'], $userCreds['access_token_secret']);
-
-    // Make the Request
-    $url                  = $config['service'][$this->service]['apiBase'] . $requestData['endPoint'];
-    $isError              = FALSE;
-    $requestData['error'] = NULL;
-
-    try {
-      $perform = $object->oAuthRequest($url, strtoupper($requestData['http_method']), $requestData['arguments']);
-    }
-    catch (OAuthException $e) {
-      $isError              = TRUE;
-      $requestData['error'] = $e;
-    }
-
-    // Process the Response
-    $response = $this->interpretResponse($perform, $requestData['responseFormat']);
-
-    // Request Callback
-    if ($requestData['callback'] !== NULL)
-      call_user_func_array($requestData['callback'], array(
-        $response,
-        $isError,
-        $requestData
-      ));
-
-    // Update the database
-    try {
-      $update = db_update(WC_CORE_T_REQUEST)->fields(array(
-        'request' => serialize($requestData),
-        'response_data' => serialize($response),
-        'status' => ($isError) ? 'error' : 'completed'
-      ))->condition('rid', $id)->execute();
-    }
-    catch (Exception $e) {
-      watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
-    }
-
-    return $response;
+        default :
+          throw new WConsumerException("Unknown authentication method for {$this->service}: ".$this->serviceInfo['authMethod']);
+      endswitch;
   }
+
+  /**
+   * Retrieve a request from the queue
+   *
+   * We can see if the request was performed and retrieve information about the request.
+   *
+   * @param  int The request ID
+   * @return  array|void A database row with the request and response data unserialized
+   **/
+  public function retrieve($id)
+  {
+    // Sanitize
+    $id = (int) $id;
+    if ($id <= 0) return NULL;
+
+    $request = db_select(WC_CORE_T_REQUEST)
+      ->fields(WC_CORE_T_REQUEST, array(
+        'request',
+        'response_data',
+        'time',
+        'status'
+      ))
+      ->condition('rid', $id)
+      ->condition('suid', $this->serviceId)
+      ->execute()
+      ->fetchAssoc();
+
+    if ($request == FALSE) return NULL;
+
+    // Automatically unserialize some things
+    if (!is_null($request['request']))
+      $request['request'] = unserialize($request['request']);
+
+    if (!is_null($request['response_data']))
+      $request['response_data'] = unserialize($request['response_data']);
+
+    return $request;
+  }
+
 
   /**
    * Interpret the Response from an API Request
    *
-   * We support multiple formats and will attempt to proccess them and decode them.
+   * We support multiple formats and will attempt to process them and decode them.
    *
    * @param   mixed The raw response
    * @param   string The format the response will be in
@@ -233,7 +231,7 @@ class oAuthRequestor
    * @return  mixed
    * @access  private
    */
-  private function interpretResponse($rawResponse, $format = 'json')
+  public function interpretResponse($rawResponse, $format = 'json')
   {
     switch (strtolower($format)):
       case 'json':
@@ -252,7 +250,7 @@ class oAuthRequestor
           $data = unserialize($rawResponse);
         }
         catch (Exception $e) {
-          throw new WConsumerException('Error decoding response to serialzied format');
+          throw new WConsumerException('Error decoding response to serialized format');
         }
 
         return $data;
@@ -263,30 +261,158 @@ class oAuthRequestor
         return $data;
     endswitch;
   }
+}
+
+/**
+ * Class Built upon to make Authentication Specific Request Classes
+ *
+ * We didn't want to rewrite code so we will extend this
+ *
+ * @package  wc_core
+ */
+abstract class ServiceRequestExtender
+{
+  protected $service = NULL;
+  protected $serviceId = 0;
+  protected $RequestBase;
 
   /**
-   *  Ensure the user and the application are setup
+   *  Constructor
    *
-   * @return bool
-   * @param int
+   * @param  object The Request Base class object
    */
-  public function isSetup($uid = 0)
+  public function __construct($object)
   {
-    if ($uid == 0):
-      global $user;
-      $uid = $user->uid;
-    endif;
+    if (!$object instanceof RequestBase)
+      throw new WConsumerException('Unknown request base passed to constructor.');
 
-    if ($uid == 0)
-      return FALSE;
+    $this->RequestBase = $object;
+  }
 
-    // Check the application
-    if (!wc_check_service($this->service))
-      return FALSE;
+  /**
+   * Placeholder for the perform method which will interact with the API
+   */
+  abstract public function perform($id, $force = FALSE);
+}
 
-    if (!wc_check_service_auth($this->service, $uid))
-      return FALSE;
+/**
+ * OAuth API Requester Class
+ *
+ * @package wc_core
+ * @uses  ServiceRequestExtender Extends the base class
+ */
+class oAuthRequester extends ServiceRequestExtender
+{
+  /**
+   * Perform a request from the queue
+   *
+   * This is used internally to perform a request from the queue
+   *
+   * @access  private
+   * @param   int The request ID
+   * @param   bool Force the request to be run even if it hasn't met it's scheduled time or was already executed
+   * @return  object|void The `wc_retrieve_request` for the request or NULL when request not found
+   */
+  public function perform($id, $force = FALSE)
+  {
+    $request = db_select(WC_CORE_T_REQUEST)
+      ->fields(WC_CORE_T_REQUEST, array(
+        'suid',
+        'request',
+        'time',
+        'response_data',
+        'status'
+      ))
+      ->condition('rid', $id)
+      ->condition('suid', $this->RequestBase->serviceId)
+      ->execute()
+      ->fetchAssoc();
 
-    return TRUE;
+    // Nothing Found
+    if (!$request) return NULL;
+
+    // Tear apart the variables
+    $requestData = unserialize($request['request']);
+
+    // It is already complete
+    if (($request->status == 'completed' || $request->status == 'error') && !$force)
+      return $this->RequestBase->retrieve($id);
+
+    // Check the time
+    if ($request->time !== 0 && $request->time > time() && !$force)
+      return $this->RequestBase->retrieve($id);
+
+    // Get the service
+    $config = $this->RequestBase->serviceInfo;
+    $serviceCreds = _wc_core_getServiceCreds($this->RequestBase->service);
+    $userCreds    = _wc_core_getUserCreds($this->RequestBase->service);
+
+    $accessTokenURL  = $config['service'][$this->service]['accessTokenURL'];
+    $authenticateURL = $config['authenticateURL'];
+    $authorizeURL    = $config['authorizeURL'];
+    $requestTokenURL = $config['requestTokenURL'];
+    $consumerKey     = $serviceCreds['consumer_key'];
+    $consumerSecret  = $serviceCreds['consumer_secret'];
+
+    if (!class_exists('oauthConnectionDrupal')) require_once(dirname(__FILE__) . '/oauth-class.inc');
+
+    $object = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
+    $object->createConnection($consumerKey, $consumerSecret, $userCreds['access_token'], $userCreds['access_token_secret']);
+    $object->host = $this->RequestBase->serviceInfo['apiBase'];
+
+    // Make the Request
+    $url = $this->RequestBase->serviceInfo['apiBase'] . $requestData['endPoint'];
+    $isError = FALSE;
+    $requestData['error'] = NULL;
+
+    try {
+      $perform = $object->oAuthRequest($url, strtoupper($requestData['http_method']), $requestData['arguments']);
+    }
+    catch (OAuthException $e) {
+      $isError              = TRUE;
+      $requestData['error'] = $e;
+    }
+
+    // Process the Response
+    $response = $this->RequestBase->interpretResponse($perform, $requestData['responseFormat']);
+
+    // Request Callback
+    if ($requestData['callback'] !== NULL)
+      call_user_func_array($requestData['callback'], array(
+        $response,
+        $isError,
+        $requestData
+      ));
+
+    // Update the database
+    try {
+      $update = db_update(WC_CORE_T_REQUEST)
+        ->fields(array(
+          'request' => serialize($requestData),
+          'response_data' => serialize($response),
+          'status' => ($isError) ? 'error' : 'completed'
+        ))
+        ->condition('rid', $id)
+        ->execute();
+    }
+    catch (Exception $e) {
+      watchdog_exception(WC_CORE_EXCEPTION_CATEGORY, $e);
+    }
+
+    return $response;
+  }
+}
+
+/**
+ * API Requester to interface with API Auth services
+ *
+ * @package  wc_core
+ * @uses  ServiceRequestExtender
+ */
+class apiRequester extends ServiceRequestExtender
+{
+  public function perform($id, $force = FALSE)
+  {
+
   }
 }

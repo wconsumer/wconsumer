@@ -761,6 +761,8 @@ function _wc_core_setUserCreds($service_name, $fields, $uid = null)
  * This may be used in conjunction with the user's id to retrieve their
  * credentials for a particular service.
  *
+ * If it returns 0, the service does not exist.
+ *
  * @return  int
  */
 function _wc_core_getServiceId($service_name)
