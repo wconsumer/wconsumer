@@ -455,12 +455,45 @@ class apiRequester extends ServiceRequestExtender
     $userCreds    = _wc_core_getUserCreds($this->ServiceRequest->service);
 
     // Formulate the request
-    $url = $this->ServiceRequest->serviceInfo['apiBase'] . $requestData['endPoint'];
+    $url = $config['apiBase'] . $requestData['endPoint'];
 
     // Query Arguments
     if ($http_method == 'get' AND is_array($requestData['arguments']) AND count($requestData['arguments']) > 0)
       $url .= '?'.http_build_query($requestData['arguments'], NULL, '&');
 
+    // Form Fields
+    if (isset($config['formFields']) AND is_array($config['formFields'])) :
+      foreach($config['formFields'] as $key => $item) :
+        
+        // It's not set, skip
+        if (! isset($serviceCreds[$key]))
+          continue;
+
+        if (! isset($item['as']))
+          throw new WConsumerException('Service Field Type not set.');
+
+        switch(strtolower($item['as']))
+        {
+          case 'http-username' :
+            $config['auth_username'] = $serviceCreds[$key];
+            break;
+
+          case 'http-password' :
+            $config['auth_password'] = $serviceCreds[$key];
+            break;
+
+          case 'http-header' :
+            if (! isset($config['http_headers']))
+              $config['http_headers'] = array();
+
+            $config['http_headers'][$key] = $serviceCreds[$key];
+            break;
+        }
+      endforeach;
+    endif;
+
+    var_dump($config);
+    
     if (!class_exists('Curl')) require_once(dirname(__FILE__) . '/curl-class.inc');
 
     $object = new Curl($url);

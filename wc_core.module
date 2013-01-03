@@ -899,15 +899,37 @@ function wc_check_service($service)
   if (!isset($services['service']) OR !isset($services['service'][$service]))
     return FALSE;
 
+  $config = $services['service'][$service];
+
   if (!isset($services['service'][$service]['authMethod']))
-    $services['service'][$service]['authMethod'] = 'oauth';
+    $config['authMethod'] = 'oauth';
 
-  switch ($services['service'][$service]['authMethod']) {
-    case 'apiKey':
+  switch (strtolower($config['authMethod']))
+  {
+    case 'apikey':
+      if (isset($config['serviceSetupCheck']) AND is_callable($config['serviceSetupCheck']))
+        return call_user_func_array($config['serviceSetupCheck'], array($config, _wc_core_getServiceCreds($service)));
 
+      // We can try and check via form fields
+      if (isset($config['formFields'])) :
+        $creds =_wc_core_getServiceCreds($service);
+
+        foreach($config['formFields'] as $key => $item) :
+          if (isset($item['required']) AND !$item['required'])
+            continue;
+
+          if (! isset($creds[$key]))
+            return FALSE;
+        endforeach;
+
+        return TRUE;
+      endif;
+
+      // No other ways to truly check
+      return TRUE;
       break;
 
-    // OAuth
+    // oauth
     default:
       // Todo: add secondary checks here
       if (!_wc_core_getServiceCreds($service))
@@ -936,9 +958,15 @@ function wc_check_service_auth($service, $uid = 0)
   if (!isset($services['service'][$service]['authMethod']))
     $services['service'][$service]['authMethod'] = 'oauth';
 
-  switch ($services['service'][$service]['authMethod']) {
-    case 'apiKey':
+  $config = $services['service'][$service];
 
+  switch (strtolower($config['authMethod'])) {
+    case 'apikey':
+      if (isset($config['userSetupCheck']) AND is_callable($config['userSetupCheck']))
+        return call_user_func_array($config['userSetupCheck'], array($config, _wc_core_getServiceCreds($service)));
+
+      // Default to TRUE
+      return TRUE;
       break;
 
     // OAuth
@@ -957,10 +985,13 @@ function wc_check_service_auth($service, $uid = 0)
 /**
  * Test a Service's Consumer Key/Secret
  *
+ * Only used when they are saving the oAuth settings form
+ * 
  * @param   string
  * @param   string Optionally pass a consumer key
  * @param   strign Optionally pass a consumer secret
  * @return  bool
+ * @access private
  **/
 function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL)
 {
@@ -984,17 +1015,16 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
   module_load_include('inc', 'wc_core', 'includes/oauth-class');
 
   // Make a new connection
-  $connection = new oauthConnectionDrupal($config['accessTokenURL'], $config['authenticateURL'], $config['authorizeURL'], $config['requestTokenURL']);
+  $connection = new oauthConnectionDrupal($config['accessTokenURL'], $config['authenticateURL'],
+  $config['authorizeURL'], $config['requestTokenURL']);
   $connection->createConnection($consumer_key, $consumer_secret);
-
-  // Make a test request to get a request token
 
   // We need to make a manual request because it will throw an error if it's invalid
   $parameters = array(
     'oauth_callback' => $base_url . '/wc_core/callback/' . $service
   );
 
-  $request       = $connection->oAuthRequest($connection->getRequestTokenURL(), 'GET', $parameters);
+  $request = $connection->oAuthRequest($connection->getRequestTokenURL(), 'GET', $parameters);
   $request_token = OAuthUtil::parse_parameters($request);
 
   if (!is_array($request_token) OR !isset($request_token['oauth_callback_confirmed']))
@@ -1007,6 +1037,7 @@ function wc_test_service($service, $consumer_key = NULL, $consumer_secret = NULL
  * Get a list of active services
  *
  * @param   array Default Config
+ * @return  array
  **/
 function wc_get_services($config = array())
 {
@@ -1024,7 +1055,7 @@ function wc_clear_cache()
 }
 
 /**
- *  Exception class we will be throwing in the module
+ * Exception class we will be throwing in the module
  *
  * @package wc_core
 **/
