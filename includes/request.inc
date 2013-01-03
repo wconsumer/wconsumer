@@ -274,7 +274,7 @@ abstract class ServiceRequestExtender
 {
   protected $service = NULL;
   protected $serviceId = 0;
-  protected $RequestBase;
+  protected $ServiceRequest;
 
   /**
    *  Constructor
@@ -283,10 +283,10 @@ abstract class ServiceRequestExtender
    */
   public function __construct($object)
   {
-    if (!$object instanceof RequestBase)
-      throw new WConsumerException('Unknown request base passed to constructor.');
+    if (!$object instanceof ServiceRequest)
+      throw new WConsumerException('Unknown service requester base object passed to constructor.');
 
-    $this->RequestBase = $object;
+    $this->ServiceRequest = $object;
   }
 
   /**
@@ -324,7 +324,7 @@ class oAuthRequester extends ServiceRequestExtender
         'status'
       ))
       ->condition('rid', $id)
-      ->condition('suid', $this->RequestBase->serviceId)
+      ->condition('suid', $this->ServiceRequest->serviceId)
       ->execute()
       ->fetchAssoc();
 
@@ -336,16 +336,16 @@ class oAuthRequester extends ServiceRequestExtender
 
     // It is already complete
     if (($request->status == 'completed' || $request->status == 'error') && !$force)
-      return $this->RequestBase->retrieve($id);
+      return $this->ServiceRequest->retrieve($id);
 
     // Check the time
     if ($request->time !== 0 && $request->time > time() && !$force)
-      return $this->RequestBase->retrieve($id);
+      return $this->ServiceRequest->retrieve($id);
 
     // Get the service
-    $config = $this->RequestBase->serviceInfo;
-    $serviceCreds = _wc_core_getServiceCreds($this->RequestBase->service);
-    $userCreds    = _wc_core_getUserCreds($this->RequestBase->service);
+    $config = $this->ServiceRequest->serviceInfo;
+    $serviceCreds = _wc_core_getServiceCreds($this->ServiceRequest->service);
+    $userCreds    = _wc_core_getUserCreds($this->ServiceRequest->service);
 
     $accessTokenURL  = $config['service'][$this->service]['accessTokenURL'];
     $authenticateURL = $config['authenticateURL'];
@@ -358,10 +358,10 @@ class oAuthRequester extends ServiceRequestExtender
 
     $object = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
     $object->createConnection($consumerKey, $consumerSecret, $userCreds['access_token'], $userCreds['access_token_secret']);
-    $object->host = $this->RequestBase->serviceInfo['apiBase'];
+    $object->host = $this->ServiceRequest->serviceInfo['apiBase'];
 
     // Make the Request
-    $url = $this->RequestBase->serviceInfo['apiBase'] . $requestData['endPoint'];
+    $url = $this->ServiceRequest->serviceInfo['apiBase'] . $requestData['endPoint'];
     $isError = FALSE;
     $requestData['error'] = NULL;
 
@@ -374,7 +374,7 @@ class oAuthRequester extends ServiceRequestExtender
     }
 
     // Process the Response
-    $response = $this->RequestBase->interpretResponse($perform, $requestData['responseFormat']);
+    $response = $this->ServiceRequest->interpretResponse($perform, $requestData['responseFormat']);
 
     // Request Callback
     if ($requestData['callback'] !== NULL)
