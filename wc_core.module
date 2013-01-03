@@ -247,9 +247,9 @@ function _wc_core_service_manager($service = '')
   if (!isset($config['service'][$service]['authMethod']))
     $config['service'][$service]['authMethod'] = 'oauth';
 
-  switch ($config['service'][$service]['authMethod']) {
-    case 'apiKey':
-      return drupal_get_form('_wc_core_apiAuth_form', $config['service'][$service]);
+  switch (strtolower($config['service'][$service]['authMethod'])) {
+    case 'apikey':
+      return drupal_get_form('_wc_core_apiFlex_form', $config['service'][$service]);
       break;
 
     // Defaults back to oauth Could change this in the future
@@ -372,6 +372,105 @@ function _wc_core_oAuth_form_submit($form, $form_state)
       drupal_set_message(t('Service configuration is invalid (check your consumer key/secret).'), 'error');
     endif;
   }
+}
+
+/**
+ * Form for the API Authentication Management
+ *
+ * This form is flexible in that it can be managing multiple options specified by the service.
+ * 
+ * @param  object
+ * @param  object
+ * @param  string Name of service
+ * @return array
+ * @access  private
+ */
+function _wc_core_apiFlex_form($form, $form_state, $service)
+{
+  $serviceCreds = _wc_core_getServiceCreds($service['name']);
+
+  $form[$service['name']] = array(
+    '#type' => 'fieldset',
+    '#title' => t(ucwords($service['name']) . ' Service Configuration'),
+    '#tree' => TRUE,
+    '#access' => _wc_core_user_account_access($service['name'])
+  );
+
+  if (isset($service['applicationCreateURL'])):
+    $form[$service['name']]['create_app_url'] = array(
+      '#markup' => t('You can create an application at <a
+                      href="' . $service['applicationCreateURL'] . '">' . $service['applicationCreateURL'] . '</a>.')
+    );
+  endif;
+
+  if (! isset($service['formFields'])) :
+    $form[$service['name']]['markup'] = array(
+      '#markup' => t('This service has no settings for you to manage.'),
+    );
+    return $form;
+  endif;
+
+  // Loop though the fields
+  foreach($service['formFields'] as $key => $item) :
+    $default = (isset($item['default'])) ? $item['default'] : '';
+    $required = (isset($item['required'])) ? (bool) $item['required'] : TRUE;
+
+    $form[$service['name']][$key] = array(
+      '#type' => 'textfield',
+      '#title' => $item['label'],
+      '#tree' => TRUE,
+      '#access' => _wc_core_user_account_access($service['name']),
+
+      '#default_value' => (isset($serviceCreds[$key])) ? $serviceCreds[$key] : $default,
+      '#required' => $required,
+    );
+  endforeach;
+  
+  // Required Items
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Configuration')
+  );
+
+  $form['service-name'] = array(
+    '#type' => 'hidden',
+    '#value' => $service['name']
+  );
+
+  return $form;
+}
+
+/**
+ * Callback to submit the OAuth Form
+ **/
+function _wc_core_apiFlex_form_submit($form, $form_state)
+{
+  // The POST Data
+  $values = $form_state['values'];
+
+  //Causing abnormal page abortion - commented for workaround
+  if (! isset($values['service-name']) )
+    drupal_not_found();
+
+  // Service Config
+  $service_name = $values['service-name'];
+  $services     = wc_get_services();
+  $service = $services['service'][$service_name];
+
+  // Get the fields
+  $data = array();
+
+  if (isset($service['formFields']) AND count($service['formFields']) > 0) :
+    foreach($service['formFields'] as $key => $item) :
+      if (isset($values[$service_name][$key]))
+        $data[$key] = $values[$service_name][$key];
+    endforeach;
+  endif;
+
+  // Update the service configuration
+  _wc_core_setServiceCreds($service_name, $data);
+
+  drupal_set_message(t('Service configuration saved.'));
 }
 
 function _wc_core_callback($service = '')
