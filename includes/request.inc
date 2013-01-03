@@ -93,7 +93,7 @@ class oAuthRequestor
       throw new WConsumerException('Unknown callback ' . print_r($callback, TRUE));
 
     $http_method = (is_null($http_method)) ? 'get' : strtolower($http_method);
-    $time        = (int) time;
+    $time = (int) $time;
     if ($time < 0)
       $time = 0;
 
