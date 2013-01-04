@@ -329,13 +329,13 @@ class oAuthRequester extends ServiceRequestExtender
       ->condition('rid', $id)
       ->condition('suid', $this->ServiceRequest->serviceId)
       ->execute()
-      ->fetchAssoc();
+      ->fetchObject();
 
     // Nothing Found
     if (!$request) return NULL;
 
     // Tear apart the variables
-    $requestData = unserialize($request['request']);
+    $requestData = unserialize($request->request);
 
     // It is already complete
     if (($request->status == 'completed' || $request->status == 'error') && !$force)
