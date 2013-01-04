@@ -350,7 +350,7 @@ class oAuthRequester extends ServiceRequestExtender
     $serviceCreds = _wc_core_getServiceCreds($this->ServiceRequest->service);
     $userCreds    = _wc_core_getUserCreds($this->ServiceRequest->service);
 
-    $accessTokenURL  = $config['service'][$this->service]['accessTokenURL'];
+    $accessTokenURL  = $config['accessTokenURL'];
     $authenticateURL = $config['authenticateURL'];
     $authorizeURL    = $config['authorizeURL'];
     $requestTokenURL = $config['requestTokenURL'];
