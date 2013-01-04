@@ -26,7 +26,10 @@ class ServiceRequest {
   public $serviceInfo;
 
   /**
-   *  Constructor
+   * Constructor
+   *
+   * @param  string The name of the service
+   * @throws WConsumerException
    */
   public function __construct($service)
   {
@@ -492,8 +495,6 @@ class apiRequester extends ServiceRequestExtender
       endforeach;
     endif;
 
-    var_dump($config);
-    
     if (!class_exists('Curl')) require_once(dirname(__FILE__) . '/curl-class.inc');
 
     $object = new Curl($url);

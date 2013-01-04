@@ -31,9 +31,10 @@ class Curl {
 
   public function __construct($url = '')
   {
-    if ( ! $this->is_enabled())
+    if ( ! $this->is_enabled()) :
       watchdog('curl-class', 'cURL Class - PHP was not built with cURL enabled. Rebuild PHP with --with-curl to use cURL', array(), WATCHDOG_ERROR);
-      exit;
+      throw new WConsumerException('cURL is not setup on this server.');
+    endif;
 
     $url AND $this->create($url);
   }
