@@ -1,7 +1,6 @@
 <?php
 /**
- * @file
- * Handling the Requests of APIs
+ * Handling the Requests of Services
  *
  * @package wc_core
  */
@@ -16,13 +15,25 @@
  * @package wc_core
  */
 class ServiceRequest {
-  // The name of the service
+  /**
+   * The name of the service
+   *
+   * @var  string
+   */
   public $service;
 
-  // The internal ID of the service
+  /**
+   * The internal ID of the service
+   *
+   * @var integer
+   */
   public $serviceId = 0;
 
-  // Internal configuration for the service
+  /**
+   * Internal configuration for the service
+   *
+   * @var  array
+   */
   public $serviceInfo;
 
   /**
@@ -91,7 +102,6 @@ class ServiceRequest {
    * This is an intermediary to the Authentication Specific Classes. We will pass it off to the API Auth/OAuth/etc class
    * to handle the request.
    *
-   * @param   string
    * @param   string The Endpoint on the API to request
    * @param   array Optional Arguments to pass (GET would have them passed as a query argument, POST would be posted arguments, etc)
    * @param   string The HTTP method (get, put, post, delete)
