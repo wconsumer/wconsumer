@@ -1,4 +1,5 @@
-name = wconsumer api
+name = wconsumer
 description = This is a basic example of a form submitted to the database.
 package = wconsumer
 core = 7.x
+files[] = wconsumer.test
