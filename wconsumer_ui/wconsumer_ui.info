@@ -1,0 +1,4 @@
+name = WC Core
+description = This is a basic example of a form submitted to the database.
+package = Wconsumer
+core = 7.x
