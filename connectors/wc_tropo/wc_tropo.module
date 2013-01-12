@@ -1,0 +1,164 @@
+<?php
+function wc_tropo_wc_config($config) {
+  $config['service'] = array(
+    'tropo' => array(
+      'name' => 'tropo',
+      'authMethod' => 'apiKey',
+      'apiKey' => '1234',
+      'serviceAffinity' => 'site', // vs 'user'
+      'affinityProps' => array(
+      //Optional menu function to call when using this service
+      //	      'menu_callback'              => 'callback_functionName',
+        )
+    )
+  );
+  return $config;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function wc_tropo_menu() {
+  $items = array();
+  $items['tropo'] = array(
+    'page callback' => 'tropo_call',
+    'access callback' => true,
+    );
+  $items['tropo/extension'] = array(
+    'page callback' => 'tropo_extension',
+    'access callback' => true,
+    );
+  $items['tropo/test'] = array(
+    'page callback' => 'tropo_test',
+    'access callback' => true,
+    );
+  $items['tropo/record'] = array(
+    'page callback' => 'tropo_record_callpass',
+    'access callback' => true,
+    );
+  $items['tropo/rec'] = array(
+    'page callback' => 'tropo_rec',
+    'access callback' => true,
+    );
+  $items['admin/config/tropo'] = array(
+    'title' => 'WC Consumer',
+    'description' => 'This is the parent item',
+    'position' => 'left',
+    'weight' => -100,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/config/wc_tropo/config'] = array(
+    'title' => 'Tropo',
+    'description' => 'This is the configuration for Tropo',
+    'page callback' => 'wc_tropo_config_callback',
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+function wc_tropo_config_callback() {
+  $form['keys']['api'] = array(
+    '#title' => 'Tropo Api Key',
+    '#type' => 'textfield',
+    '#description' => t('The api key from Tropo'),
+  );
+  $form['buttons']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  $form['buttons']['reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset to defaults'),
+  );
+
+  if (!empty($_POST) && form_get_errors()) {
+    drupal_set_message(t('The settings have not been saved because of the errors.'), 'error');
+  }
+  $form['#submit'][] = 'system_settings_form_submit';
+  $form['#theme'] = 'system_settings_form';
+  return $form;
+}
+
+function tropo_call() {
+  require_once 'classes/tropo.class.php';
+  $tropo = new Tropo();
+
+  $tropo->say("Welcome to the Tropo Demo!"); //Need to update to Greeting
+  $options = array("name" => "extension", "choices" => "[DIGITS]", "mode" => "dtmf", "timeout" => 10, "bargein" => true, "interdigitTimeout" => 2);
+  $tropo->ask("If you know your party's extension, please dial it now or press 0 for a directory.", $options);
+  $tropo->on(array("event" => "continue", "next" => "tropo/extension"));
+ 
+  $tropo->RenderJson();
+}
+
+function tropo_extension() {
+  require_once 'classes/tropo.class.php';
+  $tropo = new Tropo();
+  @$result = new Result();
+  $input = $result->getValue();
+  if($input == 0) {
+    $tropo->say("Directory Listing");
+    $query = db_select('users', 'u');
+    $query->fields('u', array('uid', 'name'));
+    $query->orderBy('uid', 'ASC');
+    $result = $query->execute();
+    $options = array("name" => "id", "choices" => "[DIGITS]", "mode" => "dtmf", "timeout" => 10, "bargein" => true, "interdigitTimeout" => 2);
+    while($record = $result->fetchAssoc()) {
+      if($record['name'] != '')
+        $say .= "Press " . $record['uid'] . " for " . $record['name'] . ". ";
+    }
+    $tropo->ask($say, $options);
+    $tropo->on(array("event" => "continue", "next" => "record"));
+    $tropo->RenderJson();
+  }
+  else {
+    unset($tropo);
+    tropo_record($input);
+  }
+}
+
+function tropo_record_callpass() {
+  require_once 'classes/tropo.class.php';
+  $tropo = new Tropo();
+  @$result = new Result();
+  $input = $result->getValue();
+  tropo_record($input);
+}
+
+function tropo_record($input) {
+  require_once 'classes/tropo.class.php';
+  $tropo = new Tropo();
+  $query = db_select('users', 'u');
+  $query->fields('u', array('uid', 'mail'));
+  $query->condition('uid', $input, '='); 
+  $result = $query->execute();
+  $record = $result->fetchAssoc();
+  $mailto = "mailto:" . $record['mail'];
+  $transcription = new Transcription($mailto, $input, null); //Right now it dose a direct email, needs to be stored in the DB!
+ 
+  $tropo->record(array(
+    'name' => 'recording',
+    'say' => 'Please leave a message.',
+    'url' => 'tropo/rec',
+    'terminator' => '#',
+    'timeout' => 10,
+    'maxSilence' => 7,
+    'maxTime' => 60,
+    'transcription' => $transcription
+  ));
+ 
+  $tropo->RenderJson();
+}
+
+function tropo_rec() {
+  $fileName = $_FILES['filename']['name'];
+  $target_path = 'recordings/rec.wav';
+  
+  if("wav"!=substr($fileName, strrpos($fileName, '.') + 1)){
+    die("Invalid File Type");
+  }
+  move_uploaded_file($_FILES['filename']['tmp_name'], $target_path);
+}

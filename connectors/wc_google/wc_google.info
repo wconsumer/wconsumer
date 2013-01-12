@@ -1,0 +1,5 @@
+name =  WC Google
+description = This is a module to create an integration with Google
+package = Wconsumer
+core = 7.x
+dependencies[] = wc_core

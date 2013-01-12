@@ -1,0 +1,5 @@
+name =  WC Vimeo
+description = This is a module to create an integration with Vimeo
+package = Wconsumer
+core = 7.x
+dependencies[] = wc_core

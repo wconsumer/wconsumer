@@ -1,0 +1,6 @@
+name =  WC LinkedIn Service
+description = This is a sub module that utilizes the LinkedIn API
+package = Wconsumer
+core = 7.x
+dependencies[] = wc_core
+dependencies[] = wc_linkedin

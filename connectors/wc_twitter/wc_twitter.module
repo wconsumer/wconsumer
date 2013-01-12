@@ -1,0 +1,135 @@
+<?php
+function wc_twitter_wc_config($config) {
+  $config['service'] = array(
+    'twitter' => array(
+      'name' => 'twitter',
+      'apiBase' => 'https://api.twitter.com/1.1/',
+      'accessTokenURL' => 'https://api.twitter.com/oauth/access_token',
+      'authenticateURL' => 'https://api.twitter.com/oauth/authenticate',
+      'authorizeURL' => 'https://api.twitter.com/oauth/authorize',
+      'requestTokenURL' => 'https://api.twitter.com/oauth/request_token',
+
+      // Where to send them when they want to create an application
+      'applicationCreateURL' => 'https://dev.twitter.com/apps/new',
+
+      // Are we going to validate the OAuth Credentials (default is on)
+      'validate'					=> TRUE,
+
+      // What they're going to call to load information about the user
+      'userInfoMethod'		=> 'account/verify_credentials',
+
+      // The item in the method above that is going to have the user information
+      // You can also specify a callback function
+      'userInfoItem'			=> '_wc_twitter_welcome',
+  ),
+  );
+  return $config;
+}
+function wc_twitter_menu() {
+  $items['twitter']                   = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Twitter',
+    'type' => MENU_NORMAL_ITEM,
+    'description' => 'Page to manage twitter',
+    'page callback' => '_wc_twitter',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+  $items['user/%/wc_core/service/twitter'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'My Twitter',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'User Twitter Account',
+    'page callback' => '_wc_twitter_my_twitter',
+    // For a permissioned menu entry, we provide an access callback which
+    // determines whether the current user should have access. The default is
+    // user_access(), which we'll use in this case. Since it's the default,
+    // we don't even have to enter it.
+    'access callback' => 'user_access',
+    // The 'access arguments' are passed to the 'access callback' to help it
+    // do its job. In the case of user_access(), we need to pass a permission
+    // as the first argument.
+    'access arguments' => array(
+      'manage twitter'
+    ),
+    // The optional weight element tells how to order the submenu items.
+    // Higher weights are "heavier", dropping to the bottom of the menu.
+  );
+
+
+
+    return $items;
+}
+
+function _wc_twitter() {
+  $object = new ServiceRequest('twitter');
+  try {
+    $request = $object->request('search/tweets.json', array(
+      'q' => 'apple',
+    ));
+  } catch (WConsumerException $e) {
+    var_dump($e->getMessage());
+    exit;
+  }
+  var_dump($request);
+  //$request = $object->retrieve(24);
+  //var_dump($request);
+}
+function _wc_twitter_my_twitter() {
+  $msg = 'test';
+  $msg = module_load_include('inc', 'wc_core', 'includes/oauth-class');
+ echo $msg;
+$config                  = array();
+  $config['oauthCallback'] = 'http://www.webizly.biz/wc_core/callback';
+
+  //calls to load the config hook from the module - this needs changed to only load config for the correct config per sub module
+  $config                  = module_invoke_all('wc_config', $config);
+
+$service = 'twitter';
+  // this moves the returned config settings from the sub module into variabls, it could be shortened in the future to directly use them
+  $accessTokenURL          = $config['service'][$service]['accessTokenURL'];
+  $authenticateURL         = $config['service'][$service]['authenticateURL'];
+  $authorizeURL            = $config['service'][$service]['authorizeURL'];
+  $requestTokenURL         = $config['service'][$service]['requestTokenURL'];
+  $consumerKey             = $config['service'][$service]['consumerKey'];
+  $consumerSecret          = $config['service'][$service]['consumerSecret'];
+  $oAuthCallback           = $config['oauthCallback'];
+
+  // creates the connection with the appropriate settings
+  $connection              = new oauthConnectionDrupal($accessTokenURL, $authenticateURL, $authorizeURL, $requestTokenURL);
+  $connection->createConnection($consumerKey, $consumerSecret, variable_get('twitter_oauth_token'), variable_get('twitter_oauth_token_secret'));
+print_r($connection);
+
+  $results    = $connection->get('account/verify_credentials');
+  	$message = 'Your account = ' . $results->name;
+//	print_r($_SESSION);
+	return $message;
+}
+function wc_twitter_permission() {
+  return array(
+    'manage twitter' => array(
+      'title' => t('Manage Twitter'),
+			'description' => t('Permits user to interact with this service'),
+  ));
+}
+
+/**
+ * Welcome Function
+ *
+ * @access	public
+ * @return  string
+ **/
+function _wc_twitter_welcome($setup = FALSE) {
+	return '<p>You are '.(($setup) ? 'setup' : 'not setup').'</p>';
+}

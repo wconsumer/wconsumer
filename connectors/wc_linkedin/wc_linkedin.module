@@ -1,0 +1,22 @@
+<?php
+function wc_linkedin_wc_config($config) {	
+  $config['service'] = array(
+  //LinkedIn only referenced 3/4 of these, but omitting the "unused" one threw errors.
+    /*
+    request_token_url      = 'https://api.linkedin.com/uas/oauth/requestToken'
+    access_token_url       = 'https://api.linkedin.com/uas/oauth/accessToken'
+    authorize_url              = 'https://www.linkedin.com/uas/oauth/authenticate'
+    */
+  	'linkedin' => array(
+  		'name'							=> 'linkedin',
+  		'accessTokenURL'		=> 'https://api.linkedin.com/uas/oauth/accessToken',
+  		'authenticateURL'		=> 'https://api.linkedin.com/uas/oauth/authenticate',	
+  		'authorizeURL'			=> 'https://www.linkedin.com/uas/oauth/authenticate',
+  		'requestTokenURL'		=> 'https://api.linkedin.com/uas/oauth/requestToken',
+		'apiURL' 				=> 'http://api.linkedin.com/v1/people/',
+		'format'				=> '?format=json',
+		),
+  );
+  return $config;
+}
+

@@ -1,0 +1,17 @@
+<?php
+function wc_vimeo_wc_config($config) {
+  $config['service'] = array(
+    'vimeo' => array(
+      'name'						=> 'vimeo',
+      'accessTokenURL'	=> 'https://vimeo.com/oauth/access_token',
+      'authenticateURL'	=> 'https://vimeo.com/oauth/authorize',
+      'authorizeURL'		=> 'https://vimeo.com/oauth/authorize',
+      'requestTokenURL'	=> 'https://vimeo.com/oauth/request_token',
+
+      'applicationCreateURL' => 'https://developer.vimeo.com/apps/new',
+
+       'apiBase' => 'https://vimeo.com/api/rest/v2',
+    ),
+  );
+  return $config;
+}

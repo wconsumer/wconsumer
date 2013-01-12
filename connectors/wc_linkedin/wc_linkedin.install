@@ -1,0 +1,88 @@
+<?php
+if (! defined('WC_CORE_T_SERVICE')){
+	module_load_include('module', 'wc_core', 'wc_core');
+}
+
+//Define service specific values
+define('WC_LINKEDIN_SERVICE_NAME', 'linkedin');
+define('WC_LINKEDIN_EXCEPTION_CATEGORY', 'wc_linkedin');
+
+//Define attributes? May be too cumbersome
+
+function wc_linkedin_install(){    
+  
+    //*******************TEMP
+    global $user; 
+    $uid = $user->uid;
+    //********************
+  
+    //Create the initial record for this service
+    $sid = db_insert(WC_CORE_T_SERVICE)
+        ->fields(array(
+            /*
+	    'consumer_key' => '',
+            'consumer_secret' => '',
+            */
+	    'credentials' => '',
+            'service_name' => WC_LINKEDIN_SERVICE_NAME,
+        ))
+        ->execute();           
+};
+
+function wc_linkedin_uninstall(){    
+    
+
+    
+    //Get the set of service records to be deleted
+    $sidsQuery = db_select(WC_CORE_T_SERVICE, 's')
+        ->fields('s', array('sid'))
+        ->condition('service_name', WC_LINKEDIN_SERVICE_NAME);
+    
+    $sids = $sidsQuery
+                ->execute()
+                ->fetchCol();
+
+
+    //Get the set of user records to be deleted    
+    $suidsQuery = db_select(WC_CORE_T_USER, 'u');
+    $suidsQuery->join($sidsQuery, 's', 'u.sid = s.sid');
+    $suidsQuery->addField('u', 'suid');
+    
+    
+    $suids = $suidsQuery
+                ->execute()
+                ->fetchCol();
+    
+    
+    $transaction = db_transaction();
+
+    try {
+      
+       //Delete all request records which were related to the deleted service
+        if($suids){
+            $requestsRecs = db_delete(WC_CORE_T_REQUEST)
+            ->condition('suid', $suids, 'IN')
+            ->execute();
+        } 
+        //Delete all user records which were related to the deleted service
+        if($sids){
+            $userRecs = db_delete(WC_CORE_T_USER)
+                ->condition('sid', $sids, 'IN')
+                ->execute();    
+        }
+        
+        //Delete all records associated with the service name    
+        $serviceRecs = db_delete(WC_CORE_T_SERVICE)
+        ->condition('service_name', WC_LINKEDIN_SERVICE_NAME)
+        ->execute();
+        
+        if ($requestsRecs) drupal_set_message("Removed $requestsRecs Request records") ;
+        if ($userRecs) drupal_set_message("Removed $userRecs User records");       
+        drupal_set_message("Removed $serviceRecs Service records");
+    }
+    catch (Exception $e) {
+        drupal_set_message(t("Unable to remove WC_LINKEDIN_SERVICE_NAME records. Please remove these manually."), 'error');
+        $transaction->rollback();
+        watchdog_exception(WC_linkedin_EXCEPTION_CATEGORY, $e);
+    }
+}

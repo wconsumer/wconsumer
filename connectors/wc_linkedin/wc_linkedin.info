@@ -1,0 +1,5 @@
+name =  WC LinkedIn
+description = This is a module to create an integration with LinkedIn
+package = Wconsumer
+core = 7.x
+dependencies[] = wc_core

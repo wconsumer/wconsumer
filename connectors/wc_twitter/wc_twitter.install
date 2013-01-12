@@ -1,0 +1,115 @@
+<?php
+if (! defined('WC_CORE_T_SERVICE')){
+	module_load_include('module', 'wc_core', 'wc_core');
+}
+
+//Define service specific values
+define('WC_TWITTER_SERVICE_NAME', 'twitter');
+define('WC_TWITTER_EXCEPTION_CATEGORY', 'wc_twitter');
+
+
+
+
+//Define attributes? May be too cumbersome
+
+function wc_twitter_install(){    
+  
+    //*******************TEMP
+    global $user; 
+    $uid = $user->uid;
+    //********************
+  
+    //Create the initial record for this service
+    $sid = db_insert(WC_CORE_T_SERVICE)
+        ->fields(array(
+            /*
+	    'consumer_key' => '',
+            'consumer_secret' => '',
+            */
+	    'credentials' => '',
+            'service_name' => WC_TWITTER_SERVICE_NAME,
+        ))
+        ->execute();
+        
+//********************************TEST RECORDS*************************************************************/        
+	/*
+    $suid = db_insert(WC_CORE_T_USER)
+        ->fields(array(
+            'access_token' => 'QHSna16ON6gLnDWjHzsTVhd8THu9ymA9xn9iYqX9OA8',
+            'access_token_secret' => 'OMzaYiJT7BKSqga4p2Tk9JSFF2Fv9nDQrzQuDhe5Hs',
+            'sid' => $sid,
+            'uid' => $uid,
+            
+        ))
+        ->execute();
+
+    
+     db_insert(WC_CORE_T_REQUEST)
+        ->fields(array(
+            'request' => 'http://api.twitter.com/1/account/totals.json',
+            'suid' => $suid,
+            
+        ))
+        ->execute();
+        */
+//********************************END TEST RECORDS*************************************************************/             
+};
+
+
+function wc_twitter_uninstall(){    
+    
+
+    
+    //Get the set of service records to be deleted
+    $sidsQuery = db_select(WC_CORE_T_SERVICE, 's')
+        ->fields('s', array('sid'))
+        ->condition('service_name', WC_TWITTER_SERVICE_NAME);
+    
+    $sids = $sidsQuery
+                ->execute()
+                ->fetchCol();
+
+
+    //Get the set of user records to be deleted    
+    $suidsQuery = db_select(WC_CORE_T_USER, 'u');
+    $suidsQuery->join($sidsQuery, 's', 'u.sid = s.sid');
+    $suidsQuery->addField('u', 'suid');
+    
+    
+    $suids = $suidsQuery
+                ->execute()
+                ->fetchCol();
+    
+    
+    $transaction = db_transaction();
+
+    try {
+      
+       //Delete all request records which were related to the deleted service
+        if($suids){
+            $requestsRecs = db_delete(WC_CORE_T_REQUEST)
+            ->condition('suid', $suids, 'IN')
+            ->execute();
+        } 
+        //Delete all user records which were related to the deleted service
+        if($sids){
+            $userRecs = db_delete(WC_CORE_T_USER)
+                ->condition('sid', $sids, 'IN')
+                ->execute();    
+        }
+        
+        //Delete all records associated with the service name    
+        $serviceRecs = db_delete(WC_CORE_T_SERVICE)
+        ->condition('service_name', WC_TWITTER_SERVICE_NAME)
+        ->execute();
+        
+        if ($requestsRecs) drupal_set_message("Removed $requestsRecs Request records") ;
+        if ($userRecs) drupal_set_message("Removed $userRecs User records");       
+        drupal_set_message("Removed $serviceRecs Service records");
+    }
+    catch (Exception $e) {
+        drupal_set_message(t("Unable to remove WC_TWITTER_SERVICE_NAME records. Please remove these manually."), 'error');
+        $transaction->rollback();
+        watchdog_exception(WC_TWITTER_EXCEPTION_CATEGORY, $e);
+    }
+}
