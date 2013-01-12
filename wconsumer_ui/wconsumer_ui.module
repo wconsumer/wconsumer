@@ -17,7 +17,7 @@ function wconsumer_ui_menu()
     'menu_name' => 'management',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_wconsumer_ui_form'),
-    'file' => 'wconsumer_ui.inc',
+    'file' => 'wconsumer_ui_form.inc',
     'file path' => drupal_get_path('module', 'wconsumer_ui'),
     'access callback' => 'user_access',
     'access arguments' => array(
