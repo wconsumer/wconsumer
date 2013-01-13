@@ -5,4 +5,5 @@ core = 7.x
 php = 5.3
 dependencies[] = "xautoload"
 dependencies[] = "entity"
+files[] = wconsumer.class.inc
 files[] = wconsumer.test
