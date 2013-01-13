@@ -2,6 +2,5 @@
   function wconsumer_init() {
     $service = array();
     $service = module_invoke_all('wconsumer_config', $service);
-    print_r($service);
     drupal_set_message('<pre>' . print_r($service, TRUE)) . '</pre>';
   }
