@@ -1,7 +1,8 @@
-name = wconsumer
+name = "wconsumer"
 description = This is a basic example of a form submitted to the database.
-package = wconsumer
+package = "wconsumer"
 core = 7.x
 php = 5.3
-dependencies[] = xautoload
+dependencies[] = "xautoload"
+dependencies[] = "entity"
 files[] = wconsumer.test

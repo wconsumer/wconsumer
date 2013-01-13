@@ -1,4 +1,5 @@
-name = wconsumer ui
+name = "wconsumer ui"
 description = This is a basic example of a form submitted to the database.
-package = wconsumer
+package = "wconsumer"
 core = 7.x
+dependencies[] = "wconsumer"
