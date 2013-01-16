@@ -4,20 +4,21 @@
  *
  * cURL Library for PHP
  * For documentation, see {@link https://github.com/philsturgeon/codeigniter-curl}
- * @package  wc_core
+ * @package  wconsumer
+ * @subpackage  wc_api
  */
 
 /**
- * Curl Class
+ * cURL Class
  *
  * Work with remote servers via cURL much easier than using the native PHP bindings.
  *
- * @package         CodeIgniter
- * @subpackage      Libraries
- * @category      Libraries
- * @author          Philip Sturgeon
- * @license         http://philsturgeon.co.uk/code/dbad-license
- * @link      http://philsturgeon.co.uk/code/codeigniter-curl
+ * @package wconsumer
+ * @subpackage wc_api
+ * @category cURL
+ * @author Philip Sturgeon
+ * @license http://philsturgeon.co.uk/code/dbad-license
+ * @link http://philsturgeon.co.uk/code/codeigniter-curl
  */
 class Curl {
   protected $response = '';       // Contains the cURL response for debug

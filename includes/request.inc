@@ -1,9 +1,9 @@
 <?php
 /**
- * @file
  * Handling the Requests of APIs
  *
- * @package wc_core
+ * @package wconsumer
+ * @subpackage  wc_api
  */
 
 /**
@@ -13,7 +13,7 @@
  * different authentication methods. You can look at the `oAuthRequester` or
  * `apiRequester` classes for the specific authentication method implementation.
  * 
- * @package wc_core
+ * @package wconsumer
  */
 class ServiceRequest {
   // The name of the service
@@ -271,7 +271,7 @@ class ServiceRequest {
  *
  * We didn't want to rewrite code so we will extend this
  *
- * @package  wc_core
+ * @package  wconsumer
  */
 abstract class ServiceRequestExtender
 {
@@ -301,7 +301,7 @@ abstract class ServiceRequestExtender
 /**
  * OAuth API Requester Class
  *
- * @package wc_core
+ * @package wconsumer
  * @uses  ServiceRequestExtender Extends the base class
  */
 class oAuthRequester extends ServiceRequestExtender
@@ -409,7 +409,7 @@ class oAuthRequester extends ServiceRequestExtender
 /**
  * API Requester to interface with API Auth services
  *
- * @package  wc_core
+ * @package  wconsumer
  * @uses  ServiceRequestExtender
  */
 class apiRequester extends ServiceRequestExtender

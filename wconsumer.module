@@ -1,6 +1,13 @@
 <?php
-  function wconsumer_init() {
-    $service = array();
-    $service = module_invoke_all('wconsumer_config', $service);
-    drupal_set_message('<pre>' . print_r($service, TRUE)) . '</pre>';
-  }
+/**
+ * Web Consumer Manager Base
+ *
+ * @package  wconsumer
+ * @subpackage  wc_api
+ */
+
+function wconsumer_init() {
+  $service = array();
+  $service = module_invoke_all('wconsumer_config', $service);
+  drupal_set_message('<pre>' . print_r($service, TRUE)) . '</pre>';
+}
