@@ -15,6 +15,8 @@ class Request
    */
   public $apiURL;
 
+  private static $instance = NULL;
+
   /**
    * Call this method to get singleton
    *
@@ -22,10 +24,9 @@ class Request
    */
   public static function Instance()
   {
-    static $inst = null;
-    if ($inst === null)
-      $inst = new Request();
+    if (static::$instance !== NULL)
+      static::$instance = new Request();
 
-    return $inst;
+    return static::$instance;
   }
 }
