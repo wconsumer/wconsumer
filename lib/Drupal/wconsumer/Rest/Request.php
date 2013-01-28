@@ -14,4 +14,18 @@ class Request
    * @var string
    */
   public $apiURL;
+
+  /**
+     * Call this method to get singleton
+     *
+     * @return UserFactory
+     */
+    public static function Instance()
+    {
+        static $inst = null;
+        if ($inst === null) {
+            $inst = new Request();
+        }
+        return $inst;
+    }
 }
