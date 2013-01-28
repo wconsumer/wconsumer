@@ -4,10 +4,12 @@
  *
  * @package  wconsumer
  * @subpackage  wc_api
+ * @link https://github.com/kaw393939/wconsumer/
  */
+
+use Drupal\wconsumer\Service;
 
 function wconsumer_init() {
   $service = array();
-  $service = module_invoke_all('wconsumer_config', $service);
-  drupal_set_message('<pre>' . print_r($service, TRUE)) . '</pre>';
+  drupal_set_message('<pre>' . print_r(Service::services($service), TRUE)) . '</pre>';
 }
