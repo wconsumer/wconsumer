@@ -1,6 +1,6 @@
 <?php
   class wconsumer {
-    public $services;  
+    public $services;
   }
 
 
@@ -18,7 +18,7 @@ class oauth {
   /* Set timeout default. */
   public $timeout = 30;
   /* Set connect timeout. */
-  public $connecttimeout = 30; 
+  public $connecttimeout = 30;
   /* Verify SSL Cert. */
   public $ssl_verifypeer = FALSE;
   /* Respons format. */
@@ -27,7 +27,7 @@ class oauth {
   public $decode_json = TRUE;
   /* Contains the last HTTP headers returned. */
   public $http_info;
- public $useragent = 'wconsumer v.1'; 
+ public $useragent = 'wconsumer v.1';
 /* Set the useragnet. */
   //public $useragent = 'TwitterOAuth v0.2.0-beta2';
   /* Immediately retry the API call if the response was not successful. */
@@ -58,7 +58,7 @@ class oauth {
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
     if (!empty($oauth_token) && !empty($oauth_token_secret)) {
       $this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
-    } 
+    }
     else {
       $this->token = NULL;
     }
@@ -73,7 +73,7 @@ class oauth {
     $parameters = array();
     if (!empty($oauth_callback)) {
       $parameters['oauth_callback'] = $oauth_callback;
-    } 
+    }
     $request = $this->oAuthRequest($this->getRequestTokenURL(), 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
@@ -91,7 +91,7 @@ class oauth {
     }
     if (empty($sign_in_with_twitter)) {
       return $this->getAuthorizeURL() . "?oauth_token={$token}";
-    } 
+    }
     else {
        return $this->getAuthenticateURL() . "?oauth_token={$token}";
     }
@@ -125,7 +125,7 @@ class oauth {
    *                "user_id" => "9436992",
    *                "screen_name" => "abraham",
    *                "x_auth_expires" => "0")
-   */  
+   */
   function getXAuthToken($username, $password) {
     $parameters = array();
     $parameters['x_auth_username'] = $username;
@@ -147,7 +147,7 @@ class oauth {
     }
     return $response;
   }
-  
+
   /**
    * POST wrapper for oAuthRequest.
    */
@@ -227,7 +227,7 @@ class oauth {
 
     if (curl_errno($ci))
       throw new OAuthException('CURL Error: '.curl_errno($ci));
-      
+
     curl_close($ci);
     return $response;
   }
@@ -316,9 +316,9 @@ abstract class OAuthSignatureMethod {
   }
 }
 /**
- * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104] 
- * where the Signature Base String is the text and the key is the concatenated values (each first 
- * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&' 
+ * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104]
+ * where the Signature Base String is the text and the key is the concatenated values (each first
+ * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&'
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1")
  */
@@ -339,7 +339,7 @@ class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
   }
 }
 /**
- * The PLAINTEXT method does not provide any security protection and SHOULD only be used 
+ * The PLAINTEXT method does not provide any security protection and SHOULD only be used
  * over a secure channel such as HTTPS. It does not use the Signature Base String.
  *   - Chapter 9.4 ("PLAINTEXT")
  */
@@ -348,8 +348,8 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
     return "PLAINTEXT";
   }
   /**
-   * oauth_signature is set to the concatenated encoded values of the Consumer Secret and 
-   * Token Secret, separated by a '&' character (ASCII code 38), even if either secret is 
+   * oauth_signature is set to the concatenated encoded values of the Consumer Secret and
+   * Token Secret, separated by a '&' character (ASCII code 38), even if either secret is
    * empty. The result MUST be encoded again.
    *   - Chapter 9.4.1 ("Generating Signatures")
    *
@@ -368,10 +368,10 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
   }
 }
 /**
- * The RSA-SHA1 signature method uses the RSASSA-PKCS1-v1_5 signature algorithm as defined in 
- * [RFC3447] section 8.2 (more simply known as PKCS#1), using SHA-1 as the hash function for 
- * EMSA-PKCS1-v1_5. It is assumed that the Consumer has provided its RSA public key in a 
- * verified way to the Service Provider, in a manner which is beyond the scope of this 
+ * The RSA-SHA1 signature method uses the RSASSA-PKCS1-v1_5 signature algorithm as defined in
+ * [RFC3447] section 8.2 (more simply known as PKCS#1), using SHA-1 as the hash function for
+ * EMSA-PKCS1-v1_5. It is assumed that the Consumer has provided its RSA public key in a
+ * verified way to the Service Provider, in a manner which is beyond the scope of this
  * specification.
  *   - Chapter 9.3 ("RSA-SHA1")
  */
@@ -637,7 +637,7 @@ class OAuthServer {
     $this->signature_methods[$signature_method->get_name()] = $signature_method;
   }
   // high level functions
-  
+
   /**
    * process a request_token request
    * returns the request token on success
@@ -682,14 +682,14 @@ class OAuthServer {
     );
   }
   // Internals from here
-  
+
   /**
    * version 1
    */
   private function get_version(&$request) {
     $version = $request->get_parameter("oauth_version");
     if (!$version) {
-      // Service Providers MUST assume the protocol version to be 1.0 if this parameter is not present. 
+      // Service Providers MUST assume the protocol version to be 1.0 if this parameter is not present.
       // Chapter 7.0 ("Accessing Protected Ressources")
       $version = '1.0';
     } //!$version
