@@ -11,6 +11,7 @@ class Request
 {
   /**
    * API Base URL
+   *
    * @var string
    */
   public $apiURL;
@@ -18,9 +19,10 @@ class Request
   private static $instance = NULL;
 
   /**
-   * Call this method to get singleton
+   * Call this method to get a instance
    *
-   * @return Request Instance
+   * @return object
+   * @access public
    */
   public static function Instance()
   {
