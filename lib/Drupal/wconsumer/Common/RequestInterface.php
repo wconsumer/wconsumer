@@ -42,5 +42,5 @@ interface RequestInterface {
    *
    * @return object
    */
-  public function Instance();
+  public static function Instance();
 }

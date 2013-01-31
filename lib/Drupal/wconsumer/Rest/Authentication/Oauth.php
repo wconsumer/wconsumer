@@ -131,7 +131,7 @@ class Oauth {
    *
    * @return array A key/value array containing oauth_token and oauth_token_secret
    */
-  public function getRequestToken($oauth_callback = NULL) {}
+  public function getRequestToken($oauth_callback = NULL) {
     $parameters = array();
     if (!empty($oauth_callback))
       $parameters['oauth_callback'] = $oauth_callback;
