@@ -1,5 +1,6 @@
 <?php
 namespace Drupal\wconsumer\Rest;
+use Drupal\wconsumer\Common\RequestInterface;
 
 /**
  * REST Request Class
@@ -7,7 +8,7 @@ namespace Drupal\wconsumer\Rest;
  * @package wconsumer
  * @subpackage request
  */
-class Request
+class Request implements RequestInterface
 {
   /**
    * API Base URL

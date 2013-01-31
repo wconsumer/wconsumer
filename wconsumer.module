@@ -11,5 +11,7 @@ use Drupal\wconsumer\Service;
 
 function wconsumer_init() {
   $service = array();
-  drupal_set_message('<pre>' . print_r(Service::services($service), TRUE)) . '</pre>';
+  drupal_set_message('<pre>' . print_r(
+    Service::services($service), TRUE
+  ) . '</pre>');
 }
