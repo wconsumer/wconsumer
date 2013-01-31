@@ -9,33 +9,93 @@ namespace Drupal\wconsumer\Rest\Authentication;
  * @subpackage request
  */
 class Oauth {
-  /* Contains the last HTTP status code returned. */
+  /**
+   * Contains the last HTTP status code returned.
+   *
+   * @var int
+   */
   public $http_code;
-  /* Contains the last API call. */
+
+  /**
+   * Contains the last API call.
+   *
+   * @var string
+   */
   public $url;
-  /* Set up the API root URL. */
+
+  /**
+   * Set up the API root URL.
+   *
+   * @var string
+   */
   public $host = "https://api.twitter.com/1/";
-  /* Set timeout default. */
+
+  /**
+   * Set timeout default.
+   *
+   * @var int
+   */
   public $timeout = 30;
-  /* Set connect timeout. */
+
+  /**
+   * Set connect timeout.
+   *
+   * @var int
+   */
   public $connecttimeout = 30;
-  /* Verify SSL Cert. */
+
+  /**
+   * Verify SSL Cert.
+   *
+   * @var bool
+   */
   public $ssl_verifypeer = FALSE;
-  /* Respons format. */
+
+  /**
+   * Response format.
+   *
+   * @var string
+   */
   public $format = 'json';
-  /* Decode returned json data. */
+
+  /**
+   * Decode returned json data.
+   *
+   * @var bool
+   */
   public $decode_json = TRUE;
-  /* Contains the last HTTP headers returned. */
+
+  /**
+   * Contains the last HTTP headers returned.
+   *
+   * @var array
+   */
   public $http_info;
- public $useragent = 'wconsumer v.1';
-/* Set the useragnet. */
-  //public $useragent = 'TwitterOAuth v0.2.0-beta2';
-  /* Immediately retry the API call if the response was not successful. */
-  //public $retry = TRUE;
-    public $accessTokenURL;
-    public $authenticateURL;
-    public $authorizeURL;
-    public $requestTokenURL;
+
+  /**
+   * HTTP User Agent
+   *
+   * @var string
+   */
+  public $useragent = 'Web Consumer Manager';
+
+  /**
+   * Immediately retry the API call if the response was not successful
+   *
+   * @var bool
+   * @deprecated
+   */
+  public $retry = FALSE;
+
+  /**
+   * @var string
+   */
+  public $authenticateURL;
+
+  /**
+   * @var string
+   */
+  public $requestTokenURL;
 
   function getAccessTokenURL()  { return $this->AccessTokenURL; }
   function getAuthenticateURL() { return $this->AuthenticateURL; }
@@ -49,31 +109,33 @@ class Oauth {
   function lastAPICall() { return $this->last_api_call; }
 
   /**
-   * construct TwitterOAuth object
+   * Construct Oauth Class
    */
-  function __construct() {
+  public function __construct() {
+
   }
-  function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL) {
-  $this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
+
+  public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)
+  {
+    $this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
-    if (!empty($oauth_token) && !empty($oauth_token_secret)) {
+
+    if (!empty($oauth_token) && !empty($oauth_token_secret))
       $this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
-    }
-    else {
+    else
       $this->token = NULL;
-    }
   }
 
   /**
    * Get a request_token from Twitter
    *
-   * @returns a key/value array containing oauth_token and oauth_token_secret
+   * @return array A key/value array containing oauth_token and oauth_token_secret
    */
-  function getRequestToken($oauth_callback = NULL) {
+  public function getRequestToken($oauth_callback = NULL) {}
     $parameters = array();
-    if (!empty($oauth_callback)) {
+    if (!empty($oauth_callback))
       $parameters['oauth_callback'] = $oauth_callback;
-    }
+
     $request = $this->oAuthRequest($this->getRequestTokenURL(), 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
@@ -83,34 +145,30 @@ class Oauth {
   /**
    * Get the authorize URL
    *
-   * @returns a string
+   * @return string
    */
-  function createAuthorizeURL($token, $sign_in_with_twitter = TRUE) {
-    if (is_array($token)) {
+  public function createAuthorizeURL($token) {
+    if (is_array($token))
       $token = $token['oauth_token'];
-    }
-    if (empty($sign_in_with_twitter)) {
-      return $this->getAuthorizeURL() . "?oauth_token={$token}";
-    }
-    else {
-       return $this->getAuthenticateURL() . "?oauth_token={$token}";
-    }
+
+    return $this->getAuthorizeURL() . "?oauth_token={$token}";
   }
 
   /**
    * Exchange request token and secret for an access token and
    * secret, to sign API calls.
    *
-   * @returns array("oauth_token" => "the-access-token",
+   * @param bool
+   * @return array array("oauth_token" => "the-access-token",
    *                "oauth_token_secret" => "the-access-secret",
    *                "user_id" => "9436992",
    *                "screen_name" => "abraham")
    */
-  function getAccessToken($oauth_verifier = FALSE) {
+  public function getAccessToken($oauth_verifier = FALSE) {
     $parameters = array();
-    if (!empty($oauth_verifier)) {
+    if (!empty($oauth_verifier))
       $parameters['oauth_verifier'] = $oauth_verifier;
-    }
+
     $request = $this->oAuthRequest($this->getAccessTokenURL(), 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
@@ -120,13 +178,15 @@ class Oauth {
   /**
    * One time exchange of username and password for access token and secret.
    *
-   * @returns array("oauth_token" => "the-access-token",
+   * Not used in core
+   *
+   * @return array array("oauth_token" => "the-access-token",
    *                "oauth_token_secret" => "the-access-secret",
    *                "user_id" => "9436992",
    *                "screen_name" => "abraham",
    *                "x_auth_expires" => "0")
    */
-  function getXAuthToken($username, $password) {
+  public function getXAuthToken($username, $password) {
     $parameters = array();
     $parameters['x_auth_username'] = $username;
     $parameters['x_auth_password'] = $password;
@@ -139,63 +199,89 @@ class Oauth {
 
   /**
    * GET wrapper for oAuthRequest.
+   *
+   * @param string
+   * @param array
+   * @return mixed
    */
-  function get($url, $parameters = array()) {
+  public function get($url, $parameters = array()) {
     $response = $this->oAuthRequest($url, 'GET', $parameters);
-    if ($this->format === 'json' && $this->decode_json) {
+
+    if ($this->format === 'json' && $this->decode_json)
       return json_decode($response);
-    }
+
     return $response;
   }
 
   /**
    * POST wrapper for oAuthRequest.
+   *
+   * @param string
+   * @param array
+   * @return mixed
    */
-  function post($url, $parameters = array()) {
+  public function post($url, $parameters = array()) {
     $response = $this->oAuthRequest($url, 'POST', $parameters);
-    if ($this->format === 'json' && $this->decode_json) {
+
+    if ($this->format === 'json' && $this->decode_json)
       return json_decode($response);
-    }
+
     return $response;
   }
 
   /**
    * DELETE wrapper for oAuthReqeust.
+   *
+   * @param string
+   * @param array
+   * @return mixed
    */
-  function delete($url, $parameters = array()) {
+  public function delete($url, $parameters = array()) {
     $response = $this->oAuthRequest($url, 'DELETE', $parameters);
-    if ($this->format === 'json' && $this->decode_json) {
+
+    if ($this->format === 'json' && $this->decode_json)
       return json_decode($response);
-    }
+
     return $response;
   }
 
   /**
    * Format and sign an OAuth / API request
+   *
+   * @param string
+   * @param string HTTP Method
+   * @param array
    */
-  function oAuthRequest($url, $method, $parameters) {
-    if (strrpos($url, 'https://') !== 0 && strrpos($url, 'http://') !== 0) {
+  public function oAuthRequest($url, $method, $parameters) {
+    if (strrpos($url, 'https://') !== 0 && strrpos($url, 'http://') !== 0)
       $url = "{$this->host}{$url}.{$this->format}";
-    }
+
     $request = OAuthRequest::from_consumer_and_token($this->consumer, $this->token, $method, $url, $parameters);
     $request->sign_request($this->sha1_method, $this->consumer, $this->token);
+
     switch ($method) {
-    case 'GET':
-      return $this->http($request->to_url(), 'GET');
-    default:
-      return $this->http($request->get_normalized_http_url(), $method, $request->to_postdata());
+      case 'GET':
+        return $this->http($request->to_url(), 'GET');
+        break;
+
+      default:
+        return $this->http($request->get_normalized_http_url(), $method, $request->to_postdata());
     }
   }
 
   /**
    * Make an HTTP request
    *
-   * @return API results
+   * @param string
+   * @param string HTTP method
+   * @param aray
+   * @return object API results
    */
-  function http($url, $method, $postfields = NULL) {
+  public function http($url, $method, $postfields = NULL) {
     $this->http_info = array();
     $ci = curl_init();
-    /* Curl settings */
+
+    // Curl settings
     curl_setopt($ci, CURLOPT_USERAGENT, $this->useragent);
     curl_setopt($ci, CURLOPT_CONNECTTIMEOUT, $this->connecttimeout);
     curl_setopt($ci, CURLOPT_TIMEOUT, $this->timeout);
@@ -205,18 +291,17 @@ class Oauth {
     curl_setopt($ci, CURLOPT_HEADERFUNCTION, array($this, 'getHeader'));
     curl_setopt($ci, CURLOPT_HEADER, FALSE);
 
-    switch ($method) {
+    switch (strtoupper($method)) {
       case 'POST':
         curl_setopt($ci, CURLOPT_POST, TRUE);
-        if (!empty($postfields)) {
+        if (!empty($postfields))
           curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields);
-        }
         break;
+
       case 'DELETE':
         curl_setopt($ci, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        if (!empty($postfields)) {
+        if (!empty($postfields))
           $url = "{$url}?{$postfields}";
-        }
     }
 
     curl_setopt($ci, CURLOPT_URL, $url);
@@ -233,40 +318,70 @@ class Oauth {
   }
 
   /**
-   * Get the header info to store.
+   * Get the header info to store
+   *
+   * @param object
+   * @param string
+   * @return string
    */
-  function getHeader($ch, $header) {
+  public function getHeader($ch, $header) {
     $i = strpos($header, ':');
     if (!empty($i)) {
       $key = str_replace('-', '_', strtolower(substr($header, 0, $i)));
       $value = trim(substr($header, $i + 2));
       $this->http_header[$key] = $value;
     }
+
     return strlen($header);
   }
 }
 
+/**
+ * OAuthConsumer
+ *
+ * @package wconsumer
+ * @subpackage oauth
+ */
 class OAuthConsumer {
   public $key;
   public $secret;
-  function __construct($key, $secret, $callback_url = NULL) {
+
+  /**
+   * Setup the OAuthConsumer
+   *
+   * @param string $key
+   * @param string $secret
+   * @param string $callback_url URL to return after getting the consumer key
+   */
+  public function __construct($key, $secret, $callback_url = NULL) {
     $this->key          = $key;
     $this->secret       = $secret;
     $this->callback_url = $callback_url;
   }
-  function __toString() {
+
+  public function __toString() {
     return "OAuthConsumer[key=$this->key,secret=$this->secret]";
   }
 }
+
+/**
+ * OAuthToken
+ *
+ * @package wconsumer
+ * @subpackage oauth
+ */
 class OAuthToken {
   // access tokens and request tokens
   public $key;
   public $secret;
+
   /**
-   * key = the token
-   * secret = the token secret
+   * Setup the OAuthToken
+   *
+   * @param string $key the token
+   * @param string $secret the token secret
    */
-  function __construct($key, $secret) {
+  public function __construct($key, $secret) {
     $this->key    = $key;
     $this->secret = $secret;
   }
@@ -274,10 +389,11 @@ class OAuthToken {
    * generates the basic string serialization of a token that a server
    * would respond to request_token and access_token calls with
    */
-  function to_string() {
+  public function to_string() {
     return "oauth_token=" . OAuthUtil::urlencode_rfc3986($this->key) . "&oauth_token_secret=" . OAuthUtil::urlencode_rfc3986($this->secret);
   }
-  function __toString() {
+
+  public function __toString() {
     return $this->to_string();
   }
 }
