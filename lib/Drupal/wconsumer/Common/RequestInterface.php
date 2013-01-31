@@ -36,4 +36,11 @@ interface RequestInterface {
    * @return mixed
    */
   public function __call($method, $arguments);
+
+  /**
+   * Return an Instance of the Object
+   *
+   * @return object
+   */
+  public function Instance();
 }
