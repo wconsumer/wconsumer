@@ -32,4 +32,17 @@ class Request implements RequestInterface
 
     return static::$instance;
   }
+
+  public function setApiUrl($url) { $this->apiURL = $url; }
+  public function getApiUrl() { return $this->apiURL; }
+
+  public function __call($method, $arguments = array())
+  {
+
+  }
+
+  public function makeRequest($endPoint, $method, $arguments)
+  {
+
+  }
 }
