@@ -15,6 +15,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   if ($service == NULL) :
     // Default Menu
+
     // Add Web Manager Settings Here
     return $form;
   endif;
@@ -26,39 +27,47 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
     return;
   }
 
-  $form['description'] = array(
-    '#type' => 'item',
-    '#title' => t('Service Management: '.ucwords($service)),
-  );
+  $form['creds'] = array(
+      '#type' => 'fieldset',
+      '#title' => t($service.' Application Credentials'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
 
-  $form['name'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Name'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-  $form['name']['first'] = array(
-    '#type' => 'textfield',
-    '#title' => t('First name'),
-    '#required' => TRUE,
-    '#default_value' => "First name",
-    '#description' => "Please enter your first name.",
-    '#size' => 20,
-    '#maxlength' => 20,
-  );
-  $form['name']['last'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Last name'),
-    '#required' => TRUE,
-  );
-  $form['year_of_birth'] = array(
-    '#type' => 'textfield',
-    '#title' => "Year of birth",
-    '#description' => 'Format is "YYYY"',
-  );
+  switch(get_class($object->request)) :
+    case 'Drupal\wconsumer\Rest\Request' :
+
+      $form['creds']['consumer-key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Consumer Key'),
+        '#required' => TRUE,
+      );
+
+      $form['creds']['consumer-secret'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Consumer Secret'),
+        '#required' => TRUE,
+      );
+
+      break;
+
+    case 'Drupal\wconsumer\Soap\Request' :
+
+      break;
+
+    default :
+      die('Unknown');
+  endswitch;
+
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Submit',
+    '#value' => t('Save Configuration')
   );
+
+  $form['service-name'] = array(
+    '#type' => 'hidden',
+    '#value' => $service,
+  );
+
   return $form;
 }

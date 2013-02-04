@@ -2,7 +2,6 @@
 namespace Drupal\wconsumer\Common;
 
 interface RequestInterface {
-
   /**
    * Set the API URL
    *

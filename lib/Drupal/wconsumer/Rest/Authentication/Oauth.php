@@ -1,5 +1,6 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
+use Drupal\wconsumer\Rest\Authencation as AuthencationBase;
 
 /**
  * OAuth Authentication Class
@@ -8,7 +9,7 @@ namespace Drupal\wconsumer\Rest\Authentication;
  * @package wconsumer
  * @subpackage request
  */
-class Oauth {
+class Oauth extends AuthencationBase {
   /**
    * Contains the last HTTP status code returned.
    *
@@ -97,6 +98,13 @@ class Oauth {
    */
   public $requestTokenURL;
 
+  /**
+   * Instance of the Service Object
+   * 
+   * @var object
+   */
+  private $_instance;
+
   function getAccessTokenURL()  { return $this->AccessTokenURL; }
   function getAuthenticateURL() { return $this->AuthenticateURL; }
   function getAuthorizeURL()    { return $this->AuthorizeURL; }
@@ -110,9 +118,11 @@ class Oauth {
 
   /**
    * Construct Oauth Class
+   *
+   * @param object Instance Object of the service
    */
-  public function __construct() {
-
+  public function __construct(& $instance) {
+    $this->_instance = $instance;
   }
 
   public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)
