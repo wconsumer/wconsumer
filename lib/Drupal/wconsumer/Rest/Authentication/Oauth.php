@@ -1,6 +1,6 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
-use Drupal\wconsumer\Rest\Authencation as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
 
 /**
  * OAuth Authentication Class
@@ -121,8 +121,8 @@ class Oauth extends AuthencationBase {
    *
    * @param object Instance Object of the service
    */
-  public function __construct(& $instance) {
-    $this->_instance = $instance;
+  public function __construct() {
+    
   }
 
   public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)

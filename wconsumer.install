@@ -1,24 +1,29 @@
 <?php
 /**
  * @file
- * Install, update, and uninstall functions for the wconsumer (wc_core) module.
+ * Install, update, and uninstall functions for the wconsumer module.
+ *
+ * @package wconsumer
+ * @subpackage schema
  */
-function wc_core_schema() {
-  $schema['wc_core_service'] = array(
+function wconsumer_schema() {
+  $schema = array();
+
+  $schema['wc_service_registry'] = array(
     'description' => 'Stores Services',
     
     'fields' => array(
-      'sid' => array(
+      'service_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Service ID'
       ),
-      'service_name' => array(
+      'service' => array(
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 200,
         'not null' => TRUE,
         'default' => '',
-        'description' => 'The name of the associated service provider'
+        'description' => 'The name of service'
       ),
       'credentials' => array(
         'type' => 'varchar',
@@ -26,31 +31,29 @@ function wc_core_schema() {
         'not null' => TRUE,
         'default' => '',
         'serialize' => TRUE,
-        'description' => 'The serialized credentials object for this user'
+        'description' => 'The serialized credentials object for this service'
       ),
      
     ),
-    'primary key' => array(
-      'sid'
-    ),
+    'primary key' => array('service_id'),
     'indexes' => array(
-      'sid' => array(
-        'sid'
+      'service_id' => array(
+        'service_id'
       ),
      'unique keys' => array(
-      'service_name'
+      'service'
       ),
     )
   );
-  $schema['wc_core_request'] = array(
+  $schema['wc_requests'] = array(
     'description' => 'Stores Service Requests',
     'fields' => array(
-      'rid' => array(
+      'request_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Request ID'
       ),
-      'suid' => array(
+      'service_id' => array(
         'type'        => 'int',
         'not null'    => TRUE,
         'description' => 'Foreign Key: User service ID'
@@ -68,7 +71,7 @@ function wc_core_schema() {
         'not null'    => TRUE,
         'description' => 'The time that this request should be processed. Default is 0 for a request that is processed instantaneously.'
       ),
-      'response_data' => array(
+      'response' => array(
         'type'        => 'blob',
         'size'        => 'big',
         'description' => 'The response of the request that we are going to be storing for an audit log.'
@@ -81,9 +84,9 @@ function wc_core_schema() {
         'description' => 'The status of the request.'
       ),
       'moderate' => array(
-       'type'        => 'varchar',
+       'type'        => 'numeric',
         'length'      => 1,
-        'default'     => 'Y',
+        'default'     => 0,
         'binary'      => TRUE,
         'description' => 'Indication of need for moderation'
       ),
@@ -101,40 +104,40 @@ function wc_core_schema() {
       ),
     ),
     'foreign keys' => array(
-      'suid' => array(
-        'table' => 'wc_core_user',
+      'service_id' => array(
+        'table' => 'wc_service_registry',
         'columns' => array(
-          'suid' => 'suid'
+          'service_id' => 'service_id'
         )
       )
     ),
     'primary key' => array(
-      'rid'
+      'request_id'
     ),
     'indexes' => array(
-      'rid' => array(
-        'rid'
+      'request_id' => array(
+        'request_id'
       ),
-      'suid' => array(
-        'suid'
+      'service_id' => array(
+        'service_id'
       )
     )
   );
   
-  $schema['wc_core_user'] = array(
-    'description' => 'Stores User Services',
+  $schema['wc_service_cred'] = array(
+    'description' => 'Stores a User\'s Service Credentials',
     'fields' => array(
-      'suid' => array(
+      'cred_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
-        'description' => 'Primary Key: User service ID'
+        'description' => 'Primary Key: Credential id'
       ),
-      'sid' => array(
+      'service_id' => array(
         'type' => 'int',
         'not null' => TRUE,
         'description' => 'Foreign Key: Service ID'
       ),
-      'uid' => array(
+      'user_id' => array(
         'type' => 'int',
         'not null' => TRUE,
         'description' => 'Foreign Key: User ID'
@@ -153,30 +156,97 @@ function wc_core_schema() {
       'users' => array(
         'table' => 'users',
         'columns' => array(
-          'uid' => 'uid'
+          'user_id' => 'user_id'
         )
       ),
-      'sid' => array(
-        'table' => 'wc_core_service',
+      'service_id' => array(
+        'table' => 'wc_service_registry',
         'columns' => array(
-          'sid' => 'sid'
+          'service_id' => 'service_id'
         )
       )
     ),
     'primary key' => array(
-      'suid'
+      'cred_id'
     ),
     'indexes' => array(
-      'suid' => array(
-        'suid'
+      'service_id' => array(
+        'service_id'
       ),
-      'sid' => array(
-        'sid'
+      'cred_id' => array(
+        'cred_id'
       ),
-      'uid' => array(
-        'uid'
+      'user_id' => array(
+        'user_id'
       )
     )
   );
   return $schema;
+}
+
+/**
+ * @file
+ * Install for a basic entity - need to create the base table for our entity.
+ * This table can have as many columns as you need to keep track of
+ * entity-specific data that will not be added via attached fields.
+ * The minimum information for the entity to work is an id and an entity name.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function entity_example_schema() {
+  $schema = array();
+
+  // The name of the table can be any name we choose. However, namespacing the
+  // table with the module name is best practice.
+  $schema['entity_example_basic'] = array(
+    'description' => 'The base table for our basic entity.',
+      'fields' => array(
+        'basic_id' => array(
+          'description' => 'Primary key of the basic entity.',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        // If we allow multiple bundles, then the schema must handle that;
+        // We'll put it in the 'bundle_type' field to avoid confusion with the
+        // entity type.
+        'bundle_type' => array(
+          'description' => 'The bundle type',
+          'type' => 'text',
+          'size' => 'medium',
+          'not null' => TRUE
+        ),
+        // Additional properties are just things that are common to all
+        // entities and don't require field storage.
+        'item_description' => array(
+          'description' => 'A description of the item',
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'created' => array(
+          'description' => 'The Unix timestamp of the entity creation time.',
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      ),
+    'primary key' => array('basic_id'),
+  );
+
+  return $schema;
+}
+
+
+/*
+ * Implements hook_uninstall().
+ *
+ * At uninstall time we'll notify field.module that the entity was deleted
+ * so that attached fields can be cleaned up.
+ */
+function entity_example_uninstall() {
+  field_attach_delete_bundle('entity_example_basic' , 'first_example_bundle' );
 }
