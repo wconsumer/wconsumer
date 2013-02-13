@@ -1,0 +1,15 @@
+<?php
+class WconsumerFunctional extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Web Consumer Functional',
+      'description' => 'Test the functionality of Web Consumer',
+      'group' => 'Web Consumer Manager',
+    );
+  }
+
+  public function testassertTrue()
+  {
+    $this->assertTrue(TRUE);
+  }
+}

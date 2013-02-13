@@ -1,6 +1,17 @@
 <?php
 namespace Drupal\wconsumer;
 
+/**
+ * Service Manager Class
+ *
+ * Controller over the general function of the services
+ * Provides an interface to connect with the services and retains
+ * a global object about each service to prevent duplication.
+ * A different take on a singleton.
+ *
+ * @package wconsumer
+ * @subpackage services
+ */
 class Service {
   /**
    * Internal Service Registry

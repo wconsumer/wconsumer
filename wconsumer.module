@@ -17,3 +17,13 @@ function wconsumer_init() {
     Service::services($service), TRUE
   ) . '</pre>');
 }
+
+
+/**
+ * Unit Testing on Web Consumer
+ */
+function wconsumer_simpletest() {
+  $dir = drupal_get_path('module', 'wconsumer'). '/tests';
+  $tests = file_scan_directory($dir, '\.test$');
+  return array_keys($tests);
+}

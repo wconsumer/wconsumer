@@ -1,0 +1,16 @@
+<?php
+use Drupal\wconsumer\Service as ServiceClass;
+
+class Services extends DrupalUnitTestCase {
+  public function setUp()
+  {
+    parent::setUp();
+  }
+
+  public function testBoolReturnsTrue()
+  {
+    var_dump(ServiceClass::ServiceClass());
+    exit;
+    $this->assertTrue(TRUE);
+  }
+}
