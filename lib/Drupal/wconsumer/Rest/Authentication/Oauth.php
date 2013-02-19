@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Common\AuthInterface;
 
 /**
  * OAuth Authentication Class
@@ -9,7 +10,7 @@ use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
  * @package wconsumer
  * @subpackage request
  */
-class Oauth extends AuthencationBase {
+class Oauth extends AuthencationBase implements AuthInterface {
   /**
    * Contains the last HTTP status code returned.
    *
@@ -123,6 +124,27 @@ class Oauth extends AuthencationBase {
    */
   public function __construct() {
     
+  }
+
+  /**
+   * Process the Credentials to be in the format to be saved properly
+   * 
+   * @return array
+   * @param array
+   * @throws Drupal\wconsumer\Exception
+   */
+  public function formatCredentials($d)
+  {
+    if (! isset($d['consumer-key']) OR ! isset($d['consumer-secret']))
+      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.');
+
+    if (empty($d['consumer-key']) OR empty($d['consumer-secret']))
+      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.');
+
+    $credentials = array();
+    $credentials['consumer-key'] = $d['consumer-key'];
+    $credentials['consumer-secret'] = $d['consumer-secret'];
+    return $credentials;
   }
 
   public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)

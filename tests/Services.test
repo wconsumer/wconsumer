@@ -2,6 +2,15 @@
 use Drupal\wconsumer\Service as ServiceClass;
 
 class Services extends DrupalUnitTestCase {
+  public static function getInfo() {
+    // Note: getInfo() strings should not be translated.
+    return array(
+      'name' => 'Services Unit Test',
+      'description' => 'Test that the services class performs correctly.',
+      'group' => 'wconsumer',
+    );
+
+  }
   public function setUp()
   {
     parent::setUp();

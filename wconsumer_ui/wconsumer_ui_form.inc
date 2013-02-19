@@ -27,6 +27,10 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
     return;
   }
 
+  // Registry Settings
+  $registry = $object->getRegistry();
+  $credentials = $registry->credentials;
+
   $form['creds'] = array(
       '#type' => 'fieldset',
       '#title' => t($service.' Application Credentials'),
@@ -41,12 +45,14 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
         '#type' => 'textfield',
         '#title' => t('Consumer Key'),
         '#required' => TRUE,
+        '#value' => (isset($credentials['consumer-key'])) ? $credentials['consumer-key'] : '',
       );
 
       $form['creds']['consumer-secret'] = array(
         '#type' => 'textfield',
         '#title' => t('Consumer Secret'),
         '#required' => TRUE,
+        '#value' => (isset($credentials['consumer-secret'])) ? $credentials['consumer-secret'] : '',
       );
 
       break;
@@ -70,4 +76,36 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
   );
 
   return $form;
+}
+
+/**
+ * POST Callback for the Service Update Form
+ * 
+ * @param object
+ * @param object
+ * @access private
+ */
+function _wconsumer_ui_form_submit($form, &$form_state)
+{
+  $values = $form_state['values'];
+  $service = (isset($values['service-name'])) ? $values['service-name'] : drupal_exit();
+
+  try {
+    $object = Service::getObject($service);
+  }
+  catch (Exception $e)
+  {
+    drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
+    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
+
+    return;
+  }
+
+  // Validate
+  
+  // Update
+  $credentials = $object->request->authencation->formatCredentials($values);
+  $object->setRegistry($credentials);
+
+  drupal_set_message(t('Service Configuration Saved.'));
 }

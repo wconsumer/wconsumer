@@ -80,10 +80,13 @@ abstract class ServiceBase {
    */
   public function getRegistry()
   {
-    return db_select($this->serviceRegistry)
+    $data = db_select($this->serviceRegistry)
       ->fields($this->serviceRegistry)
       ->condition('service', $this->_service)
-      ->execute()->fetchField();
+      ->execute()->fetchObject();
+
+    $this->unserializeCredentials($data);
+    return $data;
   }
 
   /**
@@ -144,10 +147,30 @@ abstract class ServiceBase {
     endif;
 
     // Lift off!
-    return db_select($this->serviceCred)
+    $data = db_select($this->serviceCred)
       ->fields($this->serviceCred)
       ->condition('service_id', $object->service_id)
       ->condition('user_id', $user_id)
-      ->execute()->fetchField();
+      ->execute()->fetchObject();
+
+    $this->unserializeCredentials($data);
+    return $data;
+  }
+
+  /**
+   * Internal Function to unserialize the credentials for us
+   * Do not pass variables by reference
+   * 
+   * @param object|array
+   * @return mixed
+   */
+  private function unserializeCredentials(&$data)
+  {
+    if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '')
+      $data->credentials = unserialize($data->credentials);
+    elseif(is_array($data) AND isset($data['credentials']) AND $data['credentials'] !== '')
+      $data['credentials'] = unserialize($data['credentials']);
+
+    return $data;
   }
 }

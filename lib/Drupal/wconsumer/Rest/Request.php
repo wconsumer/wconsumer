@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Rest;
 use Drupal\wconsumer\Common\RequestInterface;
+//use Guzzle\Service\Client;
 
 /**
  * REST Request Class
