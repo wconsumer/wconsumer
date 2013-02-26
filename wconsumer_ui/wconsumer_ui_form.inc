@@ -29,7 +29,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   // Registry Settings
   $registry = $object->getRegistry();
-  $credentials = $registry->credentials;
+  $credentials = (! $registry) ? FALSE : $registry->credentials;
 
   $form['creds'] = array(
       '#type' => 'fieldset',
@@ -80,20 +80,20 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
 /**
  * POST Callback for the Service Update Form
- * 
+ *
  * @param object
  * @param object
  * @access private
  */
 function _wconsumer_ui_form_submit($form, &$form_state)
 {
-  $values = $form_state['values'];
+  $values = $form_state['input'];
   $service = (isset($values['service-name'])) ? $values['service-name'] : drupal_exit();
 
   try {
     $object = Service::getObject($service);
   }
-  catch (Exception $e)
+  catch (\Drupal\wconsumer\Exception $e)
   {
     drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
     watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
@@ -102,9 +102,14 @@ function _wconsumer_ui_form_submit($form, &$form_state)
   }
 
   // Validate
-  
-  // Update
-  $credentials = $object->request->authencation->formatCredentials($values);
+  try {
+    $credentials = $object->request->authencation->formatCredentials($values);
+  } catch (\Drupal\wconsumer\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+    return;
+  }
+
+  // CRUD
   $object->setRegistry($credentials);
 
   drupal_set_message(t('Service Configuration Saved.'));

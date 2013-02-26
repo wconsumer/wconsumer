@@ -30,7 +30,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
    *
    * @var string
    */
-  public $host = "https://api.twitter.com/1/";
+  public $host = NULL;
 
   /**
    * Set timeout default.
@@ -101,34 +101,32 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
   /**
    * Instance of the Service Object
-   * 
+   *
    * @var object
    */
   private $_instance;
+
+  /**
+   * Construct OAuth Class
+   *
+   * @param object Object Passed by reference of the Service Object
+   */
+  public function __construct(&$service) {
+    $this->_instance = $service;
+  }
 
   function getAccessTokenURL()  { return $this->AccessTokenURL; }
   function getAuthenticateURL() { return $this->AuthenticateURL; }
   function getAuthorizeURL()    { return $this->AuthorizeURL; }
   function getRequestTokenURL() { return $this->RequestTokenURL; }
 
-  /**
-   * Debug helpers
-   */
+  // Debug Helpers
   function lastStatusCode() { return $this->http_status; }
   function lastAPICall() { return $this->last_api_call; }
 
   /**
-   * Construct Oauth Class
-   *
-   * @param object Instance Object of the service
-   */
-  public function __construct() {
-    
-  }
-
-  /**
    * Process the Credentials to be in the format to be saved properly
-   * 
+   *
    * @return array
    * @param array
    * @throws Drupal\wconsumer\Exception
@@ -136,15 +134,54 @@ class Oauth extends AuthencationBase implements AuthInterface {
   public function formatCredentials($d)
   {
     if (! isset($d['consumer-key']) OR ! isset($d['consumer-secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.');
+      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
 
     if (empty($d['consumer-key']) OR empty($d['consumer-secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.');
+      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
 
     $credentials = array();
     $credentials['consumer-key'] = $d['consumer-key'];
     $credentials['consumer-secret'] = $d['consumer-secret'];
     return $credentials;
+  }
+
+  /**
+   * Validate the Authentication data to see if they are properly setup
+   *
+   * @return bool
+   * @param string $type 'user' to check the user's info, 'system' to check the system specific info
+   */
+  public function is_initialized($type = 'user')
+  {
+    switch ($type)
+    {
+      case 'user' :
+        $credentials = $this->_instance->getCredentials();
+        if (! $credentials OR ! isset($registry->credentials)) return FALSE;
+
+        if (! isset($registry['access-token']) OR ! isset($registry['access-secret']))
+          return FALSE;
+
+        // Access token/secret exist
+        return TRUE;
+        break;
+
+      case 'system' :
+        $registry = $this->_instance->getRegistry();
+        if (! $registry OR ! isset($registry->credentials)) return FALSE;
+
+        if (! isset($registry['consumer-key']) OR ! isset($registry['consumer-secret']))
+          return FALSE;
+
+        // Consumer key and secret exist
+        // TODO: Add in additional authentication by checking the key/secret against the API
+        return TRUE;
+        break;
+
+      // Unknown to check for
+      default :
+        return FALSE;
+    }
   }
 
   public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)

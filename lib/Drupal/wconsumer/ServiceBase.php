@@ -30,6 +30,13 @@ abstract class ServiceBase {
   private $serviceCred = 'wc_service_cred';
 
   /**
+   * Options Class
+   * 
+   * @var object|void
+   */
+  public $options  = NULL;
+
+  /**
    * Constructor
    *
    * @return void
