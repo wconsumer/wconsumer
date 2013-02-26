@@ -2,6 +2,8 @@
 namespace Drupal\wconsumer\Rest\Authentication;
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
 use Drupal\wconsumer\Common\AuthInterface;
+use Guzzle\Plugin\Oauth\OauthPlugin
+  as GuzzleOAuth;
 
 /**
  * OAuth Authentication Class
@@ -182,6 +184,25 @@ class Oauth extends AuthencationBase implements AuthInterface {
       default :
         return FALSE;
     }
+  }
+
+  /**
+   * Sign the request with the authentication parameters
+   * 
+   * @param object Guzzle Client Passed by reference
+   * @return void
+   */
+  public function sign_request(&$client)
+  {
+    $registry = $this->_instance->getRegistry();
+    $credentials = $this->_instance->getCredentials();
+
+    $client->addSubscriber(new GuzzleOAuth(array(
+      'consumer_key' => $registry->credentials['consumer-key'],
+      'consumer_secret' => $registry->credentials['consumer-secret'],
+      'token' => $credentials->credentials['access-token'],
+      'token_secret' => $credentials->credentials['access-secret'],
+    )));
   }
 
   public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)

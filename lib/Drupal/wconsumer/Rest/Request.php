@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Rest;
 use Drupal\wconsumer\Common\RequestInterface;
-//use Guzzle\Service\Client;
+use Guzzle\Http\Client;
 
 /**
  * REST Request Class
@@ -87,7 +87,14 @@ class Request implements RequestInterface
    */
   public function __call($method, $arguments = array())
   {
+    $client = new Client($this->getApiUrl());
 
+    // Manage Authentication
+    $this->authencation->sign_request($client);
+
+    // Make the request
+    $request = $client->$method($arguments);
+    return $request->send();
   }
 
   /**

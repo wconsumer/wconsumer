@@ -5,9 +5,6 @@ core = 7.x
 php = 5.3
 
 dependencies[] = xautoload
-;dependencies[] = entity
-;dependencies[] = composer
-;dependencies[] = guzzle
 test_dependencies[] = simpletest
 
 files[] = wconsumer.class.inc

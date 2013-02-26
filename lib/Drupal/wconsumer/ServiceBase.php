@@ -144,7 +144,8 @@ abstract class ServiceBase {
   public function getCredentials($user_id = NULL)
   {
     // We need to retrieve the service ID first
-    $object = $this->retrieveRegistry();
+    $object = $this->getRegistry();
+    
     if ($object == NULL)
       throw new Exception('Service registry not initialized: '.$this->_service);
 
