@@ -43,14 +43,14 @@ class Service {
    *
    * @param string Service
    * @return object
-   * @throws Drupal\wconsumer\Exception
+   * @throws \Exception
    */
   public static function getObject($service, $services = array())
   {
     $services = self::services($services);
 
     if (!isset($services[$service]))
-      throw new Exception('Unknown service: '.$service);
+      throw new \Exception('Unknown service: '.$service);
 
     return $services[$service];
   }

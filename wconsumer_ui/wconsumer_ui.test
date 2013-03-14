@@ -8,8 +8,10 @@ class WconsumerUITestCase extends DrupalWebTestCase {
     );
   }
 
+  /*
   public function testUnregisteredService()
   {
     $this->exceptionHandler(Service::getObject('unknown service'));
   }
+  */
 }

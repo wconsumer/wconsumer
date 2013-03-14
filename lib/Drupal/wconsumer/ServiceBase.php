@@ -107,7 +107,7 @@ abstract class ServiceBase {
   {
     if ($user_id == NULL) :
       global $user;
-      $user_id = $user->id;
+      $user_id = $user->uid;
     endif;
 
     if ($this->getCredentials($user_id)) :
@@ -151,7 +151,7 @@ abstract class ServiceBase {
 
     if ($user_id == NULL) :
       global $user;
-      $user_id = $user->id;
+      $user_id = $user->uid;
     endif;
 
     // Lift off!
@@ -180,5 +180,51 @@ abstract class ServiceBase {
       $data['credentials'] = unserialize($data['credentials']);
 
     return $data;
+  }
+
+  /**
+   * Can the current user access this service
+   *
+   * @todo Implement Permissions
+   * @return bool
+   */
+  public function canAccess()
+  {
+    return TRUE;
+  }
+
+  /**
+   * See if they are authenticated on a system/user basis
+   *
+   * @param string On what basis are they being check for (system/user)
+   * @param int The user ID (default to NULL for the current user)
+   * @return bool
+   */
+  public function checkAuthentication($basis = 'user', $user_id = NULL)
+  {
+    switch ($basis)
+    {
+      case 'user' :
+        try {
+          $creds = $this->getCredentials();
+        } catch (Exception $e) {
+          return FALSE;
+        }
+
+        if ($creds == NULL) return FALSE;
+
+        return TRUE;
+        break;
+
+      case 'system' :
+        $registry = $this->getRegistry();
+        if ($registry == NULL) return NULL;
+
+        return TRUE;
+        break;
+
+      default :
+        return FALSE;
+    }
   }
 }

@@ -66,6 +66,13 @@ function wconsumer_simpletest() {
   return array_keys($tests);
 }
 
+/**
+ * Register the Namespace for this project
+ * 
+ * @param object
+ * @return void
+ * @access private
+ */
 function wconsumer_xautoload($api)
 {
   $api->namespaceRoot('Guzzle');
