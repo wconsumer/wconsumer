@@ -1,5 +1,5 @@
 <?php
-class WconsumerUITestCase extends DrupalUnitTestCase {
+class WconsumerUITestCase extends DrupalWebTestCase {
   public function getInfo() {
     return array(
       'name' => 'Web Consumer UI',
