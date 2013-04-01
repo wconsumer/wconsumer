@@ -72,7 +72,7 @@ abstract class ServiceBase {
         ->fields(array(
           'credentials' => serialize($config)
         ))
-        ->condition('service_id', $object->id)
+        ->condition('service', $this->_service)
         ->execute();
     endif;
   }
