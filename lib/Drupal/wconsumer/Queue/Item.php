@@ -177,4 +177,18 @@ class Item {
     $object->moderate = (int) $object->moderate;
     $object->approver_uid = (int) $object->approver_uid;
   }
+
+  /**
+   * Perform a Request
+   *
+   * @param boolean Force it
+   */
+  public function perform($force = FALSE)
+  {
+    // Already completed
+    if ($this->items->status == 'completed' AND ! $force)
+      return true;
+
+    
+  }
 }

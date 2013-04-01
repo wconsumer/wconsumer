@@ -227,4 +227,15 @@ abstract class ServiceBase {
         return FALSE;
     }
   }
+
+  /**
+   * Retrieve a callback URL
+   *
+   * @return string
+   */
+  public function callback()
+  {
+    global $base_url;
+    return $base_url.'/wconsumer/callback/'.$this->_service;
+  }
 }

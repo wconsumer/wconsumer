@@ -17,4 +17,5 @@ interface AuthInterface {
   public function formatCredentials($data);
   public function is_initialized($type);
   public function sign_request(&$client);
+  public function authenticate($user);
 }

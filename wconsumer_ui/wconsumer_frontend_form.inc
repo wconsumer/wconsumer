@@ -73,6 +73,8 @@ function _wconsumer_frontend_form($form, &$form_state)
  */
 function _wconsumer_frontend_form_submit($form, &$form_state)
 {
+  global $user;
+
   $service = (isset($form_state['values']['service-name'])) ? $form_state['values']['service-name'] : die('Unknown service.');
 
   $services = Service::services();
@@ -82,10 +84,12 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
   // Either authenticate them or log them out
   if ($services[$service]->checkAuthentication('user')) :
     // Log them out
-    
+    die('log them out.');
   else :
     // Authenticate them
-    
+    $services[$service]->request->authencation->authenticate();
+
+    die('Auth them...');
   endif;
   var_dump($service);
   exit;

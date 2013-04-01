@@ -135,15 +135,15 @@ class Oauth extends AuthencationBase implements AuthInterface {
    */
   public function formatCredentials($d)
   {
-    if (! isset($d['consumer-key']) OR ! isset($d['consumer-secret']))
+    if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
       throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
 
-    if (empty($d['consumer-key']) OR empty($d['consumer-secret']))
+    if (empty($d['consumer_key']) OR empty($d['consumer_secret']))
       throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
 
     $credentials = array();
-    $credentials['consumer-key'] = $d['consumer-key'];
-    $credentials['consumer-secret'] = $d['consumer-secret'];
+    $credentials['consumer_key'] = $d['consumer_key'];
+    $credentials['consumer_secret'] = $d['consumer_secret'];
     return $credentials;
   }
 
@@ -172,7 +172,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
         $registry = $this->_instance->getRegistry();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
-        if (! isset($registry['consumer-key']) OR ! isset($registry['consumer-secret']))
+        if (! isset($registry['consumer_key']) OR ! isset($registry['consumer_secret']))
           return FALSE;
 
         // Consumer key and secret exist
@@ -198,15 +198,36 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $credentials = $this->_instance->getCredentials();
 
     $client->addSubscriber(new GuzzleOAuth(array(
-      'consumer_key' => $registry->credentials['consumer-key'],
-      'consumer_secret' => $registry->credentials['consumer-secret'],
+      'consumer_key' => $registry->credentials['consumer_key'],
+      'consumer_secret' => $registry->credentials['consumer_secret'],
       'token' => $credentials->credentials['access-token'],
       'token_secret' => $credentials->credentials['access-secret'],
     )));
   }
 
+  /**
+   * Authenticate the user and sign them in
+   *
+   * @param object the user object
+   */
+  public function authenticate($user)
+  {
+    // Retrieve the OAuth request token
+    $callback = $this->_instance->callback();
+    $this->createConnection();
+
+    $request_token = $this->getRequestToken($callback);
+
+  }
+
+  /**
+   * Create a OAuth Connection from the Registry
+   */
   public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)
   {
+    $registry = $this->_instance->getRegistry();
+    var_dump($registry);
+    exit;
     $this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
 

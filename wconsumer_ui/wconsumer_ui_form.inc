@@ -41,18 +41,18 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
   switch(get_class($object->request)) :
     case 'Drupal\wconsumer\Rest\Request' :
 
-      $form['creds']['consumer-key'] = array(
+      $form['creds']['consumer_key'] = array(
         '#type' => 'textfield',
         '#title' => t('Consumer Key'),
         '#required' => TRUE,
-        '#value' => (isset($credentials['consumer-key'])) ? $credentials['consumer-key'] : '',
+        '#value' => (isset($credentials['consumer_key'])) ? $credentials['consumer_key'] : '',
       );
 
-      $form['creds']['consumer-secret'] = array(
+      $form['creds']['consumer_secret'] = array(
         '#type' => 'textfield',
         '#title' => t('Consumer Secret'),
         '#required' => TRUE,
-        '#value' => (isset($credentials['consumer-secret'])) ? $credentials['consumer-secret'] : '',
+        '#value' => (isset($credentials['consumer_secret'])) ? $credentials['consumer_secret'] : '',
       );
 
       break;
