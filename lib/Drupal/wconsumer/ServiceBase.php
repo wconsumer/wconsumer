@@ -238,4 +238,14 @@ abstract class ServiceBase {
     global $base_url;
     return $base_url.'/wconsumer/callback/'.$this->_service;
   }
+
+  /**
+   * Get Service Name
+   *
+   * @return string
+   */
+  public function getName()
+  {
+    return $this->_service;
+  }
 }

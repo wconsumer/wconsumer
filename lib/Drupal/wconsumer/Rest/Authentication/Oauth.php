@@ -241,6 +241,19 @@ class Oauth extends AuthencationBase implements AuthInterface {
       throw new \Exception($e->getMessage(), 500, $e);
     }
 
+    // Something went south on the returned request
+    if (! isset($request_token['oauth_token']) OR ! isset($request_token['oauth_token_secret']))
+      return drupal_set_message('Unknown error with retrieving the request token: '.print_r($request_token, TRUE), 'error');
+
+    // They've got it!
+    $_SESSION[$this->_instance->getName().':oauth_token'] = $token = $request_token['oauth_token'];
+    $_SESSION[$this->_instance->getName().':oauth_token_secret'] = $request_token['oauth_token_secret'];
+    $url = $this->createAuthorizeURL($request_token['oauth_token'], FALSE);
+
+    // Redirect them away!
+    drupal_goto($url, array(
+      'external' => TRUE
+    ));
   }
 
   /**
@@ -277,7 +290,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     endif;
 
     $this->sha1_method = new Oauth\OAuthHmacSha1();
-    
+
     $this->consumer = new OAuthConsumer(
       $consumer_key,
       $consumer_secret
@@ -314,8 +327,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $request = $this->oAuthRequest($this->getRequestTokenURL(), 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
-    var_dump($token);
-    exit;
+
     return $token;
   }
 
@@ -325,10 +337,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * @return string
    */
   public function createAuthorizeURL($token) {
-    if (is_array($token))
-      $token = $token['oauth_token'];
+    if (is_array($token)) $token = $token['oauth_token'];
 
-    return $this->getAuthorizeURL() . "?oauth_token={$token}";
+    return $this->getAuthorizeURL() . '?oauth_token='.$token;
   }
 
   /**
