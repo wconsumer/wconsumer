@@ -69,7 +69,12 @@ function _wconsumer_frontend_form($form, &$form_state)
 }
 
 /**
- * POST callback for submitting the authentication form
+ * POST user/%/wconsumer
+ * 
+ * Callback for submitting the authentication form
+ *
+ * This is where we handle authenticating or authenticating a user
+ * from a service.
  */
 function _wconsumer_frontend_form_submit($form, &$form_state)
 {
@@ -78,16 +83,17 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
   $service = (isset($form_state['values']['service-name'])) ? $form_state['values']['service-name'] : die('Unknown service.');
 
   $services = Service::services();
+
   if (! isset($services[$service]))
-    throw new Exception('Unregistered service passed: '.$service);
+    return drupal_set_message('Unregistered service passed: '.$service, 'error', false);
 
   // Either authenticate them or log them out
-  if ($services[$service]->checkAuthentication('user')) :
+  if ($services[$service]->checkAuthentication('user', $user->uid)) :
     // Log them out
     die('log them out.');
   else :
     // Authenticate them
-    $services[$service]->request->authencation->authenticate();
+    $services[$service]->request->authencation->authenticate($user);
 
     die('Auth them...');
   endif;

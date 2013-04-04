@@ -108,6 +108,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
    */
   private $_instance;
 
+  protected $consumer = NULL;
+  protected $token = NULL;
+
   /**
    * Construct OAuth Class
    *
@@ -206,7 +209,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   /**
-   * Authenticate the user and sign them in
+   * Authenticate the user and set them up for OAuth Authentication
    *
    * @param object the user object
    */
@@ -214,24 +217,70 @@ class Oauth extends AuthencationBase implements AuthInterface {
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
-    $this->createConnection();
-
-    $request_token = $this->getRequestToken($callback);
+    
+    try {
+      $this->createConnection();
+      $request_token = $this->getRequestToken($callback);
+    }
+    catch (\Exception $e) {
+      // Throw this back to the front-end
+      throw new \Exception($e->getMessage(), 500, $e);
+    }
 
   }
 
   /**
-   * Create a OAuth Connection from the Registry
+   * Create a OAuth Connection for the Service
+   *
+   * @param string|null $consumer_key A consumer key or NULL
+   *                                  to retrieve from registry
+   * @param string|null $consumer_secret A consumer secret or
+   *                                     NULL to retrieve from registry
+   * @param string|null $oauth_token OAuth Token or NULL to retrieve
+   *                                 creds. from registry
+   * @param string|null $oauth_token_secret OAuth Token or NULL to retrieve
+   *                                 creds. from registry
+   * @return void
    */
-  public function createConnection($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)
+  public function createConnection($consumer_key = NULL, $consumer_secret = NULL, $oauth_token = NULL, $oauth_token_secret = NULL)
   {
-    $registry = $this->_instance->getRegistry();
-    var_dump($registry);
-    exit;
-    $this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
-    $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
+    // If they didn't pass them
+    if ($consumer_key == NULL AND $consumer_secret == NULL) :
+      $registry = (array) $this->_instance->getRegistry();
 
-    if (!empty($oauth_token) && !empty($oauth_token_secret))
+      // Retrieve them from the registry
+      if (
+          count($registry) == 0 OR ! isset($registry['credentials'])
+        OR
+          empty($registry['credentials']['consumer_key'])
+        OR
+          empty($registry['credentials']['consumer_secret'])
+        )
+        throw new \Exception('Consumer key/secret not set in registry: '.print_r($registry, TRUE));
+
+      $consumer_key = $registry->consumer_key;
+      $consumer_secret = $registry->consumer_secret;
+    endif;
+
+    $this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
+
+    $this->consumer = new OAuthConsumer(
+      $consumer_key,
+      $consumer_secret
+    );
+
+    if (is_null($oauth_token) && is_null($oauth_token_secret)) :
+      $credentials = $this->_instance->getCredentials();
+      
+      if ($credentials !== FALSE && is_array($credentials->credentials)
+        AND isset($credentials->credentials->oauth_token)
+        AND isset($credentials->credentials->oauth_token_secret)
+      ) :
+        $oauth_token = $credentials->credentials->oauth_token;
+        $oauth_token_secret = $credentials->credentials->$oauth_token_secret;
+    endif;
+
+    if (! is_null($oauth_token) && ! is_null($oauth_token_secret))
       $this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
     else
       $this->token = NULL;
