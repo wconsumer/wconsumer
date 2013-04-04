@@ -78,6 +78,11 @@ function wconsumer_ui_menu()
         'access arguments' => array('manage web ' . $name),
         'weight' => $i
       );
+
+      // Add the callback page
+      $items['wconsumer/callback/'.$name] = array(
+        
+      );
     endforeach;
   endif;
   return $items;
