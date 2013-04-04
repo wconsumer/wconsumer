@@ -134,10 +134,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $this->_instance = $service;
   }
 
-  function getAccessTokenURL()  { return $this->AccessTokenURL; }
-  function getAuthenticateURL() { return $this->AuthenticateURL; }
-  function getAuthorizeURL()    { return $this->AuthorizeURL; }
-  function getRequestTokenURL() { return $this->RequestTokenURL; }
+  function getAccessTokenURL()  { return $this->accessTokenURL; }
+  function getAuthenticateURL() { return $this->authenticateURL; }
+  function getAuthorizeURL()    { return $this->authorizeURL; }
+  function getRequestTokenURL() { return $this->requestTokenURL; }
 
   // Debug Helpers
   function lastStatusCode() { return $this->http_status; }
@@ -272,12 +272,12 @@ class Oauth extends AuthencationBase implements AuthInterface {
         )
         throw new \Exception('Consumer key/secret not set in registry: '.print_r($registry, TRUE));
 
-      $consumer_key = $registry->consumer_key;
-      $consumer_secret = $registry->consumer_secret;
+      $consumer_key = $registry['credentials']['consumer_key'];
+      $consumer_secret = $registry['credentials']['consumer_secret'];
     endif;
 
     $this->sha1_method = new Oauth\OAuthHmacSha1();
-
+    
     $this->consumer = new OAuthConsumer(
       $consumer_key,
       $consumer_secret
