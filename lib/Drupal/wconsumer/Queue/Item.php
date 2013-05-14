@@ -11,6 +11,11 @@ use Drupal\wconsumer\Exception as WcException,
  * @subpackage queue
  */
 class Item {
+  const STATUS_COMPLETE = 'complete';
+  const STATUS_ERROR = 'error';
+  const STATUS_PENDING = 'pending';
+  const STATUS_QUEUE = 'queue'
+
   /**
    * Internal Information about the columns in the Queue table
    * 
@@ -239,16 +244,24 @@ class Item {
     $request['http method'] = (isset($request['http method'])) ? strtolower($request['http method']) : 'get';
     $method = $request['http method'];
 
+    $request['response format'] = (isset($request['response format'])) ? $request['response format'] : 'plaintext';
+
     foreach(array('headers', 'body') as $item)
       $request[$item] = (isset($request[$item])) ? $request[$item] : null;
 
     // Pass this off to the service's request object
-    $process = $object->request->$method(array(
+    $this->response = $object->request->$method(
       $request['base'],
       $request['headers'],
       $request['body']
-    ));
+    );
 
+    // See HTTP header
+    $this->status = ($this->response->isError()) ? self::STATUS_ERROR : self::STATUS_COMPLETE;
+
+    // Save the Response
+    $this->save();
+    
     var_dump($process);
     exit;
   }

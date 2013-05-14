@@ -6,17 +6,14 @@ use Guzzle\Common\Collection;
 use Guzzle\Common\AbstractHasDispatcher;
 use Guzzle\Common\Exception\ExceptionCollection;
 use Guzzle\Common\Exception\InvalidArgumentException;
-use Guzzle\Common\Exception\RuntimeException;
-use Guzzle\Common\Version;
 use Guzzle\Parser\ParserRegistry;
 use Guzzle\Parser\UriTemplate\UriTemplateInterface;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\RequestFactory;
 use Guzzle\Http\Message\RequestFactoryInterface;
 use Guzzle\Http\Curl\CurlMultiInterface;
-use Guzzle\Http\Curl\CurlMultiProxy;
+use Guzzle\Http\Curl\CurlMulti;
 use Guzzle\Http\Curl\CurlHandle;
-use Guzzle\Http\Curl\CurlVersion;
 
 /**
  * HTTP client
@@ -80,18 +77,23 @@ class Client extends AbstractHasDispatcher implements ClientInterface
     public function __construct($baseUrl = '', $config = null)
     {
         $this->setConfig($config ?: new Collection());
-        $this->initSsl();
+        // Allow ssl.certificate_authority config setting to control the certificate authority used by curl
+        $authority = $this->config->get(self::SSL_CERT_AUTHORITY);
+        // Use the system's cacert if in a phar (curl can't read from a phar stream wrapper)
+        if (strpos(__FILE__, 'phar://') !== false && (null === $authority || $authority === true)) {
+            $authority = 'system';
+        }
+        // Set the config setting to system to use the certificate authority bundle on your system
+        if ($authority !== 'system') {
+            $this->setSslVerification($authority !== null ? $authority : true);
+        }
         $this->setBaseUrl($baseUrl);
         $this->defaultHeaders = new Collection();
         $this->setRequestFactory(RequestFactory::getInstance());
-
         // Redirect by default, but allow for redirects to be globally disabled on a client
         if (!$this->config->get(self::DISABLE_REDIRECTS)) {
             $this->addSubscriber(new RedirectPlugin());
         }
-
-        // Set the default User-Agent on the client
-        $this->userAgent = $this->getDefaultUserAgent();
     }
 
     /**
@@ -150,10 +152,6 @@ class Client extends AbstractHasDispatcher implements ClientInterface
             } elseif (is_dir($certificateAuthority)) {
                 unset($opts[CURLOPT_CAINFO]);
                 $opts[CURLOPT_CAPATH] = $certificateAuthority;
-            } else {
-                throw new RuntimeException(
-                    'Invalid option passed to ' . self::SSL_CERT_AUTHORITY . ': ' . $certificateAuthority
-                );
             }
         }
 
@@ -247,13 +245,17 @@ class Client extends AbstractHasDispatcher implements ClientInterface
             $url = Url::factory($this->getBaseUrl())->combine($this->expandTemplate($uri, $templateVars));
         }
 
+        if ($this->userAgent) {
+            $this->defaultHeaders->set('User-Agent', $this->userAgent);
+        }
+
         // If default headers are provided, then merge them into existing headers
         // If a collision occurs, the header is completely replaced
         if (count($this->defaultHeaders)) {
-            if (is_array($headers)) {
-                $headers = array_merge($this->defaultHeaders->getAll(), $headers);
-            } elseif ($headers instanceof Collection) {
+            if ($headers instanceof Collection) {
                 $headers = array_merge($this->defaultHeaders->getAll(), $headers->getAll());
+            } elseif (is_array($headers)) {
+                 $headers = array_merge($this->defaultHeaders->getAll(), $headers);
             } else {
                 $headers = $this->defaultHeaders;
             }
@@ -288,23 +290,11 @@ class Client extends AbstractHasDispatcher implements ClientInterface
     public function setUserAgent($userAgent, $includeDefault = false)
     {
         if ($includeDefault) {
-            $userAgent .= ' ' . $this->getDefaultUserAgent();
+            $userAgent .= ' ' . Utils::getDefaultUserAgent();
         }
         $this->userAgent = $userAgent;
 
         return $this;
-    }
-
-    /**
-     * Get the default User-Agent string to use with Guzzle
-     *
-     * @return string
-     */
-    public function getDefaultUserAgent()
-    {
-        return 'Guzzle/' . Version::VERSION
-            . ' curl/' . CurlVersion::getInstance()->get('version')
-            . ' PHP/' . PHP_VERSION;
     }
 
     /**
@@ -407,7 +397,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
     public function getCurlMulti()
     {
         if (!$this->curlMulti) {
-            $this->curlMulti = new CurlMultiProxy();
+            $this->curlMulti = new CurlMulti();
         }
 
         return $this->curlMulti;
@@ -421,31 +411,6 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         $this->requestFactory = $factory;
 
         return $this;
-    }
-
-    /**
-     * Copy the cacert.pem file from the phar if it is not in the temp folder and validate the MD5 checksum
-     *
-     * @param bool $md5Check Set to false to not perform the MD5 validation
-     *
-     * @return string Returns the path to the extracted cacert
-     * @throws RuntimeException if the file cannot be copied or there is a MD5 mismatch
-     */
-    public function preparePharCacert($md5Check = true)
-    {
-        $from = __DIR__ . '/Resources/cacert.pem';
-        $certFile = sys_get_temp_dir() . '/guzzle-cacert.pem';
-        if (!file_exists($certFile) && !copy($from, $certFile)) {
-            throw new RuntimeException("Could not copy {$from} to {$certFile}: " . var_export(error_get_last(), true));
-        } elseif ($md5Check) {
-            $actualMd5 = md5_file($certFile);
-            $expectedMd5 = trim(file_get_contents("{$from}.md5"));
-            if ($actualMd5 != $expectedMd5) {
-                throw new RuntimeException("{$certFile} MD5 mismatch: expected {$expectedMd5} but got {$actualMd5}");
-            }
-        }
-
-        return $certFile;
     }
 
     /**
@@ -472,11 +437,6 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         // Attach client observers to the request
         $request->setEventDispatcher(clone $this->getEventDispatcher());
 
-        // Set the User-Agent if one is specified on the client but not explicitly on the request
-        if ($this->userAgent && !$request->hasHeader('User-Agent')) {
-            $request->setHeader('User-Agent', $this->userAgent);
-        }
-
         $this->dispatch(
             'client.create_request',
             array(
@@ -486,37 +446,5 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         );
 
         return $request;
-    }
-
-    /**
-     * Initializes SSL settings
-     */
-    protected function initSsl()
-    {
-        // Allow ssl.certificate_authority config setting to control the certificate authority used by curl
-        $authority = $this->config->get(self::SSL_CERT_AUTHORITY);
-
-        // Set the SSL certificate
-        if ($authority !== 'system') {
-
-            if ($authority === null) {
-                $authority = true;
-            }
-
-            if ($authority === true && substr(__FILE__, 0, 7) == 'phar://') {
-                $authority = $this->preparePharCacert();
-                $that = $this;
-                $this->getEventDispatcher()->addListener(
-                    'request.before_send',
-                    function ($event) use ($authority, $that) {
-                        if ($authority == $event['request']->getCurlOptions()->get(CURLOPT_CAINFO)) {
-                            $that->preparePharCacert(false);
-                        }
-                    }
-                );
-            }
-
-            $this->setSslVerification($authority);
-        }
     }
 }

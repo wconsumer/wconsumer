@@ -94,6 +94,7 @@ class Request implements RequestInterface
 
     // Make the request
     array_unshift($arguments, $method);
+
     $request = call_user_func_array(array($client, 'createRequest'), $arguments);
     return $request->send();
   }
