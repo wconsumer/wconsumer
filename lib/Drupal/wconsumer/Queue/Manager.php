@@ -8,5 +8,20 @@ namespace Drupal\wconsumer\Queue;
  * @subpackage queue
  */
 class Manager {
+  public static function checkScheduled() {
+    $query = db_select('wc_requests')
+      ->condition('time', time(), '<')
+      ->fields('wc_requests')
+      ->fetchField();
 
+
+    // No pending requests
+    if (! $query) return;
+
+    foreach($query as $data) :
+      echo 'Performing Web Consumer request #'.$data->request_id.'...'.PHP_EOL;
+      $item = new Item($data);
+      $item->perform();
+    endforeach;
+  }
 }
