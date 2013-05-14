@@ -12,7 +12,7 @@ class Manager {
     $query = db_select('wc_requests')
       ->condition('time', time(), '<')
       ->fields('wc_requests')
-      ->fetchField();
+      ->execute();
 
 
     // No pending requests

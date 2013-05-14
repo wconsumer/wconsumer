@@ -262,6 +262,10 @@ class Item {
     // Save the Response
     $this->save();
     
+    // Call the Item's callback
+    if (isset($request['callback']))
+      call_user_func_array($request['callback'], $this);
+    
     var_dump($process);
     exit;
   }
