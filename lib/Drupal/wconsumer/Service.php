@@ -54,15 +54,4 @@ class Service {
 
     return $services[$service];
   }
-
-  /**
-   * Retrieve a service object by it's internal ID
-   *
-   * @param int Service ID
-   * @param array Optional additional services to add
-   * @throws \Exception
-   */
-  public static function getObjectById(\Integer $serviceId, $services = array()) {
-
-  }
 }
