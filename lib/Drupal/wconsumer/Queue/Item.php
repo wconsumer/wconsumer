@@ -1,7 +1,8 @@
 <?php
 namespace Drupal\wconsumer\Queue;
 
-use Drupal\wconsumer\Exception as WcException;
+use Drupal\wconsumer\Exception as WcException,
+  Drupal\wconsumer\Service;
 
 /**
  * ORM Style Management of Items in the Queue
@@ -189,6 +190,12 @@ class Item {
     if ($this->items->status == 'completed' AND ! $force)
       return true;
 
-    
+    // Fire it off
+    try {
+      $object = Service::getObject('linkedin');
+    }
+    catch (Drupal\wconsumer\Exception $e) {
+      return;
+    }
   }
 }

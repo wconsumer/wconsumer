@@ -119,14 +119,14 @@ abstract class ServiceBase {
         ->fields(array(
           'credentials' => serialize($credentials)
         ))
-        ->condition('service_id', $object->service_id)
+        ->condition('service', $this->_service)
         ->condition('user_id', $user_id)
         ->execute();
     else :
       // Insert
       return db_insert($this->serviceCred)
         ->fields(array(
-          'service_id' => $object->service_id,
+          'service' => $this->_service,
           'user_id' => $user_id,
           'credentials' => serialize($credentials)
         ))
@@ -160,7 +160,7 @@ abstract class ServiceBase {
     // Lift off!
     $data = db_select($this->serviceCred)
       ->fields($this->serviceCred)
-      ->condition('service_id', $object->service_id)
+      ->condition('service', $this->_service)
       ->condition('user_id', $user_id)
       ->execute()->fetchObject();
 

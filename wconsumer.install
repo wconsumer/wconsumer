@@ -53,7 +53,7 @@ function wconsumer_schema() {
         'not null' => TRUE,
         'description' => 'Primary Key: Request ID'
       ),
-      'service_id' => array(
+      'service' => array(
         'type'        => 'int',
         'not null'    => TRUE,
         'description' => 'Foreign Key: User service ID'
@@ -132,10 +132,11 @@ function wconsumer_schema() {
         'not null' => TRUE,
         'description' => 'Primary Key: Credential id'
       ),
-      'service_id' => array(
-        'type' => 'int',
+      'service' => array(
+        'type' => 'varchar',
+        'length' => 200,
         'not null' => TRUE,
-        'description' => 'Foreign Key: Service ID'
+        'description' => 'Foreign Key: Service Name'
       ),
       'user_id' => array(
         'type' => 'int',
@@ -159,10 +160,10 @@ function wconsumer_schema() {
           'user_id' => 'user_id'
         )
       ),
-      'service_id' => array(
+      'service' => array(
         'table' => 'wc_service_registry',
         'columns' => array(
-          'service_id' => 'service_id'
+          'service' => 'service'
         )
       )
     ),
@@ -170,8 +171,8 @@ function wconsumer_schema() {
       'cred_id'
     ),
     'indexes' => array(
-      'service_id' => array(
-        'service_id'
+      'service' => array(
+        'service'
       ),
       'cred_id' => array(
         'cred_id'

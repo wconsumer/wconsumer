@@ -45,7 +45,7 @@ class Service {
    * @return object
    * @throws \Exception
    */
-  public static function getObject($service, $services = array())
+  public static function getObject(String $service, $services = array())
   {
     $services = self::services($services);
 
@@ -53,5 +53,16 @@ class Service {
       throw new \Exception('Unknown service: '.$service);
 
     return $services[$service];
+  }
+
+  /**
+   * Retrieve a service object by it's internal ID
+   *
+   * @param int Service ID
+   * @param array Optional additional services to add
+   * @throws \Exception
+   */
+  public static function getObjectById(Integer $serviceId, $services = array()) {
+    
   }
 }
