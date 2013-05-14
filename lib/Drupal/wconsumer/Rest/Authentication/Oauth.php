@@ -278,6 +278,15 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   /**
+   * Log the User out of the System
+   *
+   * @uses ServiceBase Removes their credentials
+   */
+  public function logout(&$user) {
+    return $this->_instance->setCredentials(null, $user->uid);
+  }
+
+  /**
    * Callback for authencation
    *
    * @param object $user The User Object

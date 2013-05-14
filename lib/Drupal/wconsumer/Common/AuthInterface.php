@@ -19,6 +19,7 @@ interface AuthInterface {
   public function is_initialized($type);
   public function sign_request(&$client);
   public function authenticate(&$user);
+  public function logout(&$logout);
 
   // Callback
   public function onCallback(&$user, $values);

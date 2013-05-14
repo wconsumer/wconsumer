@@ -213,8 +213,8 @@ abstract class ServiceBase {
         } catch (Exception $e) {
           return FALSE;
         }
-
-        if ($creds == NULL) return FALSE;
+        
+        if ($creds == NULL OR $creds->credentials == NULL) return FALSE;
 
         return TRUE;
         break;

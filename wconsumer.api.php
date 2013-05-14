@@ -2,6 +2,8 @@
 /**
  * @file
  * Hooks provided by wconsumer Core
+ *
+ * The .module file wouldn't be namespaced
  */
 
 /**

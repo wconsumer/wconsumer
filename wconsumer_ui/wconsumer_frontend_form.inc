@@ -90,13 +90,11 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
   // Either authenticate them or log them out
   if ($services[$service]->checkAuthentication('user', $user->uid)) :
     // Log them out
-    die('log them out.');
+    $services[$service]->request->authencation->logout($user);
+
+    return drupal_set_message(t('Your '.$service.' service has been revoked.'));
   else :
     // Authenticate them
-    $services[$service]->request->authencation->authenticate($user);
-
-    die('Auth them...');
+    return $services[$service]->request->authencation->authenticate($user);
   endif;
-  var_dump($service);
-  exit;
 }
