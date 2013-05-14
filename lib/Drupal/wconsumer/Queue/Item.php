@@ -1,8 +1,8 @@
 <?php
 namespace Drupal\wconsumer\Queue;
 
-use Drupal\wconsumer\Exception as WcException,
-  Drupal\wconsumer\Service;
+use Drupal\wconsumer\Service,
+  Drupal\wconsumer\Queue\QueueException;
 
 /**
  * ORM Style Management of Items in the Queue
@@ -47,6 +47,7 @@ class Item {
    * Construct the Item from a data object
    *
    * @param object
+   * @throws QueueException
    */
   public function __construct($data = NULL)
   {
@@ -62,7 +63,7 @@ class Item {
 
     foreach($data as $k => $v) :
       if (! isset($this->defaults[$k]))
-        throw new WcException('Unknown key passed to construct object: '.$k);
+        throw new QueueException('Unknown key passed to construct object: '.$k);
 
       if ($k == 'request' OR $k == 'response' AND $v !== '' AND $v !== NULL)
         $v = unserialize($v);
@@ -100,14 +101,15 @@ class Item {
    *
    * @param string
    * @param mixed
+   * @throws QueueException
    */
   public function __set($name, $value)
   {
     if ($this->items == NULL)
-      throw new WcException('Item object isn\'t instantiated.');
+      throw new QueueException('Item object isn\'t instantiated.');
 
     if ($name == 'request' AND ! is_array($value))
-      throw new WcException('Request value must be in array format (not serialized)');
+      throw new QueueException('Request value must be in array format (not serialized)');
 
     $this->items->$name = $value;
   }
@@ -116,14 +118,15 @@ class Item {
    * Magic Method to Retrieve the values
    *
    * @param string
+   * @throws QueueException
    */
   public function __get($name)
   {
     if ($this->items == NULL)
-      throw new WcException('Item object isn\'t instantiated.');
+      throw new QueueException('Item object isn\'t instantiated.');
     
     if (! isset($this->items->$name))
-      throw new WcException('Unknown column passed to item: '.$name);
+      throw new QueueException('Unknown column passed to item: '.$name);
 
     return $this->items->$name;
   }
@@ -136,7 +139,7 @@ class Item {
   public function save()
   {
     if ($this->items == NULL)
-      throw new WcException('Item object isn\'t instantiated.');
+      throw new QueueException('Item object isn\'t instantiated.');
 
     if ((int) $this->items->request_id > 0) :
       $items = $this->sanitizeSaving(clone $this->items);
@@ -166,6 +169,19 @@ class Item {
 
     // Are we firing this?
     $this->checkFire();
+  }
+
+  /**
+   * Add a Callback for the Item
+   *
+   * @param mixed
+   * @throws QueueException
+   */
+  public function callback(&$callback) {
+    if (! is_callable($callback))
+      throw new QueueException('Callback for queue item isn\'t callable.');
+
+    $this->request['callback'] = $callback;
   }
 
   /**
@@ -265,8 +281,7 @@ class Item {
     // Call the Item's callback
     if (isset($request['callback']))
       call_user_func_array($request['callback'], $this);
-    
-    var_dump($process);
-    exit;
+
+
   }
 }
