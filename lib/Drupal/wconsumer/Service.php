@@ -45,7 +45,7 @@ class Service {
    * @return object
    * @throws \Exception
    */
-  public static function getObject(String $service, $services = array())
+  public static function getObject($service, $services = array())
   {
     $services = self::services($services);
 
@@ -62,7 +62,7 @@ class Service {
    * @param array Optional additional services to add
    * @throws \Exception
    */
-  public static function getObjectById(Integer $serviceId, $services = array()) {
-    
+  public static function getObjectById(\Integer $serviceId, $services = array()) {
+
   }
 }
