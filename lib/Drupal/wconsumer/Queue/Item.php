@@ -18,7 +18,7 @@ class Item {
    */
   private $defaults = array(
     'request_id' => -1,
-    'service_id' => -1,
+    'service' => -1,
     'request' => -1,
     'time' => 0,
     'response' => '',
@@ -63,6 +63,9 @@ class Item {
         $v = unserialize($v);
       
       $this->items->$k = $v;
+
+      $this->sanitizeLoading($this->items);
+      return $this->items;
     endforeach;
   }
 
@@ -98,6 +101,9 @@ class Item {
     if ($this->items == NULL)
       throw new WcException('Item object isn\'t instantiated.');
 
+    if ($name == 'request' AND ! is_array($value))
+      throw new WcException('Request value must be in array format (not serialized)');
+
     $this->items->$name = $value;
   }
 
@@ -128,43 +134,45 @@ class Item {
       throw new WcException('Item object isn\'t instantiated.');
 
     if ((int) $this->items->request_id > 0) :
-      $items = $this->items;
-      $this->sanitize($items);
+      $items = $this->sanitizeSaving(clone $this->items);
 
-      // We don't want to overwrite the request ID
+      // We don't want to overwrite the ID
+      // or the creation date of the request
       unset($items->request_id);
       unset($items->created_date);
 
       // They're updating
-      return db_update($this->table)
+      db_update($this->table)
         ->fields((array) $items)
         ->condition('request_id', $this->request_id)
         ->execute();
     else :
       // Inserting
-      $items = $this->items;
-      $this->sanitize($items);
-
+      $items = $this->sanitizeSaving(clone $this->items);
+    
       unset($items->request_id);
       $items->created_date = time();
 
-      $item = db_insert($this->table)
+      db_insert($this->table)
         ->fields((array) $items)
         ->execute();
 
         // Set the new insert ID
         $this->request_id = $item;
-
-        return $item;
     endif;
+
+    var_dump($this->items);
+
+    // Are we firing this?
+    $this->checkFire();
   }
 
   /**
    * Sanitize Items for Saving
    *
-   * @param object Passed by reference
+   * @param object
    */
-  public function sanitize(&$object)
+  public function sanitizeSaving($object)
   {
     foreach(array(
       'request',
@@ -174,9 +182,40 @@ class Item {
         $object->$v = serialize($object->$v);
     endforeach;
 
-    $object->service_id = (int) $object->service_id;
+    $object->service = $object->service;
     $object->moderate = (int) $object->moderate;
     $object->approver_uid = (int) $object->approver_uid;
+
+    return $object;
+  }
+
+  /**
+   * Sanitize the Items for loading
+   *
+   * @param object Items bassed by reference
+   */
+  public function sanitizeLoading(&$object) {
+    foreach(array(
+      'request',
+      'response',
+    ) as $v) :
+      if (is_string($object->$v))
+        $object->$v = unserialize($object->$v);
+    endforeach;
+  }
+
+  /**
+   * Check to see if this request should be fired off
+   * 
+   * If it needs to be fired off, it will trigger that.
+   * 
+   * @return bool|object
+   */
+  private function checkFire() {
+    if ($this->status == 'pending' AND $time < time())
+      return $this->perform();
+
+    return FALSE;
   }
 
   /**
@@ -187,15 +226,20 @@ class Item {
   public function perform($force = FALSE)
   {
     // Already completed
-    if ($this->items->status == 'completed' AND ! $force)
+    if ($this->status == 'completed' AND ! $force)
       return true;
 
     // Fire it off
     try {
-      $object = Service::getObject('linkedin');
+      $object = Service::getObject($this->service);
     }
     catch (Drupal\wconsumer\Exception $e) {
       return;
     }
+
+    // Determine some things about the request
+    var_dump($this->request);
+
+    exit;
   }
 }

@@ -54,7 +54,8 @@ function wconsumer_schema() {
         'description' => 'Primary Key: Request ID'
       ),
       'service' => array(
-        'type'        => 'int',
+        'type'         => 'varchar',
+        'length'      => 200,
         'not null'    => TRUE,
         'description' => 'Foreign Key: User service ID'
       ),
