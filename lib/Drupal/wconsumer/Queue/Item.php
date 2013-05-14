@@ -14,7 +14,7 @@ class Item {
   const STATUS_COMPLETE = 'complete';
   const STATUS_ERROR = 'error';
   const STATUS_PENDING = 'pending';
-  const STATUS_QUEUE = 'queue'
+  const STATUS_QUEUE = 'queue';
 
   /**
    * Internal Information about the columns in the Queue table
