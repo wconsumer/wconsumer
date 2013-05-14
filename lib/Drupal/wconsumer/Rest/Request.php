@@ -93,7 +93,8 @@ class Request implements RequestInterface
     $this->authencation->sign_request($client);
 
     // Make the request
-    $request = $client->$method($arguments);
+    array_unshift($arguments, $method);
+    $request = call_user_func_array(array($client, 'createRequest'), $arguments);
     return $request->send();
   }
 

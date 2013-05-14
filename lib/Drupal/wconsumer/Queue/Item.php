@@ -247,7 +247,7 @@ class Item {
       $request['base'],
       $request['headers'],
       $request['body']
-    ))->send();
+    ));
 
     var_dump($process);
     exit;
