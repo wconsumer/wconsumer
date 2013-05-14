@@ -6,8 +6,8 @@ use Guzzle\Plugin\Oauth\OauthPlugin
   as GuzzleOAuth;
 
 // OAuth Classes
-use Drupal\wconsumer\Rest\Authentication\Oauth;
-use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthConsumer,
+use Drupal\wconsumer\Rest\Authentication\Oauth,
+  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthConsumer,
   Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException,
   Drupal\wconsumer\Rest\Authentication\Oauth\OAuthRequest,
   Drupal\wconsumer\Rest\Authentication\Oauth\OAuthServer,
@@ -144,7 +144,28 @@ class Oauth extends AuthencationBase implements AuthInterface {
   function lastAPICall() { return $this->last_api_call; }
 
   /**
-   * Process the Credentials to be in the format to be saved properly
+   * Process the Registry Information to be in the format to be saved properly
+   *
+   * @return array
+   * @param array
+   * @throws Drupal\wconsumer\Exception
+   */
+  public function formatRegistry($d)
+  {
+    if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
+      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
+
+    if (empty($d['consumer_key']) OR empty($d['consumer_secret']))
+      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
+
+    $credentials = array();
+    $credentials['consumer_key'] = $d['consumer_key'];
+    $credentials['consumer_secret'] = $d['consumer_secret'];
+    return $credentials;
+  }
+
+  /**
+   * Process the Registry Information to be in the format to be saved properly
    *
    * @return array
    * @param array
@@ -227,7 +248,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
    *
    * @param object the user object
    */
-  public function authenticate($user)
+  public function authenticate(&$user)
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
@@ -254,6 +275,40 @@ class Oauth extends AuthencationBase implements AuthInterface {
     drupal_goto($url, array(
       'external' => TRUE
     ));
+  }
+
+  /**
+   * Callback for authencation
+   *
+   * @param object $user The User Object
+   * @param object $values The array of values passed
+   */
+  public function onCallback(&$user, $values) {
+    // Find the Old Stuff
+    $token = (isset($_SESSION[$this->_instance->getName().':oauth_token'])) ? $_SESSION[$this->_instance->getName().':oauth_token'] : null;
+    $token_secret = (($_SESSION[$this->_instance->getName().':oauth_token_secret'])) ? $_SESSION[$this->_instance->getName().':oauth_token_secret'] : null;
+
+    if ($token == null || $token_secret == null) {
+      throw \Exception('Temporary token/secret not found in user\'s session. Cannot complete.');
+      return;
+    }
+
+    try {
+      $this->createConnection(null, null, $token, $token_secret);
+      $access_token = $this->getAccessToken($_REQUEST['oauth_verifier']);
+    }
+    catch (\Exception $e) {
+      // Throw this back to the front-end
+      throw new \Exception($e->getMessage(), 500, $e);
+    }
+
+    // Save them in the service
+    $this->_instance->setCredentials(array(
+      'access_token' => $access_token['oauth_token'],
+      'access_token_secret' => $access_token['oauth_token_secret']
+    ), $user->uid);
+
+    return true;
   }
 
   /**

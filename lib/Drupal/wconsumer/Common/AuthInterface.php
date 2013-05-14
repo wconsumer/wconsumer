@@ -14,8 +14,12 @@ namespace Drupal\wconsumer\Common;
  * @subpackage request
  */
 interface AuthInterface {
+  public function formatRegistry($data);
   public function formatCredentials($data);
   public function is_initialized($type);
   public function sign_request(&$client);
-  public function authenticate($user);
+  public function authenticate(&$user);
+
+  // Callback
+  public function onCallback(&$user, $values);
 }

@@ -103,7 +103,7 @@ function _wconsumer_ui_form_submit($form, &$form_state)
 
   // Validate
   try {
-    $credentials = $object->request->authencation->formatCredentials($values);
+    $credentials = $object->request->authencation->formatRegistry($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
     return;
@@ -113,4 +113,22 @@ function _wconsumer_ui_form_submit($form, &$form_state)
   $object->setRegistry($credentials);
 
   drupal_set_message(t('Service Configuration Saved.'));
+}
+
+/**
+ * Callback for the Service
+ */
+function _wconsumer_ui_callback($form, &$form_state, $service = NULL) {
+  $values = $form_state['input'];
+
+  try {
+    $object = Service::getObject($service);
+  }
+  catch (\Drupal\wconsumer\Exception $e)
+  {
+    drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
+    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
+
+    return;
+  }
 }
