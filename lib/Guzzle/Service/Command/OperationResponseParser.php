@@ -8,6 +8,7 @@ use Guzzle\Service\Command\LocationVisitor\Response\ResponseVisitorInterface;
 use Guzzle\Service\Description\Parameter;
 use Guzzle\Service\Description\OperationInterface;
 use Guzzle\Service\Description\Operation;
+use Guzzle\Service\Exception\ResponseClassException;
 use Guzzle\Service\Resource\Model;
 
 /**
@@ -69,9 +70,21 @@ class OperationResponseParser extends DefaultResponseParser
     protected function handleParsing(AbstractCommand $command, Response $response, $contentType)
     {
         $operation = $command->getOperation();
-        $model = $operation->getResponseType() == OperationInterface::TYPE_MODEL
-            ? $operation->getServiceDescription()->getModel($operation->getResponseClass())
-            : null;
+        $type = $operation->getResponseType();
+        $model = null;
+
+        if ($type == OperationInterface::TYPE_MODEL) {
+            $model = $operation->getServiceDescription()->getModel($operation->getResponseClass());
+        } elseif ($type == OperationInterface::TYPE_CLASS) {
+            $responseClassInterface = __NAMESPACE__ . '\ResponseClassInterface';
+            $className = $operation->getResponseClass();
+            if (!class_exists($className)) {
+                throw new ResponseClassException("{$className} does not exist");
+            } elseif (!method_exists($className, 'fromCommand')) {
+                throw new ResponseClassException("{$className} must implement {$responseClassInterface}");
+            }
+            return $className::fromCommand($command);
+        }
 
         if (!$model) {
             // Return basic processing if the responseType is not model or the model cannot be found
@@ -98,24 +111,54 @@ class OperationResponseParser extends DefaultResponseParser
         CommandInterface $command,
         Response $response
     ) {
-        // Determine what visitors are associated with the model
         $foundVisitors = $result = array();
+        $props = $model->getProperties();
 
-        foreach ($model->getProperties() as $schema) {
+        foreach ($props as $schema) {
             if ($location = $schema->getLocation()) {
-                $foundVisitors[$location] = $this->factory->getResponseVisitor($location);
-                $foundVisitors[$location]->before($command, $result);
+                // Trigger the before method on the first found visitor of this type
+                if (!isset($foundVisitors[$location])) {
+                    $foundVisitors[$location] = $this->factory->getResponseVisitor($location);
+                    $foundVisitors[$location]->before($command, $result);
+                }
             }
         }
 
-        foreach ($model->getProperties() as $schema) {
-            /** @var $arg Parameter */
+        // Visit additional properties when it is an actual schema
+        if ($additional = $model->getAdditionalProperties()) {
+            if ($additional instanceof Parameter) {
+                // Only visit when a location is specified
+                if ($location = $additional->getLocation()) {
+                    if (!isset($foundVisitors[$location])) {
+                        $foundVisitors[$location] = $this->factory->getResponseVisitor($location);
+                        $foundVisitors[$location]->before($command, $result);
+                    }
+                    // Only traverse if an array was parsed from the before() visitors
+                    if (is_array($result)) {
+                        // Find each additional property
+                        foreach (array_keys($result) as $key) {
+                            // Check if the model actually knows this property. If so, then it is not additional
+                            if (!$model->getProperty($key)) {
+                                // Set the name to the key so that we can parse it with each visitor
+                                $additional->setName($key);
+                                $foundVisitors[$location]->visit($command, $response, $additional, $result);
+                            }
+                        }
+                        // Reset the additionalProperties name to null
+                        $additional->setName(null);
+                    }
+                }
+            }
+        }
+
+        // Apply the parameter value with the location visitor
+        foreach ($props as $schema) {
             if ($location = $schema->getLocation()) {
-                // Apply the parameter value with the location visitor
                 $foundVisitors[$location]->visit($command, $response, $schema, $result);
             }
         }
 
+        // Call the after() method of each found visitor
         foreach ($foundVisitors as $visitor) {
             $visitor->after($command);
         }

@@ -2,6 +2,7 @@
 
 namespace Guzzle\Plugin\Cache;
 
+use Guzzle\Http\Exception\CurlException;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
 use Guzzle\Http\Exception\BadResponseException;
@@ -28,7 +29,7 @@ class DefaultRevalidation implements RevalidationInterface
 
     /**
      * @param CacheKeyProviderInterface $cacheKey Cache key strategy
-     * @param CacheStorageInterface     $storage  Cache storage
+     * @param CacheStorageInterface     $cache    Cache storage
      * @param CachePlugin               $plugin   Cache plugin to remove from revalidation requests
      */
     public function __construct(CacheKeyProviderInterface $cacheKey, CacheStorageInterface $cache, CachePlugin $plugin)
@@ -51,6 +52,8 @@ class DefaultRevalidation implements RevalidationInterface
             } elseif ($validateResponse->getStatusCode() == 304) {
                 return $this->handle304Response($request, $validateResponse, $response);
             }
+        } catch (CurlException $e) {
+            return $this->plugin->canResponseSatisfyFailedRequest($request, $response);
         } catch (BadResponseException $e) {
             $this->handleBadResponse($e);
         }
@@ -90,7 +93,7 @@ class DefaultRevalidation implements RevalidationInterface
         $revalidate = clone $request;
         $revalidate->removeHeader('Pragma')
             ->removeHeader('Cache-Control')
-            ->setHeader('If-Modified-Since', $response->getDate());
+            ->setHeader('If-Modified-Since', $response->getLastModified() ?: $response->getDate());
 
         if ($response->getEtag()) {
             $revalidate->setHeader('If-None-Match', '"' . $response->getEtag() . '"');
@@ -116,7 +119,9 @@ class DefaultRevalidation implements RevalidationInterface
         // Store this response in cache if possible
         if ($validateResponse->canCache()) {
             $this->storage->cache(
-                $this->cacheKey->getCacheKey($request), $validateResponse, $validateResponse->getMaxAge()
+                $this->cacheKey->getCacheKey($request),
+                $validateResponse,
+                $request->getParams()->get('cache.override_ttl')
             );
         }
 
@@ -151,7 +156,11 @@ class DefaultRevalidation implements RevalidationInterface
         }
         // Store the updated response in cache
         if ($modified && $response->canCache()) {
-            $this->storage->cache($this->cacheKey->getCacheKey($request), $response, $response->getMaxAge());
+            $this->storage->cache(
+                $this->cacheKey->getCacheKey($request),
+                $response,
+                $request->getParams()->get('cache.override_ttl')
+            );
         }
 
         return true;

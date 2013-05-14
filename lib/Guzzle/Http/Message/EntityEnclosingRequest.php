@@ -7,6 +7,7 @@ use Guzzle\Http\EntityBodyInterface;
 use Guzzle\Http\QueryString;
 use Guzzle\Http\RedirectPlugin;
 use Guzzle\Http\Exception\RequestException;
+use Guzzle\Http\Mimetypes;
 
 /**
  * HTTP request that sends an entity-body in the request message (POST, PUT, PATCH, DELETE)
@@ -60,6 +61,17 @@ class EntityEnclosingRequest extends Request implements EntityEnclosingRequestIn
     /**
      * {@inheritdoc}
      */
+    public function __clone()
+    {
+        if ($this->body) {
+            $this->body = clone $this->body;
+        }
+        parent::__clone();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setState($state, array $context = array())
     {
         parent::setState($state, $context);
@@ -76,7 +88,11 @@ class EntityEnclosingRequest extends Request implements EntityEnclosingRequestIn
     public function setBody($body, $contentType = null, $tryChunkedTransfer = false)
     {
         $this->body = EntityBody::factory($body);
-        $this->removeHeader('Content-Length');
+
+        // Auto detect the Content-Type from the path of the request if possible
+        if ($contentType === null && !$this->hasHeader('Content-Type')) {
+            $contentType = $this->body->getContentType() ?: Mimetypes::getInstance()->fromFilename($this->getPath());
+        }
 
         if ($contentType) {
             $this->setHeader('Content-Type', (string) $contentType);
@@ -88,9 +104,9 @@ class EntityEnclosingRequest extends Request implements EntityEnclosingRequestIn
         }
 
         if ($tryChunkedTransfer) {
+            $this->removeHeader('Content-Length');
             $this->setHeader('Transfer-Encoding', 'chunked');
         } else {
-            $this->removeHeader('Transfer-Encoding');
             // Set the Content-Length header if it can be determined
             $size = $this->body->getContentLength();
             if ($size !== null && $size !== false) {
@@ -98,12 +114,14 @@ class EntityEnclosingRequest extends Request implements EntityEnclosingRequestIn
                 if ($size > $this->expectCutoff) {
                     $this->setHeader('Expect', '100-Continue');
                 }
-            } elseif ('1.1' == $this->protocolVersion) {
-                $this->setHeader('Transfer-Encoding', 'chunked');
-            } else {
-                throw new RequestException(
-                    'Cannot determine Content-Length and cannot use chunked Transfer-Encoding when using HTTP/1.0'
-                );
+            } elseif (!$this->hasHeader('Content-Length')) {
+                if ('1.1' == $this->protocolVersion) {
+                    $this->setHeader('Transfer-Encoding', 'chunked');
+                } else {
+                    throw new RequestException(
+                        'Cannot determine Content-Length and cannot use chunked Transfer-Encoding when using HTTP/1.0'
+                    );
+                }
             }
         }
 
@@ -237,6 +255,12 @@ class EntityEnclosingRequest extends Request implements EntityEnclosingRequestIn
 
         if ($field instanceof PostFileInterface) {
             $data = $field;
+        } elseif (is_array($filename)) {
+            // Allow multiple values to be set in a single key
+            foreach ($filename as $file) {
+                $this->addPostFile($field, $file, $contentType);
+            }
+            return $this;
         } elseif (!is_string($filename)) {
             throw new RequestException('The path to a file must be a string');
         } elseif (!empty($filename)) {

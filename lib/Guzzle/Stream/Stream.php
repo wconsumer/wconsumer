@@ -32,18 +32,23 @@ class Stream implements StreamInterface
     protected $cache = array();
 
     /**
+     * @var array Custom stream data
+     */
+    protected $customData = array();
+
+    /**
      * @var array Hash table of readable and writeable stream types for fast lookups
      */
     protected static $readWriteHash = array(
         'read' => array(
             'r' => true, 'w+' => true, 'r+' => true, 'x+' => true, 'c+' => true,
             'rb' => true, 'w+b' => true, 'r+b' => true, 'x+b' => true, 'c+b' => true,
-            'rt' => true, 'w+t' => true, 'r+t' => true, 'x+t' => true, 'c+t' => true
+            'rt' => true, 'w+t' => true, 'r+t' => true, 'x+t' => true, 'c+t' => true, 'a+' => true
         ),
         'write' => array(
             'w' => true, 'w+' => true, 'rw' => true, 'r+' => true, 'x+' => true, 'c+' => true,
-            'w+b' => true, 'r+b' => true, 'x+b' => true, 'c+b' => true,
-            'w+t' => true, 'r+t' => true, 'x+t' => true, 'c+t' => true
+            'wb' => true, 'w+b' => true, 'r+b' => true, 'x+b' => true, 'c+b' => true,
+            'w+t' => true, 'r+t' => true, 'x+t' => true, 'c+t' => true, 'a' => true, 'a+' => true
         )
     );
 
@@ -65,9 +70,7 @@ class Stream implements StreamInterface
      */
     public function __destruct()
     {
-        if (is_resource($this->stream)) {
-            fclose($this->stream);
-        }
+        $this->close();
     }
 
     /**
@@ -87,6 +90,18 @@ class Stream implements StreamInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function close()
+    {
+        if (is_resource($this->stream)) {
+            fclose($this->stream);
+        }
+        $this->cache[self::IS_READABLE] = false;
+        $this->cache[self::IS_WRITABLE] = false;
+    }
+
+    /**
      * Calculate a hash of a Stream
      *
      * @param StreamInterface $stream    Stream to calculate the hash for
@@ -103,7 +118,7 @@ class Stream implements StreamInterface
         }
 
         $ctx = hash_init($algo);
-        while ($data = $stream->read(1024)) {
+        while ($data = $stream->read(8192)) {
             hash_update($ctx, $data);
         }
 
@@ -188,9 +203,13 @@ class Stream implements StreamInterface
             return $this->size;
         }
 
-        // If the stream is a file based stream and local, then check the filesize
-        if ($this->isLocal() && $this->getWrapper() == 'plainfile' && $this->getUri() && file_exists($this->getUri())) {
-            return filesize($this->getUri());
+        // If the stream is a file based stream and local, then use fstat
+        if ($this->isLocal()) {
+            clearstatcache(true, $this->getUri());
+            $stats = fstat($this->stream);
+            if (isset($stats['size'])) {
+                return $stats['size'];
+            }
         }
 
         // Only get the size based on the content if the the stream is readable and seekable
@@ -226,6 +245,14 @@ class Stream implements StreamInterface
     public function isConsumed()
     {
         return feof($this->stream);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function feof()
+    {
+        return $this->isConsumed();
     }
 
     /**
@@ -280,7 +307,11 @@ class Stream implements StreamInterface
         }
 
         $bytes = fwrite($this->stream, $string);
-        $this->size += $bytes;
+
+        // We can't know the size after writing if any bytes were written
+        if ($bytes) {
+            $this->size = null;
+        }
 
         return $bytes;
     }
@@ -302,13 +333,42 @@ class Stream implements StreamInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function readLine($maxLength = null)
+    {
+        if (!$this->cache[self::IS_READABLE]) {
+            return false;
+        } else {
+            return $maxLength ? fgets($this->getStream(), $maxLength) : fgets($this->getStream());
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCustomData($key, $value)
+    {
+        $this->customData[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCustomData($key)
+    {
+        return isset($this->customData[$key]) ? $this->customData[$key] : null;
+    }
+
+
+    /**
      * Reprocess stream metadata
      */
     protected function rebuildCache()
     {
         $this->cache = stream_get_meta_data($this->stream);
-        $this->cache[self::STREAM_TYPE] = strtolower($this->cache[self::STREAM_TYPE]);
-        $this->cache[self::WRAPPER_TYPE] = strtolower($this->cache[self::WRAPPER_TYPE]);
         $this->cache[self::IS_LOCAL] = stream_is_local($this->stream);
         $this->cache[self::IS_READABLE] = isset(self::$readWriteHash['read'][$this->cache['mode']]);
         $this->cache[self::IS_WRITABLE] = isset(self::$readWriteHash['write'][$this->cache['mode']]);

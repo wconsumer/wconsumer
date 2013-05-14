@@ -15,7 +15,7 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
     protected $body;
 
     /**
-     * Wrap a entity body
+     * Wrap an entity body
      *
      * @param EntityBodyInterface $body Entity body to decorate
      */
@@ -39,25 +39,32 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
      * @param array  $args   Method arguments
      *
      * @return mixed
-     * @codeCoverageIgnore
      */
-    public function __call($method, array $args = null)
+    public function __call($method, array $args)
     {
         return call_user_func_array(array($this->body, $method), $args);
     }
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
-    public function setRewindFunction($callable)
+    public function close()
     {
-        return $this->body->setRewindFunction($callable);
+        return $this->body->close();
     }
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
+     */
+    public function setRewindFunction($callable)
+    {
+        $this->body->setRewindFunction($callable);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function rewind()
     {
@@ -66,7 +73,6 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function compress($filter = 'zlib.deflate')
     {
@@ -75,7 +81,6 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function uncompress($filter = 'zlib.inflate')
     {
@@ -87,7 +92,7 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
      */
     public function getContentLength()
     {
-        return $this->body->getContentLength();
+        return $this->getSize();
     }
 
     /**
@@ -118,7 +123,6 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function getMetaData($key = null)
     {
@@ -135,11 +139,12 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function setStream($stream, $size = 0)
     {
-        return $this->body->setStream($stream, $size);
+        $this->body->setStream($stream, $size);
+
+        return $this;
     }
 
     /**
@@ -207,6 +212,15 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
     }
 
     /**
+     * Alias of isConsumed()
+     * {@inheritdoc}
+     */
+    public function feof()
+    {
+        return $this->isConsumed();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function isLocal()
@@ -224,16 +238,16 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function setSize($size)
     {
-        return $this->body->setSize($size);
+        $this->body->setSize($size);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function seek($offset, $whence = SEEK_SET)
     {
@@ -242,7 +256,6 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function read($length)
     {
@@ -251,7 +264,6 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function write($string)
     {
@@ -260,10 +272,35 @@ class AbstractEntityBodyDecorator implements EntityBodyInterface
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
+     */
+    public function readLine($maxLength = null)
+    {
+        return $this->body->readLine($maxLength);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function ftell()
     {
         return $this->body->ftell();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCustomData($key)
+    {
+        return $this->body->getCustomData($key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCustomData($key, $value)
+    {
+        $this->body->setCustomData($key, $value);
+
+        return $this;
     }
 }

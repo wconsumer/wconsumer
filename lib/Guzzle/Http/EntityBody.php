@@ -85,8 +85,10 @@ class EntityBody extends Stream implements EntityBodyInterface
     public static function fromString($string)
     {
         $stream = fopen('php://temp', 'r+');
-        fwrite($stream, $string);
-        rewind($stream);
+        if ($string !== '') {
+            fwrite($stream, $string);
+            rewind($stream);
+        }
 
         return new static($stream);
     }
@@ -140,11 +142,7 @@ class EntityBody extends Stream implements EntityBodyInterface
      */
     public function getContentType()
     {
-        if (!($this->isLocal() && $this->getWrapper() == 'plainfile' && file_exists($this->getUri()))) {
-            return 'application/octet-stream';
-        }
-
-        return Mimetypes::getInstance()->fromFilename($this->getUri()) ?: 'application/octet-stream';
+        return $this->getUri() ? Mimetypes::getInstance()->fromFilename($this->getUri()) : null;
     }
 
     /**

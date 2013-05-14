@@ -20,32 +20,13 @@ class RequestMediator
     protected $emitIo;
 
     /**
-     * @var CurlHandle
-     */
-    protected $curlHandle;
-
-    /**
      * @param RequestInterface $request Request to mediate
+     * @param bool             $emitIo  Set to true to dispatch events on input and output
      */
-    public function __construct(RequestInterface $request)
+    public function __construct(RequestInterface $request, $emitIo = false)
     {
         $this->request = $request;
-        $this->emitIo = $request->getParams()->get('curl.emit_io');
-    }
-
-    /**
-     * Set the associated CurlHandle object
-     *
-     * @param CurlHandle $handle Curl handle
-     *
-     * @return RequestMediator
-     */
-    public function setCurlHandle(CurlHandle $handle)
-    {
-        $this->curlHandle = $handle;
-        $this->request->getParams()->set('curl_handle', $handle);
-
-        return $this;
+        $this->emitIo = $emitIo;
     }
 
     /**
@@ -64,16 +45,17 @@ class RequestMediator
     /**
      * Received a progress notification
      *
-     * @param int $downloadSize Total download size
-     * @param int $downloaded   Amount of bytes downloaded
-     * @param int $uploadSize   Total upload size
-     * @param int $uploaded     Amount of bytes uploaded
+     * @param int        $downloadSize Total download size
+     * @param int        $downloaded   Amount of bytes downloaded
+     * @param int        $uploadSize   Total upload size
+     * @param int        $uploaded     Amount of bytes uploaded
+     * @param resource   $handle       CurlHandle object
      */
-    public function progress($downloadSize, $downloaded, $uploadSize, $uploaded)
+    public function progress($downloadSize, $downloaded, $uploadSize, $uploaded, $handle = null)
     {
         $this->request->dispatch('curl.callback.progress', array(
             'request'       => $this->request,
-            'handle'        => $this->curlHandle,
+            'handle'        => $handle,
             'download_size' => $downloadSize,
             'downloaded'    => $downloaded,
             'upload_size'   => $uploadSize,

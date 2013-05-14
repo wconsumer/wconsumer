@@ -289,6 +289,8 @@ abstract class AbstractCommand extends Collection implements CommandInterface
             if ($responseBody = $this->get(self::RESPONSE_BODY)) {
                 $this->request->setResponseBody($responseBody);
             }
+
+            $this->client->dispatch('command.after_prepare', array('command' => $this));
         }
 
         return $this->request;
@@ -369,6 +371,22 @@ abstract class AbstractCommand extends Collection implements CommandInterface
             } elseif ($value !== $this->get($name)) {
                 // Update the config value if it changed and no validation errors were encountered
                 $this->data[$name] = $value;
+            }
+        }
+
+        // Validate additional parameters
+        if ($properties = $this->operation->getAdditionalParameters()) {
+            foreach ($this->getAll() as $name => $value) {
+                // It's only additional if it isn't defined in the schema
+                if (!$this->operation->hasParam($name)) {
+                    // Always set the name so that error messages are useful
+                    $properties->setName($name);
+                    if (!$validator->validate($properties, $value)) {
+                        $errors = array_merge($errors, $validator->getErrors());
+                    } elseif ($value !== $this->get($name)) {
+                        $this->data[$name] = $value;
+                    }
+                }
             }
         }
 

@@ -6,7 +6,6 @@ use Guzzle\Common\Event;
 use Guzzle\Common\Collection;
 use Guzzle\Common\Exception\RuntimeException;
 use Guzzle\Common\Exception\InvalidArgumentException;
-use Guzzle\Http\Utils;
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\ClientInterface;
@@ -74,6 +73,11 @@ class Request extends AbstractMessage implements RequestInterface
     protected $curlOptions;
 
     /**
+     * @var bool
+     */
+    protected $isRedirect = false;
+
+    /**
      * {@inheritdoc}
      */
     public static function getAllEvents()
@@ -92,9 +96,7 @@ class Request extends AbstractMessage implements RequestInterface
             // An exception is being thrown because of an unsuccessful response
             'request.exception',
             // Received response status line
-            'request.receive.status_line',
-            // Manually set a response
-            'request.set_response'
+            'request.receive.status_line'
         );
     }
 
@@ -136,16 +138,11 @@ class Request extends AbstractMessage implements RequestInterface
             }
         }
 
-        if (!$this->hasHeader('User-Agent', true)) {
-            $this->setHeader('User-Agent', Utils::getDefaultUserAgent());
-        }
-
         $this->setState(self::STATE_NEW);
     }
 
     /**
      * Clone the request object, leaving off any response that was received
-     * @see Guzzle\Plugin\Redirect\RedirectPlugin::cloneRequestWithGetMethod
      */
     public function __clone()
     {
@@ -154,13 +151,11 @@ class Request extends AbstractMessage implements RequestInterface
         }
         $this->curlOptions = clone $this->curlOptions;
         $this->params = clone $this->params;
-        // Remove state based parameters from the cloned request
-        $this->params->remove('curl_handle')->remove('queued_response')->remove('curl_multi');
         $this->url = clone $this->url;
         $this->response = $this->responseBody = null;
 
         // Clone each header
-        foreach ($this->headers as $key => &$value) {
+        foreach ($this->headers as &$value) {
             $value = clone $value;
         }
 
@@ -410,7 +405,7 @@ class Request extends AbstractMessage implements RequestInterface
     public function setAuth($user, $password = '', $scheme = CURLAUTH_BASIC)
     {
         // If we got false or null, disable authentication
-        if (!$user || !$password) {
+        if (!$user) {
             $this->password = $this->username = null;
             $this->removeHeader('Authorization');
             $this->getCurlOptions()->remove(CURLOPT_HTTPAUTH);
@@ -422,8 +417,9 @@ class Request extends AbstractMessage implements RequestInterface
                 $this->getCurlOptions()->remove(CURLOPT_HTTPAUTH);
                 $this->setHeader('Authorization', 'Basic ' . base64_encode($this->username . ':' . $this->password));
             } else {
-                $this->getCurlOptions()->set(CURLOPT_HTTPAUTH, $scheme)
-                     ->set(CURLOPT_USERPWD, $this->username . ':' . $this->password);
+                $this->getCurlOptions()
+                    ->set(CURLOPT_HTTPAUTH, $scheme)
+                    ->set(CURLOPT_USERPWD, $this->username . ':' . $this->password);
             }
         }
 
@@ -464,10 +460,12 @@ class Request extends AbstractMessage implements RequestInterface
      */
     public function setState($state, array $context = array())
     {
+        $oldState = $this->state;
         $this->state = $state;
-        if ($this->state == self::STATE_NEW) {
+
+        if ($state == self::STATE_NEW) {
             $this->response = null;
-        } elseif ($this->state == self::STATE_COMPLETE) {
+        } elseif ($state == self::STATE_COMPLETE && $oldState !== self::STATE_COMPLETE) {
             $this->processResponse($context);
             $this->responseBody = null;
         }
@@ -501,10 +499,15 @@ class Request extends AbstractMessage implements RequestInterface
 
             // Only download the body of the response to the specified response
             // body when a successful response is received.
-            $body = $code >= 200 && $code < 300 ? $this->getResponseBody() : EntityBody::factory();
+            if ($code >= 200 && $code < 300) {
+                $body = $this->getResponseBody();
+            } else {
+                $body = EntityBody::factory();
+            }
 
             $this->response = new Response($code, null, $body);
-            $this->response->setStatus($code, $status)->setRequest($this);
+            $this->response->setStatus($code, $status);
+            $this->setRequestOnResponse($this->response);
             $this->dispatch('request.receive.status_line', array(
                 'request'       => $this,
                 'line'          => $data,
@@ -526,21 +529,24 @@ class Request extends AbstractMessage implements RequestInterface
      */
     public function setResponse(Response $response, $queued = false)
     {
-        // Never overwrite the request associated with the response (useful for redirect history)
-        if (!$response->getRequest()) {
-            $response->setRequest($this);
-        }
+        $this->setRequestOnResponse($response);
 
         if ($queued) {
-            $this->getParams()->set('queued_response', $response);
+            $ed = $this->getEventDispatcher();
+            $ed->addListener('request.before_send', $f = function ($e) use ($response, &$f, $ed) {
+                $e['request']->setResponse($response);
+                $ed->removeListener('request.before_send', $f);
+            }, -9999);
         } else {
-            $this->getParams()->remove('queued_response');
             $this->response = $response;
-            $this->responseBody = $response->getBody();
-            $this->processResponse();
+            // If a specific response body is specified, then use it instead of the response's body
+            if ($this->responseBody && !$this->responseBody->getCustomData('default') && !$response->isRedirect()) {
+                $this->getResponseBody()->write((string) $this->response->getBody());
+            } else {
+                $this->responseBody = $this->response->getBody();
+            }
+            $this->setState(self::STATE_COMPLETE);
         }
-
-        $this->dispatch('request.set_response', $this->getEventArray());
 
         return $this;
     }
@@ -570,7 +576,7 @@ class Request extends AbstractMessage implements RequestInterface
     public function getResponseBody()
     {
         if ($this->responseBody === null) {
-            $this->responseBody = EntityBody::factory();
+            $this->responseBody = EntityBody::factory()->setCustomData('default', true);
         }
 
         return $this->responseBody;
@@ -704,6 +710,24 @@ class Request extends AbstractMessage implements RequestInterface
     /**
      * {@inheritdoc}
      */
+    public function setIsRedirect($isRedirect)
+    {
+        $this->isRedirect = $isRedirect;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isRedirect()
+    {
+        return $this->isRedirect;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function changedHeader($header)
     {
         parent::changedHeader($header);
@@ -731,17 +755,11 @@ class Request extends AbstractMessage implements RequestInterface
      * Process a received response
      *
      * @param array $context Contextual information
-     *
-     * @throws BadResponseException on unsuccessful responses
+     * @throws RequestException|BadResponseException on unsuccessful responses
      */
     protected function processResponse(array $context = array())
     {
-        // Use the queued response if one is set
-        if ($this->getParams()->get('queued_response')) {
-            $this->response = $this->getParams()->get('queued_response');
-            $this->responseBody = $this->response->getBody();
-            $this->getParams()->remove('queued_response');
-        } elseif (!$this->response) {
+        if (!$this->response) {
             // If no response, then processResponse shouldn't have been called
             $e = new RequestException('Error completing request');
             $e->setRequest($this);
@@ -775,7 +793,20 @@ class Request extends AbstractMessage implements RequestInterface
                 $this->dispatch('request.success', $this->getEventArray());
             }
         }
+    }
 
-        return $this;
+    /**
+     * Set a request closure on a response
+     *
+     * @param Response $response
+     * @deprecated
+     */
+    protected function setRequestOnResponse(Response $response)
+    {
+        $headers = $this->getRawHeaders();
+        $response->setEffectiveUrl((string) $this->url);
+        $response->setRequest(function () use ($headers) {
+            return RequestFactory::getInstance()->fromMessage($headers);
+        });
     }
 }

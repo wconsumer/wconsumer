@@ -189,11 +189,12 @@ interface RequestInterface extends MessageInterface, HasDispatcherInterface
      *
      * @param string|bool $user     User name or false disable authentication
      * @param string      $password Password
-     * @param string      $scheme   Authentication scheme to use (Basic, Digest)
+     * @param string      $scheme   Authentication scheme to use (CURLAUTH_BASIC, CURLAUTH_DIGEST, etc)
      *
      * @return Request
      *
-     * @see http://www.ietf.org/rfc/rfc2617.txt
+     * @link http://www.ietf.org/rfc/rfc2617.txt
+     * @link http://php.net/manual/en/function.curl-setopt.php See the available options for CURLOPT_HTTPAUTH
      * @throws RequestException
      */
     public function setAuth($user, $password = '', $scheme = 'Basic');
@@ -339,4 +340,20 @@ interface RequestInterface extends MessageInterface, HasDispatcherInterface
      * @return bool
      */
     public function canCache();
+
+    /**
+     * Set whether or not the request is a request that resulted from a redirect
+     *
+     * @param bool $isRedirect
+     *
+     * @return self
+     */
+    public function setIsRedirect($isRedirect);
+
+    /**
+     * Check whether or not the request is a request that resulted from a redirect
+     *
+     * @return bool
+     */
+    public function isRedirect();
 }

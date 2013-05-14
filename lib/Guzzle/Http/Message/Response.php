@@ -7,6 +7,7 @@ use Guzzle\Common\Exception\RuntimeException;
 use Guzzle\Http\EntityBodyInterface;
 use Guzzle\Http\EntityBody;
 use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\RedirectPlugin;
 use Guzzle\Parser\ParserRegistry;
 
 /**
@@ -104,7 +105,7 @@ class Response extends AbstractMessage
     protected $info = array();
 
     /**
-     * @var RequestInterface Request object that may or may not be set
+     * @var RequestInterface|callable Request object that may or may not be set
      */
     protected $request = null;
 
@@ -114,9 +115,9 @@ class Response extends AbstractMessage
     protected $cacheResponseCodes = array(200, 203, 206, 300, 301, 410);
 
     /**
-     * @var Response If a redirect was issued or an intermediate response was issued
+     * @var string The effective URL that returned this response
      */
-    protected $previous;
+    protected $effectiveUrl;
 
     /**
      * Create a new Response based on a raw response message
@@ -344,16 +345,6 @@ class Response extends AbstractMessage
     }
 
     /**
-     * Get the request object (or null) that is associated with this response
-     *
-     * @return RequestInterface
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
      * Get the response reason phrase- a human readable version of the numeric
      * status code
      *
@@ -555,9 +546,7 @@ class Response extends AbstractMessage
      */
     public function getEtag()
     {
-        $etag = $this->getHeader('ETag', true);
-
-        return $etag ? str_replace('"', '', $etag) : null;
+        return $this->getHeader('ETag', true);
     }
 
     /**
@@ -781,15 +770,31 @@ class Response extends AbstractMessage
     /**
      * Set the request object associated with the response
      *
-     * @param RequestInterface $request The request object used to generate the response
+     * @param mixed $request The request object used to generate the response or a closure to return a request
      *
      * @return Response
+     * @deprecated
      */
-    public function setRequest(RequestInterface $request)
+    public function setRequest($request)
     {
         $this->request = $request;
 
         return $this;
+    }
+
+    /**
+     * Get the request object (or null) that is associated with this response
+     *
+     * @return RequestInterface
+     * @deprecated
+     */
+    public function getRequest()
+    {
+        if (is_callable($this->request)) {
+            $this->request = call_user_func($this->request);
+        }
+
+        return $this->request;
     }
 
     /**
@@ -845,7 +850,8 @@ class Response extends AbstractMessage
     /**
      * Check if the response is considered fresh.
      *
-     * A response is considered fresh when its age is less than the freshness lifetime (maximum age) of the response.
+     * A response is considered fresh when its age is less than or equal to the freshness lifetime (maximum age) of the
+     * response.
      *
      * @return bool|null
      */
@@ -853,7 +859,7 @@ class Response extends AbstractMessage
     {
         $fresh = $this->getFreshness();
 
-        return $fresh === null ? null : $this->getFreshness() > 0;
+        return $fresh === null ? null : $fresh >= 0;
     }
 
     /**
@@ -885,33 +891,9 @@ class Response extends AbstractMessage
     }
 
     /**
-     * Get the previous response (e.g. Redirect response)
-     *
-     * @return null|Response
-     */
-    public function getPreviousResponse()
-    {
-        return $this->previous;
-    }
-
-    /**
-     * Set the previous response
-     *
-     * @param Response $response Response to set
-     *
-     * @return self
-     */
-    public function setPreviousResponse(Response $response)
-    {
-        $this->previous = $response;
-
-        return $this;
-    }
-
-    /**
      * Parse the JSON response body and return an array
      *
-     * @return array
+     * @return array|string|int|bool|float
      * @throws RuntimeException if the response body is not in JSON format
      */
     public function json()
@@ -921,7 +903,7 @@ class Response extends AbstractMessage
             throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
         }
 
-        return $data ?: array();
+        return $data === null ? array() : $data;
     }
 
     /**
@@ -940,5 +922,47 @@ class Response extends AbstractMessage
         }
 
         return $xml;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function getPreviousResponse()
+    {
+        return null;
+    }
+
+    /**
+     * Get the redirect count of this response
+     *
+     * @return int
+     */
+    public function getRedirectCount()
+    {
+        return (int) $this->params->get(RedirectPlugin::REDIRECT_COUNT);
+    }
+
+    /**
+     * Set the effective URL that resulted in this response (e.g. the last redirect URL)
+     *
+     * @param string $url The effective URL
+     *
+     * @return self
+     */
+    public function setEffectiveUrl($url)
+    {
+        $this->effectiveUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get the effective URL that resulted in this response (e.g. the last redirect URL)
+     *
+     * @return string
+     */
+    public function getEffectiveUrl()
+    {
+        return $this->effectiveUrl;
     }
 }

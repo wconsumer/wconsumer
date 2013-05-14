@@ -20,13 +20,19 @@ class Operation implements OperationInterface
     protected static $properties = array(
         'name' => true, 'httpMethod' => true, 'uri' => true, 'class' => true, 'responseClass' => true,
         'responseType' => true, 'responseNotes' => true, 'notes' => true, 'summary' => true, 'documentationUrl' => true,
-        'deprecated' => true, 'data' => true, 'parameters' => true, 'errorResponses' => true
+        'deprecated' => true, 'data' => true, 'parameters' => true, 'additionalParameters' => true,
+        'errorResponses' => true
     );
 
     /**
      * @var array Parameters
      */
     protected $parameters = array();
+
+    /**
+     * @var Parameter Additional parameters schema
+     */
+    protected $additionalParameters;
 
     /**
      * @var string Name of the command
@@ -120,6 +126,8 @@ class Operation implements OperationInterface
      *                       error), and 'class' (a custom exception class that would be thrown if the error is
      *                       encountered).
      * - data:               (array) Any extra data that might be used to help build or serialize the operation
+     * - additionalParameters: (null|array) Parameter schema to use when an option is passed to the operation that is
+     *                                      not in the schema
      *
      * @param array                       $config      Array of configuration data
      * @param ServiceDescriptionInterface $description Service description used to resolve models if $ref tags are found
@@ -162,6 +170,14 @@ class Operation implements OperationInterface
                 }
             }
         }
+
+        if (isset($config['additionalParameters'])) {
+            if ($config['additionalParameters'] instanceof Parameter) {
+                $this->setadditionalParameters($config['additionalParameters']);
+            } elseif (is_array($config['additionalParameters'])) {
+                $this->setadditionalParameters(new Parameter($config['additionalParameters'], $this->description));
+            }
+        }
     }
 
     /**
@@ -182,6 +198,10 @@ class Operation implements OperationInterface
         $result['parameters'] = array();
         foreach ($this->parameters as $key => $param) {
             $result['parameters'][$key] = $param->toArray();
+        }
+        // Additional parameters need to be cast to an array
+        if ($this->additionalParameters instanceof Parameter) {
+            $result['additionalParameters'] = $this->additionalParameters->toArray();
         }
 
         return $result;
@@ -578,6 +598,32 @@ class Operation implements OperationInterface
     public function setData($name, $value)
     {
         $this->data[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get the additionalParameters of the operation
+     *
+     * @return Paramter|null
+     */
+    public function getAdditionalParameters()
+    {
+        return $this->additionalParameters;
+    }
+
+    /**
+     * Set the additionalParameters of the operation
+     *
+     * @param Parameter|null $parameter Parameter to set
+     *
+     * @return self
+     */
+    public function setAdditionalParameters($parameter)
+    {
+        if ($this->additionalParameters = $parameter) {
+            $this->additionalParameters->setParent($this);
+        }
 
         return $this;
     }

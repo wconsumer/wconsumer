@@ -143,13 +143,19 @@ class ServiceBuilder extends AbstractHasDispatcher implements ServiceBuilderInte
 
         // Convert references to the actual client
         foreach ($this->builderConfig[$name]['params'] as &$v) {
-            if (is_string($v) && 0 === strpos($v, '{') && strlen($v) - 1 == strrpos($v, '}')) {
-                $v = $this->get(trim(str_replace(array('{', '}'), '', $v)));
+            if (is_string($v) && substr($v, 0, 1) == '{' && substr($v, -1) == '}') {
+                $v = $this->get(trim(trim($v, '{}')));
             }
         }
 
+        // Get the configured parameters and merge in any parameters provided for throw-away clients
+        $config = $this->builderConfig[$name]['params'];
+        if (is_array($throwAway)) {
+            $config = $throwAway + $config;
+        }
+
         $class = $this->builderConfig[$name]['class'];
-        $client = $class::factory($this->builderConfig[$name]['params']);
+        $client = $class::factory($config);
 
         if (!$throwAway) {
             $this->clients[$name] = $client;
@@ -160,9 +166,7 @@ class ServiceBuilder extends AbstractHasDispatcher implements ServiceBuilderInte
         }
 
         // Dispatch an event letting listeners know a client was created
-        $this->dispatch('service_builder.create_client', array(
-            'client' => $client
-        ));
+        $this->dispatch('service_builder.create_client', array('client' => $client));
 
         return $client;
     }

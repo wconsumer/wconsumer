@@ -6,6 +6,7 @@ use Guzzle\Common\Event;
 use Guzzle\Common\Collection;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\EntityEnclosingRequestInterface;
+use Guzzle\Http\QueryString;
 use Guzzle\Http\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -24,10 +25,12 @@ class OauthPlugin implements EventSubscriberInterface
      * Create a new OAuth 1.0 plugin
      *
      * @param array $config Configuration array containing these parameters:
+     *     - string 'callback'             OAuth callback
      *     - string 'consumer_key'         Consumer key
      *     - string 'consumer_secret'      Consumer secret
      *     - string 'token'                Token
      *     - string 'token_secret'         Token secret
+     *     - string 'verifier'             OAuth verifier.
      *     - string 'version'              OAuth version.  Defaults to 1.0
      *     - string 'signature_method'     Custom signature method
      *     - bool   'disable_post_params'  Set to true to prevent POST parameters from being signed
@@ -72,12 +75,14 @@ class OauthPlugin implements EventSubscriberInterface
         $nonce = $this->generateNonce($request);
 
         $authorizationParams = array(
+            'oauth_callback'         => $this->config['callback'],
             'oauth_consumer_key'     => $this->config['consumer_key'],
             'oauth_nonce'            => $nonce,
             'oauth_signature'        => $this->getSignature($request, $timestamp, $nonce),
             'oauth_signature_method' => $this->config['signature_method'],
             'oauth_timestamp'        => $timestamp,
             'oauth_token'            => $this->config['token'],
+            'oauth_verifier'         => $this->config['verifier'],
             'oauth_version'          => $this->config['version'],
         );
 
@@ -131,31 +136,24 @@ class OauthPlugin implements EventSubscriberInterface
      * @param RequestInterface $request   Request to generate a signature for
      * @param int              $timestamp Timestamp to use for nonce
      * @param string           $nonce
+     *
      * @return string
      */
     public function getStringToSign(RequestInterface $request, $timestamp, $nonce)
     {
         $params = $this->getParamsToSign($request, $timestamp, $nonce);
 
+        // Convert booleans to strings.
+        $params = $this->prepareParameters($params);
+
         // Build signing string from combined params
-        $parameterString = array();
-        foreach ($params as $key => $values) {
-            $key = rawurlencode($key);
-            $values = (array) $values;
-            sort($values);
-            foreach ($values as $value) {
-                if (is_bool($value)) {
-                    $value = $value ? 'true' : 'false';
-                }
-                $parameterString[] = $key . '=' . rawurlencode($value);
-            }
-        }
+        $parameterString = new QueryString($params);
 
         $url = Url::factory($request->getUrl())->setQuery('')->setFragment(null);
 
         return strtoupper($request->getMethod()) . '&'
              . rawurlencode($url) . '&'
-             . rawurlencode(implode('&', $parameterString));
+             . rawurlencode((string) $parameterString);
     }
 
     /**
@@ -170,26 +168,22 @@ class OauthPlugin implements EventSubscriberInterface
     public function getParamsToSign(RequestInterface $request, $timestamp, $nonce)
     {
         $params = new Collection(array(
+            'oauth_callback'         => $this->config['callback'],
             'oauth_consumer_key'     => $this->config['consumer_key'],
             'oauth_nonce'            => $nonce,
             'oauth_signature_method' => $this->config['signature_method'],
             'oauth_timestamp'        => $timestamp,
+            'oauth_token'            => $this->config['token'],
+            'oauth_verifier'         => $this->config['verifier'],
             'oauth_version'          => $this->config['version']
         ));
-
-        // Filter out oauth_token during temp token step, as in request_token.
-        if ($this->config['token'] !== false) {
-            $params->add('oauth_token', $this->config['token']);
-        }
 
         // Add query string parameters
         $params->merge($request->getQuery());
 
-        // Add POST fields to signing string
-        if (!$this->config->get('disable_post_params') &&
-            $request instanceof EntityEnclosingRequestInterface &&
-            (string) $request->getHeader('Content-Type') == 'application/x-www-form-urlencoded') {
-
+        // Add POST fields to signing string if required
+        if ($this->shouldPostFieldsBeSigned($request))
+        {
             $params->merge($request->getPostFields());
         }
 
@@ -201,10 +195,31 @@ class OauthPlugin implements EventSubscriberInterface
     }
 
     /**
+     * Decide whether the post fields should be added to the base string that Oauth signs.
+     * This implementation is correct. Non-conformant APIs may require that this method be
+     * overwritten e.g. the Flickr API incorrectly adds the post fields when the Content-Type
+     * is 'application/x-www-form-urlencoded'
+     *
+     * @param $request
+     * @return bool Whether the post fields should be signed or not
+     */
+    public function shouldPostFieldsBeSigned($request)
+    {
+        if (!$this->config->get('disable_post_params') &&
+            $request instanceof EntityEnclosingRequestInterface &&
+            false !== strpos($request->getHeader('Content-Type'), 'application/x-www-form-urlencoded'))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns a Nonce Based on the unique id and URL. This will allow for multiple requests in parallel with the same
      * exact timestamp to use separate nonce's.
      *
-     * @param RequestInterface $request   Request to generate a nonce for
+     * @param RequestInterface $request Request to generate a nonce for
      *
      * @return string
      */
@@ -216,11 +231,39 @@ class OauthPlugin implements EventSubscriberInterface
     /**
      * Gets timestamp from event or create new timestamp
      *
-     * @param Event $event
-     * @return integer
+     * @param Event $event Event containing contextual information
+     *
+     * @return int
      */
     public function getTimestamp(Event $event)
     {
-       return $event['timestamp'] ? : time();
+       return $event['timestamp'] ?: time();
+    }
+
+    /**
+     * Convert booleans to strings, removed unset parameters, and sorts the array
+     *
+     * @param array $data Data array
+     *
+     * @return array
+     */
+    protected function prepareParameters($data)
+    {
+        ksort($data);
+        foreach ($data as $key => &$value) {
+            switch (gettype($value)) {
+                case 'NULL':
+                    unset($data[$key]);
+                    break;
+                case 'array':
+                    $data[$key] = self::prepareParameters($value);
+                    break;
+                case 'boolean':
+                    $data[$key] = $value ? 'true' : 'false';
+                    break;
+            }
+        }
+
+        return $data;
     }
 }

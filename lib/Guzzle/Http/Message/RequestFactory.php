@@ -3,7 +3,6 @@
 namespace Guzzle\Http\Message;
 
 use Guzzle\Common\Collection;
-use Guzzle\Http\EntityBody;
 use Guzzle\Http\Url;
 use Guzzle\Parser\ParserRegistry;
 
@@ -91,53 +90,75 @@ class RequestFactory implements RequestFactoryInterface
         $method = strtoupper($method);
 
         if ($method == 'GET' || $method == 'HEAD' || $method == 'TRACE' || $method == 'OPTIONS') {
-            $c = $this->requestClass;
-            $request = new $c($method, $url, $headers);
+            // Handle non-entity-enclosing request methods
+            $request = new $this->requestClass($method, $url, $headers);
             if ($body) {
                 // The body is where the response body will be stored
-                $request->setResponseBody(EntityBody::factory($body));
+                $type = gettype($body);
+                if ($type == 'string' || $type == 'resource' || $type == 'object') {
+                    $request->setResponseBody($body);
+                }
             }
             return $request;
         }
 
-        $c = $this->entityEnclosingRequestClass;
-        $request = new $c($method, $url, $headers);
+        // Create an entity enclosing request by default
+        $request = new $this->entityEnclosingRequestClass($method, $url, $headers);
 
         if ($body) {
-
-            $isChunked = (string) $request->getHeader('Transfer-Encoding') == 'chunked';
-
-            if ($method == 'POST' && (is_array($body) || $body instanceof Collection)) {
-
+            // Add POST fields and files to an entity enclosing request if an array is used
+            if (is_array($body) || $body instanceof Collection) {
                 // Normalize PHP style cURL uploads with a leading '@' symbol
-                $files = array();
                 foreach ($body as $key => $value) {
-                    if (is_string($value) && strpos($value, '@') === 0) {
-                        $files[$key] = $value;
+                    if (is_string($value) && substr($value, 0, 1) == '@') {
+                        $request->addPostFile($key, $value);
                         unset($body[$key]);
                     }
                 }
-
                 // Add the fields if they are still present and not all files
-                if (count($body) > 0) {
-                    $request->addPostFields($body);
-                }
-                // Add any files that were prefixed with '@'
-                if (!empty($files)) {
-                    $request->addPostFiles($files);
-                }
-
-                if ($isChunked) {
-                    $request->setHeader('Transfer-Encoding', 'chunked');
-                }
-
-            } elseif (is_resource($body) || $body instanceof EntityBody) {
-                $request->setBody($body, (string) $request->getHeader('Content-Type'), $isChunked);
+                $request->addPostFields($body);
             } else {
-                $request->setBody((string) $body, (string) $request->getHeader('Content-Type'), $isChunked);
+                // Add a raw entity body body to the request
+                $request->setBody(
+                    $body,
+                    (string) $request->getHeader('Content-Type'),
+                    (string) $request->getHeader('Transfer-Encoding') == 'chunked'
+                );
             }
         }
 
         return $request;
+    }
+
+    /**
+     * Clone a request while changing the method. Emulates the behavior of
+     * {@see Guzzle\Http\Message\Request::clone}, but can change the HTTP method.
+     *
+     * @param RequestInterface $request Request to clone
+     * @param string           $method  Method to set
+     *
+     * @return RequestInterface
+     */
+    public function cloneRequestWithMethod(RequestInterface $request, $method)
+    {
+        // Create the request with the same client if possible
+        if ($client = $request->getClient()) {
+            $cloned = $request->getClient()->createRequest($method, $request->getUrl(), $request->getHeaders());
+        } else {
+            $cloned = $this->create($method, $request->getUrl(), $request->getHeaders());
+        }
+
+        $cloned->getCurlOptions()->replace($request->getCurlOptions()->getAll());
+        $cloned->setEventDispatcher(clone $request->getEventDispatcher());
+        // Ensure that that the Content-Length header is not copied if changing to GET or HEAD
+        if (!($cloned instanceof EntityEnclosingRequestInterface)) {
+            $cloned->removeHeader('Content-Length');
+        } elseif ($request instanceof EntityEnclosingRequestInterface) {
+            $cloned->setBody($request->getBody());
+        }
+        $cloned->getParams()->replace($request->getParams()->getAll());
+        $cloned->dispatch('request.clone', array('request' => $cloned));
+
+        return $cloned;
     }
 }
