@@ -82,7 +82,7 @@ function wconsumer_ui_menu()
       // Add the callback page
       $items['wconsumer/callback/'.$name] = array(
         'title' => ucwords($name),
-        'type' => MENU_CALLBACK,
+        'type' => MENU_LOCAL_TASK,
         'description' => 'Manage Service',
 
         // Location of the Form
