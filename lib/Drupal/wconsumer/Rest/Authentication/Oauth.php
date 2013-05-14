@@ -173,15 +173,15 @@ class Oauth extends AuthencationBase implements AuthInterface {
    */
   public function formatCredentials($d)
   {
-    if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
+    if (! isset($d['oauth_token']) OR ! isset($d['oauth_token_secret']))
+      throw new \Drupal\wconsumer\Exception('OAuth Access Token/Secret not set in formatting pass.' . print_r($d, TRUE));
 
-    if (empty($d['consumer_key']) OR empty($d['consumer_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
+    if (empty($d['oauth_token']) OR empty($d['oauth_token_secret']))
+      throw new \Drupal\wconsumer\Exception('OAuth Access Key/Secret empty in formatting pass.' . print_r($d, TRUE));
 
     $credentials = array();
-    $credentials['consumer_key'] = $d['consumer_key'];
-    $credentials['consumer_secret'] = $d['consumer_secret'];
+    $credentials['oauth_token'] = $d['oauth_token'];
+    $credentials['oauth_token_secret'] = $d['oauth_token_secret'];
     return $credentials;
   }
 
@@ -295,7 +295,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     try {
       $this->createConnection(null, null, $token, $token_secret);
-      $access_token = $this->getAccessToken($_REQUEST['oauth_verifier']);
+      $access_tokens = $this->getAccessToken($_REQUEST['oauth_verifier']);
+
+      $access_tokens = $this->formatCredentials($access_tokens);
     }
     catch (\Exception $e) {
       // Throw this back to the front-end
@@ -304,8 +306,8 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     // Save them in the service
     $this->_instance->setCredentials(array(
-      'access_token' => $access_token['oauth_token'],
-      'access_token_secret' => $access_token['oauth_token_secret']
+      'access_token' => $access_tokens['oauth_token'],
+      'access_token_secret' => $access_tokens['oauth_token_secret']
     ), $user->uid);
 
     return true;

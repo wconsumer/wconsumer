@@ -110,20 +110,23 @@ abstract class ServiceBase {
       $user_id = $user->uid;
     endif;
 
+    // We need to retrieve the service ID first
+    $object = $this->getRegistry();
+    
     if ($this->getCredentials($user_id)) :
       // Update
       return db_update($this->serviceCred)
         ->fields(array(
           'credentials' => serialize($credentials)
         ))
-        ->condition('service_id', $service->service_id)
+        ->condition('service_id', $object->service_id)
         ->condition('user_id', $user_id)
         ->execute();
     else :
       // Insert
       return db_insert($this->serviceCred)
         ->fields(array(
-          'service_id' => $service->service_id,
+          'service_id' => $object->service_id,
           'user_id' => $user_id,
           'credentials' => serialize($credentials)
         ))
