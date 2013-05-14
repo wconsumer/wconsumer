@@ -149,19 +149,15 @@ class Item {
     else :
       // Inserting
       $items = $this->sanitizeSaving(clone $this->items);
-    
+
       unset($items->request_id);
       $items->created_date = time();
 
-      db_insert($this->table)
+      // Set the new insert ID
+      $this->request_id = db_insert($this->table)
         ->fields((array) $items)
         ->execute();
-
-        // Set the new insert ID
-        $this->request_id = $item;
     endif;
-
-    var_dump($this->items);
 
     // Are we firing this?
     $this->checkFire();
@@ -212,7 +208,7 @@ class Item {
    * @return bool|object
    */
   private function checkFire() {
-    if ($this->status == 'pending' AND $time < time())
+    if ($this->status == 'pending' AND $this->time < time())
       return $this->perform();
 
     return FALSE;
@@ -238,8 +234,22 @@ class Item {
     }
 
     // Determine some things about the request
-    var_dump($this->request);
+    $request = $this->request;
 
+    $request['http method'] = (isset($request['http method'])) ? strtolower($request['http method']) : 'get';
+    $method = $request['http method'];
+
+    foreach(array('headers', 'body') as $item)
+      $request[$item] = (isset($request[$item])) ? $request[$item] : null;
+
+    // Pass this off to the service's request object
+    $process = $object->request->$method(array(
+      $request['base'],
+      $request['headers'],
+      $request['body']
+    ))->send();
+
+    var_dump($process);
     exit;
   }
 }

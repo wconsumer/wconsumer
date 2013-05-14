@@ -199,7 +199,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
         $credentials = $this->_instance->getCredentials();
         if (! $credentials OR ! isset($registry->credentials)) return FALSE;
 
-        if (! isset($registry['access-token']) OR ! isset($registry['access-secret']))
+        if (! isset($registry['access_token']) OR ! isset($registry['access_token_secret']))
           return FALSE;
 
         // Access token/secret exist
@@ -238,8 +238,8 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key' => $registry->credentials['consumer_key'],
       'consumer_secret' => $registry->credentials['consumer_secret'],
-      'token' => $credentials->credentials['access-token'],
-      'token_secret' => $credentials->credentials['access-secret'],
+      'token' => $credentials->credentials['access_token'],
+      'token_secret' => $credentials->credentials['access_token_secret'],
     )));
   }
 
