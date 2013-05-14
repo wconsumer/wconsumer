@@ -24,4 +24,13 @@ class Manager {
       $item->perform();
     endforeach;
   }
+
+  /**
+   * Prepare for the Response of a request
+   *
+   * @param object
+   */
+  public static function prepareResponse($response) {
+    return $response;
+  }
 }

@@ -2,7 +2,8 @@
 namespace Drupal\wconsumer\Queue;
 
 use Drupal\wconsumer\Service,
-  Drupal\wconsumer\Queue\QueueException;
+  Drupal\wconsumer\Queue\QueueException,
+  Drupal\wconsumer\Queue\Manager;
 
 /**
  * ORM Style Management of Items in the Queue
@@ -266,11 +267,11 @@ class Item {
       $request[$item] = (isset($request[$item])) ? $request[$item] : null;
 
     // Pass this off to the service's request object
-    $this->response = $object->request->$method(
+    $this->response = Manager::prepareResponse($object->request->$method(
       $request['base'],
       $request['headers'],
       $request['body']
-    );
+    ));
 
     // See HTTP header
     $this->status = ($this->response->isError()) ? self::STATUS_ERROR : self::STATUS_COMPLETE;
