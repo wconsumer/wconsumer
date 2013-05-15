@@ -1,8 +1,9 @@
 <?php
 /**
- * Handling the Requests of Services
+ * Handling the Requests of APIs
  *
- * @package wc_core
+ * @package wconsumer
+ * @subpackage  wc_api
  */
 
 /**
@@ -12,28 +13,16 @@
  * different authentication methods. You can look at the `oAuthRequester` or
  * `apiRequester` classes for the specific authentication method implementation.
  * 
- * @package wc_core
+ * @package wconsumer
  */
 class ServiceRequest {
-  /**
-   * The name of the service
-   *
-   * @var  string
-   */
+  // The name of the service
   public $service;
 
-  /**
-   * The internal ID of the service
-   *
-   * @var integer
-   */
+  // The internal ID of the service
   public $serviceId = 0;
 
-  /**
-   * Internal configuration for the service
-   *
-   * @var  array
-   */
+  // Internal configuration for the service
   public $serviceInfo;
 
   /**
@@ -102,6 +91,7 @@ class ServiceRequest {
    * This is an intermediary to the Authentication Specific Classes. We will pass it off to the API Auth/OAuth/etc class
    * to handle the request.
    *
+   * @param   string
    * @param   string The Endpoint on the API to request
    * @param   array Optional Arguments to pass (GET would have them passed as a query argument, POST would be posted arguments, etc)
    * @param   string The HTTP method (get, put, post, delete)
@@ -281,7 +271,7 @@ class ServiceRequest {
  *
  * We didn't want to rewrite code so we will extend this
  *
- * @package  wc_core
+ * @package  wconsumer
  */
 abstract class ServiceRequestExtender
 {
@@ -311,7 +301,7 @@ abstract class ServiceRequestExtender
 /**
  * OAuth API Requester Class
  *
- * @package wc_core
+ * @package wconsumer
  * @uses  ServiceRequestExtender Extends the base class
  */
 class oAuthRequester extends ServiceRequestExtender
@@ -419,7 +409,7 @@ class oAuthRequester extends ServiceRequestExtender
 /**
  * API Requester to interface with API Auth services
  *
- * @package  wc_core
+ * @package  wconsumer
  * @uses  ServiceRequestExtender
  */
 class apiRequester extends ServiceRequestExtender
