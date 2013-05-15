@@ -1,0 +1,17 @@
+<?php
+class WconsumerUITestCase extends DrupalWebTestCase {
+  public function getInfo() {
+    return array(
+      'name' => 'Web Consumer UI',
+      'description' => 'Test the functionality of Web Consumer',
+      'group' => 'Web Consumer Manager',
+    );
+  }
+
+  /*
+  public function testUnregisteredService()
+  {
+    $this->exceptionHandler(Service::getObject('unknown service'));
+  }
+  */
+}

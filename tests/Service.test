@@ -1,0 +1,44 @@
+<?php
+use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Exception;
+
+class WconsumerServiceTest extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Service Class Test',
+      'description' => 'Tests setting up a service object.',
+      'group' => 'Web Consumer Manager',
+    );
+  }
+
+  /**
+   * Trying to get an object for an unknown service
+   */
+  public function testUnregisteredService()
+  {
+    try {
+      Service::getObject('unknown service');
+    } catch (\Exception $e) {
+      //$this->exceptionHandler($e);
+      $this->assertEqual($e->getMessage(), 'Unknown service: unknown service');
+    }
+  }
+
+  /**
+   * Test No Services Registered
+   */
+  public function testNoRegisteredServices()
+  {
+    $this->assertEqual(count(Service::services()), 0);
+  }
+
+  /**
+   * Test Retrieving a Service Object
+   */
+  public function testRetrievingService()
+  {
+    $services = Service::getObject('test service', array(
+      'test service' => ''
+    ));
+  }
+}

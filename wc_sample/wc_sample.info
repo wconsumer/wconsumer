@@ -1,5 +1,0 @@
-name =  WC Sample
-description = This is an example service
-package = Wconsumer
-core = 7.x
-dependencies[] = wc_core

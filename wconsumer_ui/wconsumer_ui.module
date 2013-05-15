@@ -1,0 +1,104 @@
+<?php
+/**
+ * The Core Web Consumer Module
+ *
+ * Base to extend various services from, including support for OAuth, API Keys, etc.
+ *
+ * @package   wconsumer
+ */
+
+use Drupal\wconsumer\Service;
+
+/**
+ * Register the menus
+ */
+function wconsumer_ui_menu()
+{
+  $services = Service::services();
+
+  $items['user/%/wconsumer'] = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Web Services',
+    'description' => 'Manage Web Services',
+    'type' => MENU_LOCAL_TASK,
+    'menu_name' => 'management',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_wconsumer_frontend_form'),
+    'file' => 'wconsumer_frontend_form.inc',
+    'file path' => drupal_get_path('module', 'wconsumer_ui'),
+    'access callback' => 'user_access',
+    'access arguments' => array(
+      'manage web consumer'
+    )
+  );
+
+  $items['admin/config/services/wconsumer_ui']        = array(
+    // The title - do NOT use t() as t() is called automatically.
+    'title' => 'Web Consumer Manager',
+    'description' => 'Manage Web Services',
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'management',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_wconsumer_ui_form'),
+    'file' => 'wconsumer_ui_form.inc',
+    'file path' => drupal_get_path('module', 'wconsumer_ui'),
+    'access callback' => 'user_access',
+    'access arguments' => array(
+      'manage web consumer'
+    )
+  );
+
+  // Module Management Menu Items
+  $items['admin/config/services/wconsumer_ui/default'] = array(
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => 'Settings Management',
+    'weight' => 1
+  );
+
+  // Only one array item (not counting oauthCallback)
+  if (count($services) > 0):
+    $i = 1;
+    foreach ($services as $name => $service):
+      $i++;
+      $items['admin/config/services/wconsumer_ui/' . $name] = array(
+        'title' => ucwords($name),
+        'type' => MENU_LOCAL_TASK,
+        'description' => 'Manage Service',
+
+        // Location of the Form
+        'file' => 'wconsumer_ui_form.inc',
+        'file path' => drupal_get_path('module', 'wconsumer_ui'),
+
+        // Arguments to the Function
+        'page arguments' => array('_wconsumer_ui_form', $name),
+        'page callback' => 'drupal_get_form',
+
+        // Permissions
+        'access callback' => 'user_access',
+        'access arguments' => array('manage web ' . $name),
+        'weight' => $i
+      );
+
+      // Add the callback page
+      $items['wconsumer/callback/'.$name] = array(
+        'title' => ucwords($name),
+        'type' => MENU_LOCAL_TASK,
+        'description' => 'Manage Service',
+
+        // Location of the Form
+        'file' => 'wconsumer_ui_form.inc',
+        'file path' => drupal_get_path('module', 'wconsumer_ui'),
+
+        // Arguments to the Function
+        'page arguments' => array('_wconsumer_ui_callback', $name),
+        'page callback' => 'drupal_get_form',
+
+        // Permissions
+        'access callback' => 'user_access',
+        'access arguments' => array('manage web ' . $name),
+        'weight' => $i
+      );
+    endforeach;
+  endif;
+  return $items;
+}
