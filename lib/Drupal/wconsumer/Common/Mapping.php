@@ -42,7 +42,7 @@ class Mapping {
    * @param array
    * @return void
    */
-  public function register($fields)
+  public function bulkRegister($fields)
   {
     foreach($fields as $k => $v)
       $this->register($k, $v);
