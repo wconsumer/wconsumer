@@ -53,8 +53,9 @@ class Mapping {
    *
    * @param string
    * @throws Drupal\wconsumer\Exception
+   * @return mixed
    */
-  public function retrieve($field) {
+  public function getField($field) {
     if (! isset($this->fields[$field]))
       throw new WcException(sprintf('Field %a isn\'t registered to be mapped.'));
 
@@ -118,11 +119,11 @@ class Mapping {
   protected function interpertResponse($responseParsed, $fieldLocation)
   {
     // We've got it!
-    if (is_string($fieldLocation))
+    if (! is_array($fieldLocation) ) :
       return $responseParsed[$fieldLocation];
 
     // It's an array meaning that the field is on a location inside of an area on the array
-    if (is_array($fieldLocation))
+    else :
       $value = reset($fieldLocation);
       $key = key($fieldLocation);
 
