@@ -169,7 +169,11 @@ class Item {
     endif;
 
     // Are we firing this?
-    $this->checkFire();
+    $check = $this->checkFire();
+    if ($check == FALSE)
+      return TRUE;
+    else
+      return $check;
   }
 
   /**
@@ -285,6 +289,6 @@ class Item {
     if (isset($request['callback']))
       call_user_func_array($request['callback'], $this);
 
-    return TRUE;
+    return $this->response;
   }
 }
