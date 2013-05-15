@@ -104,14 +104,6 @@ function wconsumer_schema() {
         'description' => 'Time of request creation',
       ),
     ),
-    'foreign keys' => array(
-      'service_id' => array(
-        'table' => 'wc_service_registry',
-        'columns' => array(
-          'service_id' => 'service_id'
-        )
-      )
-    ),
     'primary key' => array(
       'request_id'
     ),
@@ -119,8 +111,8 @@ function wconsumer_schema() {
       'request_id' => array(
         'request_id'
       ),
-      'service_id' => array(
-        'service_id'
+      'service' => array(
+        'service'
       )
     )
   );
