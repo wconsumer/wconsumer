@@ -147,24 +147,24 @@ class Item {
 
       // We don't want to overwrite the ID
       // or the creation date of the request
-      unset($items->request_id);
-      unset($items->created_date);
+      unset($items['request_id]']);
+      unset($items['created_date]']);
 
       // They're updating
       db_update($this->table)
-        ->fields((array) $items)
+        ->fields($items)
         ->condition('request_id', $this->request_id)
         ->execute();
     else :
       // Inserting
       $items = $this->sanitizeSaving(clone $this->items);
 
-      unset($items->request_id);
-      $items->created_date = time();
+      unset($items['request_id']);
+      $items['created_date'] = time();
 
       // Set the new insert ID
       $this->request_id = db_insert($this->table)
-        ->fields((array) $items)
+        ->fields($items)
         ->execute();
     endif;
 
@@ -193,11 +193,12 @@ class Item {
    * Sanitize Items for Saving
    *
    * @param object
+   * @return array
    */
   public function sanitizeSaving($object)
   {
     foreach(array(
-
+      'request'
     ) as $v) :
       if (is_object($object->$v) OR is_array($object->$v))
         $object->$v = serialize($object->$v);
@@ -205,12 +206,15 @@ class Item {
 
     if (is_object($object->response))
       $object->response = Manager::serializeResponse($object->response);
+    else
+      $object->response = NULL;
 
     $object->service = $object->service;
     $object->moderate = (int) $object->moderate;
     $object->approver_uid = (int) $object->approver_uid;
+    $object->time = (int) $object->time;
 
-    return $object;
+    return (array) $object;
   }
 
   /**
