@@ -209,7 +209,6 @@ class Item {
     else
       $object->response = NULL;
 
-    $object->service = $object->service;
     $object->moderate = (int) $object->moderate;
     $object->approver_uid = (int) $object->approver_uid;
     $object->time = (int) $object->time;
