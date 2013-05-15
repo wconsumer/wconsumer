@@ -193,12 +193,14 @@ class Item {
   public function sanitizeSaving($object)
   {
     foreach(array(
-      'request',
-      'response',
+
     ) as $v) :
       if (is_object($object->$v) OR is_array($object->$v))
         $object->$v = serialize($object->$v);
     endforeach;
+
+    if (is_object($object->response))
+      $object->response = Manager::serializeResponse($object->response);
 
     $object->service = $object->service;
     $object->moderate = (int) $object->moderate;
@@ -283,6 +285,6 @@ class Item {
     if (isset($request['callback']))
       call_user_func_array($request['callback'], $this);
 
-
+    return TRUE;
   }
 }

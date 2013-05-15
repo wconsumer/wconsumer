@@ -33,4 +33,13 @@ class Manager {
   public static function prepareResponse($response) {
     return $response;
   }
+
+  /**
+   * Convert a Response to a Cache Format
+   *
+   * @param Object Guzzle\Message\Response
+   */
+  public function serializeResponse(\Guzzle\Http\Message\Response $resp) {
+    return (string) $resp;
+  }
 }
