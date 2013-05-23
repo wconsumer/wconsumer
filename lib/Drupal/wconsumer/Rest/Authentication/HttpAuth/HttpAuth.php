@@ -54,10 +54,10 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    */
   public function formatRegistry($data)
   {
-    if ($this->needsUsername AND ( ! isset($data['username']) OR empty($data['username']))
+    if ($this->needsUsername AND ( ! isset($data['username']) OR empty($data['username'])))
       throw new WcException('HTTP Auth requires username and is not set or is empty.');
 
-    if ($this->needsPassword AND ( ! isset($data['password']) OR empty($data['password']))
+    if ($this->needsPassword AND ( ! isset($data['password']) OR empty($data['password'])))
       throw new WcException('HTTP Auth requires password and is not set or is empty.');
     
     return array(
