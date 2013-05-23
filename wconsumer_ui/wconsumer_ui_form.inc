@@ -15,6 +15,27 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   if ($service == NULL) :
     // Default Menu
+    $form['settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Web Consumer Settings'),
+      '#collapsible' => false,
+      '#collapsed' => FALSE,
+    );
+
+    $form['settings']['can service login'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable users to sign in with services'),
+    );
+
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save Configuration')
+    );
+
+    $form['service-name'] = array(
+      '#type' => 'hidden',
+      '#value' => '_internal',
+    );
 
     // Add Web Manager Settings Here
     return $form;
@@ -34,7 +55,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
   $form['creds'] = array(
       '#type' => 'fieldset',
       '#title' => t($service.' Application Credentials'),
-      '#collapsible' => TRUE,
+      '#collapsible' => false,
       '#collapsed' => FALSE,
     );
 
@@ -89,6 +110,12 @@ function _wconsumer_ui_form_submit($form, &$form_state)
 {
   $values = $form_state['input'];
   $service = (isset($values['service-name'])) ? $values['service-name'] : drupal_exit();
+
+  if ($service == '_internal') :
+    // Settings for the system
+    
+    return drupal_set_message(t('Settings updated.'));
+  endif;
 
   try {
     $object = Service::getObject($service);
