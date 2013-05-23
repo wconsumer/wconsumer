@@ -14,7 +14,8 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
   $form = array();
 
   if ($service == NULL) :
-    // Default Menu
+    $service_login = (int) variable_get('wconsumer:service_login');
+
     $form['settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Web Consumer Settings'),
@@ -22,9 +23,12 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
       '#collapsed' => FALSE,
     );
 
-    $form['settings']['can service login'] = array(
+    $form['settings']['service-login'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable users to sign in with services'),
+      '#default_value' => $service_login,
+      '#return_value' => 1,
+      //'#value' => $service_login,
     );
 
     $form['submit'] = array(
@@ -59,8 +63,8 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
       '#collapsed' => FALSE,
     );
 
-  switch(get_class($object->request)) :
-    case 'Drupal\wconsumer\Rest\Request' :
+  switch(get_class($object->request->authencation)) :
+    case 'Drupal\wconsumer\Rest\Authentication\Oauth' :
 
       $form['creds']['consumer_key'] = array(
         '#type' => 'textfield',
@@ -113,7 +117,7 @@ function _wconsumer_ui_form_submit($form, &$form_state)
 
   if ($service == '_internal') :
     // Settings for the system
-    
+    variable_set('wconsumer:service_login', $form_state['values']['service-login']);
     return drupal_set_message(t('Settings updated.'));
   endif;
 
