@@ -210,7 +210,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
         $registry = $this->_instance->getRegistry();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
-        if (! isset($registry['consumer_key']) OR ! isset($registry['consumer_secret']))
+        if (! isset($registry->credentials['consumer_key']) OR ! isset($registry->credentials['consumer_secret']))
           return FALSE;
 
         // Consumer key and secret exist
@@ -229,6 +229,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * 
    * @param object Guzzle Client Passed by reference
    * @return void
+   * @access private
    */
   public function sign_request(&$client)
   {
