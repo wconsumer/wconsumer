@@ -1,4 +1,10 @@
 <?php
+/**
+ * HTTP Authentication
+ *
+ * @package wconsumer
+ * @subpackage request
+ */
 namespace Drupal\wconsumer\Rest\Authentication\HttpAuth;
 
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
@@ -87,8 +93,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    */
   public function is_initialized($type = 'user')
   {
-    switch($type)
-    {
+    switch($type) {
       case 'system' :
         $registry = $this->_instance->getRegistry();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
