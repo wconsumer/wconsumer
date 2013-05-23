@@ -4,3 +4,4 @@ package = "wconsumer"
 core = 7.x
 dependencies[] = "wconsumer"
 files[] = wconsumer_ui.test
+configure = admin/config/services/wconsumer_ui
