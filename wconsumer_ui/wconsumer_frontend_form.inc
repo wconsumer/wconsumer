@@ -2,11 +2,7 @@
 use Drupal\wconsumer\Service;
 
 /**
- * [_wconsumer_frontend_form description]
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
- * @param  [type] $service    [description]
- * @return [type]             [description]
+ * Frontend form user/1/wconsumer
  */
 function _wconsumer_frontend_form($form, &$form_state)
 {

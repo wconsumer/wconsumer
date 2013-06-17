@@ -17,7 +17,6 @@ function wconsumer_ui_menu()
   $services = Service::services();
 
   $items['user/%/wconsumer'] = array(
-    // The title - do NOT use t() as t() is called automatically.
     'title' => 'Web Services',
     'description' => 'Manage Web Services',
     'type' => MENU_LOCAL_TASK,
@@ -26,6 +25,7 @@ function wconsumer_ui_menu()
     'page arguments' => array('_wconsumer_frontend_form'),
     'file' => 'wconsumer_frontend_form.inc',
     'file path' => drupal_get_path('module', 'wconsumer_ui'),
+    
     'access callback' => 'user_access',
     'access arguments' => array(
       'manage web consumer'

@@ -7,8 +7,7 @@ php = 5.3
 dependencies[] = xautoload
 test_dependencies[] = simpletest
 
-files[] = wconsumer.class.inc
-; files[] = wconsumer.test
+;files[] = wconsumer.class.inc
 
 ; Tests
 files[] = tests/Service.test

@@ -1,9 +1,9 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
-use Drupal\wconsumer\Common\AuthInterface;
-use Guzzle\Plugin\Oauth\OauthPlugin
-  as GuzzleOAuth;
+
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
+  Drupal\wconsumer\Common\AuthInterface,
+  Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
 // OAuth Classes
 use Drupal\wconsumer\Rest\Authentication\Oauth,
@@ -326,14 +326,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
   /**
    * Create a OAuth Connection for the Service
    *
-   * @param string|null $consumer_key A consumer key or NULL
-   *                                  to retrieve from registry
-   * @param string|null $consumer_secret A consumer secret or
-   *                                     NULL to retrieve from registry
-   * @param string|null $oauth_token OAuth Token or NULL to retrieve
-   *                                 creds. from registry
-   * @param string|null $oauth_token_secret OAuth Token or NULL to retrieve
-   *                                 creds. from registry
+   * @param string|null A consumer key or NULL to retrieve from registry
+   * @param string|null A consumer secret or NULL to retrieve from registry
+   * @param string|null OAuth Token or NULL to retrieve creds. from registry
+   * @param string|null OAuth Token or NULL to retrieve creds. from registry
    * @return void
    */
   public function createConnection($consumer_key = NULL, $consumer_secret = NULL, $oauth_token = NULL, $oauth_token_secret = NULL)
