@@ -34,17 +34,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    * @var boolean
    */
   public $needsPassword = false;
-
-  /**
-   * Setup the Service Instance
-   * 
-   * @param object
-   */
-  public function __construct(&$instance)
-  {
-    $this->_instance = $instance;
-  }
-
+  
   /**
    * Format Registry Credentials
    * 

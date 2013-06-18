@@ -32,6 +32,20 @@ class QueryString extends AuthencationBase implements AuthInterface {
   public $queryKey;
 
   /**
+   * Label for the query key
+   *
+   * @var string
+   */
+  public $keyLabel = 'Query Key';
+  
+  /**
+   * Label for the query value
+   *
+   * @var string
+   */
+  public $valueLabel = 'Query Value';
+
+  /**
    * Format Registry Credentials
    * 
    * @param array
@@ -43,18 +57,18 @@ class QueryString extends AuthencationBase implements AuthInterface {
       throw new WcException('Query String Auth requires a query key and that it is not set or is empty.');
 
     if ( ( ! isset($data['query_value']) OR empty($data['query_value'])))
-      throw new WcException('HTTP Auth requires a query value and it is not set or is empty.');
+      throw new WcException('Query String Auth requires a query value and it is not set or is empty.');
     
     return array(
-      'query_key' => ($this->queryKey !== NULL) ? $data['query_key'] : $this->queryKey,
-      'password' => $data['query_value']
+      'query_key' => $data['query_key'],
+      'query_value' => $data['query_value']
     );
   }
   
   /**
    * Format the Saved Credentials
    *
-   * Not used in HTTP Auth API
+   * Not used in Query String Auth API
    * 
    * @param array
    * @return array Empty array
@@ -77,10 +91,10 @@ class QueryString extends AuthencationBase implements AuthInterface {
         $registry = $this->_instance->getRegistry();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
-        if ($this->needsUsername AND empty($registry->credentials['query_key']))
+        if ($this->queryKey !== NULL AND empty($registry->credentials['query_key']))
           return FALSE;
 
-        if ($this->needsPassword AND empty($registry->credentials['query_value']))
+        if (empty($registry->credentials['query_value']))
           return FALSE;
 
         return TRUE;
@@ -117,21 +131,21 @@ class QueryString extends AuthencationBase implements AuthInterface {
   /**
    * Authenticate the User
    *
-   * Not needed for HTTP Auth
+   * Not needed for Query String Auth
    */
   public function authenticate(&$user) { }
   
   /**
    * Log the user out
    *
-   * Not needed for HTTP Auth
+   * Not needed for Query String Auth
    */
   public function logout(&$logout) { }
 
   /**
    * Callback
    *
-   * Not needed for HTTP Auth
+   * Not needed for Query String Auth
    */
   public function onCallback(&$user, $values) { }
 }

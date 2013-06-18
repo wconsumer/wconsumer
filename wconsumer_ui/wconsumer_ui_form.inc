@@ -70,20 +70,34 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
         '#type' => 'textfield',
         '#title' => t('Consumer Key'),
         '#required' => TRUE,
-        '#value' => (isset($credentials['consumer_key'])) ? $credentials['consumer_key'] : '',
+        '#default_value' => (isset($credentials['consumer_key'])) ? $credentials['consumer_key'] : '',
       );
 
       $form['creds']['consumer_secret'] = array(
         '#type' => 'textfield',
         '#title' => t('Consumer Secret'),
         '#required' => TRUE,
-        '#value' => (isset($credentials['consumer_secret'])) ? $credentials['consumer_secret'] : '',
+        '#default_value' => (isset($credentials['consumer_secret'])) ? $credentials['consumer_secret'] : '',
       );
 
       break;
 
-    case 'Drupal\wconsumer\Soap\Request' :
+    case 'Drupal\wconsumer\Rest\Authentication\QueryString\QueryString' :
+      if ($object->request->authencation->queryKey == NULL) :
+        $form['creds']['query_key'] = array(
+          '#type' => 'textfield',
+          '#title' => $object->request->authencation->keyLabel,
+          '#required' => TRUE,
+          '#default_value' => (isset($credentials['query_key'])) ? $credentials['query_key'] : '',
+        );
+      endif;
 
+      $form['creds']['query_value'] = array(
+        '#type' => 'textfield',
+        '#title' => $object->request->authencation->valueLabel,
+        '#required' => TRUE,
+        '#default_value' => (isset($credentials['query_value'])) ? $credentials['query_value'] : '',
+      );
       break;
 
     default :
