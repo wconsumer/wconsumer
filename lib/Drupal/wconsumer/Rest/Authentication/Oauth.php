@@ -114,25 +114,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * @var string
    */
   public $requestTokenURL;
-
-  /**
-   * Instance of the Service Object
-   *
-   * @var object
-   */
-  private $_instance;
-
+  
   protected $consumer = NULL;
   protected $token = NULL;
-
-  /**
-   * Construct OAuth Class
-   *
-   * @param object Object Passed by reference of the Service Object
-   */
-  public function __construct(&$service) {
-    $this->_instance = $service;
-  }
 
   function getAccessTokenURL()  { return $this->accessTokenURL; }
   function getAuthenticateURL() { return $this->authenticateURL; }

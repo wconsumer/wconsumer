@@ -1,11 +1,11 @@
 <?php
 /**
- * HTTP Authentication
+ * Query String Authentication
  *
  * @package wconsumer
  * @subpackage request
  */
-namespace Drupal\wconsumer\Rest\Authentication\HttpAuth;
+namespace Drupal\wconsumer\Rest\Authentication\QueryString;
 
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Drupal\wconsumer\Common\AuthInterface,
@@ -13,37 +13,23 @@ use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Drupal\wconsumer\Exception as WcException;
 
 /**
- * HTTP Authentication
+ * Query String Authentication
  *
- * Used for services that require a specific HTTP username and/or password
+ * Used for services that require a query string parameter for requests
  *
  * @package wconsumer
  * @subpackage request
  */
-class HttpAuth extends AuthencationBase implements AuthInterface {
+class QueryString extends AuthencationBase implements AuthInterface {
   /**
-   * Define if they need a username
+   * The key to be added
+   *
+   * If this is not set, it will be prompted from the user to set on the
+   * administration panel
    * 
    * @var boolean
    */
-  public $needsUsername = false;
-
-  /**
-   * Define if they need a password
-   * 
-   * @var boolean
-   */
-  public $needsPassword = false;
-
-  /**
-   * Setup the Service Instance
-   * 
-   * @param object
-   */
-  public function __construct(&$instance)
-  {
-    $this->_instance = $instance;
-  }
+  public $queryKey;
 
   /**
    * Format Registry Credentials
@@ -53,15 +39,15 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    */
   public function formatRegistry($data)
   {
-    if ($this->needsUsername AND ( ! isset($data['username']) OR empty($data['username'])))
-      throw new WcException('HTTP Auth requires username and is not set or is empty.');
+    if ( $this->queryKey !== NULL AND ( ! isset($data['query_key']) OR empty($data['query_key']) ))
+      throw new WcException('Query String Auth requires a query key and that it is not set or is empty.');
 
-    if ($this->needsPassword AND ( ! isset($data['password']) OR empty($data['password'])))
-      throw new WcException('HTTP Auth requires password and is not set or is empty.');
+    if ( ( ! isset($data['query_value']) OR empty($data['query_value'])))
+      throw new WcException('HTTP Auth requires a query value and it is not set or is empty.');
     
     return array(
-      'username' => ($this->needsUsername) ? $data['username'] : '',
-      'password' => ($this->needsPassword) ? $data['password'] : ''
+      'query_key' => ($this->queryKey !== NULL) ? $data['query_key'] : $this->queryKey,
+      'password' => $data['query_value']
     );
   }
   
@@ -91,10 +77,10 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
         $registry = $this->_instance->getRegistry();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
-        if ($this->needsUsername AND empty($registry->credentials['username']))
+        if ($this->needsUsername AND empty($registry->credentials['query_key']))
           return FALSE;
 
-        if ($this->needsPassword AND empty($registry->credentials['password']))
+        if ($this->needsPassword AND empty($registry->credentials['query_value']))
           return FALSE;
 
         return TRUE;
