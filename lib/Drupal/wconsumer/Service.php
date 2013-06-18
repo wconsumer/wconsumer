@@ -48,7 +48,6 @@ class Service {
   public static function getObject($service, $services = array())
   {
     $services = self::services($services);
-
     if (!isset($services[$service]))
       throw new \Exception('Unknown service: '.$service);
 

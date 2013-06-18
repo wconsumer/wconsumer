@@ -119,13 +119,11 @@ class QueryString extends AuthencationBase implements AuthInterface {
   {
     $registry = $this->_instance->getRegistry();
 
-    // Add the auth plugin to the client object
-    $authPlugin = new GuzzleHttpAuth(
-      ($this->needsUsername) ? $registry->credentials['username'] : '',
-      ($this->needsPassword) ? $registry->credentials['password'] : ''
-    );
+    $q = $client->get()->getQuery();
 
-    $client->addSubscriber($authPlugin);
+    $key = ($this->queryKey !== NULL) ? $this->queryKey : $registry['query_key'];
+
+    $q->set($key, $registry['query_value']);
   }
 
   /**
