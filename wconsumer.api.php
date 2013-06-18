@@ -3,13 +3,11 @@
  * @file
  * Hooks provided by wconsumer Core
  *
- * The .module file wouldn't be namespaced
+ * The .module file cannot be in a namespace
  */
 
 /**
- * LinkedIn Service Configuration
- *
- * @return array
+ * Implements hook_wconsumer_config()
  */
 function hook_wconsumer_config($services) {
   // Instantiate a new service object for this service module
