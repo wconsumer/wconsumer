@@ -1,5 +1,5 @@
 name = "wconsumer"
-description = This is a basic example of a form submitted to the database.
+description = Web Consumer Manager
 package = "wconsumer"
 core = 7.x
 php = 5.3
