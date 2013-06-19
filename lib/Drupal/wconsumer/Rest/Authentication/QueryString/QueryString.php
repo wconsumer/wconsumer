@@ -118,7 +118,6 @@ class QueryString extends AuthencationBase implements AuthInterface {
   public function sign_request(&$client)
   {
     $registry = $this->_instance->getRegistry();
-    var_dump($client); exit;
 
     $key = ($this->queryKey !== NULL) ? $this->queryKey : $registry['query_key'];
 
