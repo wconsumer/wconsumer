@@ -118,12 +118,12 @@ class QueryString extends AuthencationBase implements AuthInterface {
   public function sign_request(&$client)
   {
     $registry = $this->_instance->getRegistry();
-
-    $q = $client->get()->getQuery();
+    var_dump($client); exit;
 
     $key = ($this->queryKey !== NULL) ? $this->queryKey : $registry['query_key'];
 
-    $q->set($key, $registry['query_value']);
+    // Set a single query string parameter using path syntax
+    $client->setDefaultOption('query/'.$key, $registry['query_value']);
   }
 
   /**
