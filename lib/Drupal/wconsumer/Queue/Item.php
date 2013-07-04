@@ -123,8 +123,6 @@ class Item {
    */
   public function __get($name)
   {
-    echo 'asssssssssssss';
-
     if ($this->items == NULL)
       throw new QueueException('Item object isn\'t instantiated.');
     
