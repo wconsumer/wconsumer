@@ -66,6 +66,14 @@ class Manager extends AuthencationBase implements AuthInterface {
    */
   public $scopes = array();
 
+  /**
+   * Scope delimiter
+   * 
+   * @var string
+   */
+  public $scopeDelimiter = ',';
+
+
   protected $consumer = NULL;
   protected $token = NULL;
 
@@ -186,7 +194,7 @@ class Manager extends AuthencationBase implements AuthInterface {
     $url = $this->authorizeURL
       .'?client_id='.$registry->credentials['consumer_key']
       .'&redirect_uri='.urlencode($callback)
-      .'&scope='.implode(',', $this->scopes)
+      .'&scope='.implode($this->scopeDelimiter, $this->scopes)
       .'&state=wconsumer';
 
     return drupal_goto($url, array('external' => TRUE));
