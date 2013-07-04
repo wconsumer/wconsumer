@@ -1,6 +1,6 @@
 <?php
 namespace Drupal\wconsumer\Common;
-use Drupal\wconsumer\Exception as WcException;
+use Drupal\wconsumer\Exception as MappingException;
 
 /**
  * Mapping Data from the Service to Information about the User
@@ -57,23 +57,23 @@ class Mapping {
    */
   public function getField($field) {
     if (! isset($this->fields[$field]))
-      throw new WcException(sprintf('Field %a isn\'t registered to be mapped.'));
+      throw new MappingException(sprintf('Field %s isn\'t registered to be mapped.'));
 
     // Let's process this
     $fieldData = $this->fields[$field];
 
     if (! isset($fieldData['endpoint']))
-      throw new WcException(sprintf('Endpoint for %a field isn\'t registered for %b', $field, $this->instance->getName()));
+      throw new MappingException(sprintf('Endpoint for %s field isn\'t registered for %s', $field, $this->instance->getName()));
 
     $endpoint = $fieldData['endpoint'];
     $http_method = (isset($fieldData['http method'])) ? $fieldData['http method'] : 'get';
 
     // Response format
     if (! isset($fieldData['response interperter']) AND ! isset($fieldData['response format']))
-      throw new WcException(sprintf('No response interperter/format specified for %a', $field));
+      throw new MappingException(sprintf('No response interperter/format specified for %s', $field));
 
     if (isset($fieldData['response format']) AND ! in_array($fieldData['response format'], $this->validResponseFormats))
-      throw new WcException(sprintf('Unknown response format passed: %1', $fieldData['respone format']));
+      throw new MappingException(sprintf('Unknown response format passed: %s', $fieldData['respone format']));
 
     // Start the request
     $item = $this->instance->newQueueItem();
@@ -89,14 +89,14 @@ class Mapping {
 
     // Error in the Guzz!
     if ($response->isError())
-      throw new WcException( sprintf('%f field threw error on request response: HTTP code %c', $field, $response->getStatusCode()) );
+      throw new MappingException( sprintf('%s field threw error on request response: HTTP code %s', $field, $response->getStatusCode()) );
 
     if (! isset($fieldData['response interperter']) AND isset($fieldData['response format'])) :
       $format = $fieldData['response format'];
         
       // Field Location
       if (! isset($fieldData['field location']))
-        throw new WcException('Field location not specified');
+        throw new MappingException('Field location not specified');
 
       return $this->interpertResponse($response->$format(), $fieldData['field location']);
     else :

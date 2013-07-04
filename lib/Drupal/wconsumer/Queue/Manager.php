@@ -39,7 +39,7 @@ class Manager {
    *
    * @param Object Guzzle\Message\Response
    */
-  public function serializeResponse(\Guzzle\Http\Message\Response $resp) {
+  public static function serializeResponse(\Guzzle\Http\Message\Response $resp) {
     return (string) $resp;
   }
 }
