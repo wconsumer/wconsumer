@@ -1,0 +1,6 @@
+{
+  "require": {
+    "guzzle/guzzle": "v3.7.0",
+    "fishtrap/guzzle-oauth2-plugin": "dev-master"
+  }
+}
