@@ -36,13 +36,6 @@ class Manager extends AuthencationBase implements AuthInterface {
   public $connecttimeout = 30;
 
   /**
-   * Response format.
-   *
-   * @var string
-   */
-  public $format = 'json';
-
-  /**
    * Decode returned json data.
    *
    * @var bool
@@ -241,7 +234,7 @@ class Manager extends AuthencationBase implements AuthInterface {
           'code' => $values[0]['code'],
         ),
         'query'   => array(),
-        'timeout' => 10,
+        'timeout' => $this->timeout,
         'debug'   => true,
         'verify' => false,
     ));
