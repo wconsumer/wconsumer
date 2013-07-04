@@ -61,19 +61,19 @@ class Item {
 
     // They're taking a predefined role
     $this->items = new \stdClass;
-
-    foreach($data as $k => $v) :
+    
+    foreach((array) $data as $k => $v) :
       if (! isset($this->defaults[$k]))
         throw new QueueException('Unknown key passed to construct object: '.$k);
 
-      if ($k == 'request' OR $k == 'response' AND $v !== '' AND $v !== NULL)
+      if (($k == 'request' OR $k == 'response') AND $v !== '' AND $v !== NULL)
         $v = unserialize($v);
       
       $this->items->$k = $v;
-
-      $this->sanitizeLoading($this->items);
-      return $this->items;
     endforeach;
+
+    $this->sanitizeLoading($this->items);
+    return $this->items;
   }
 
   /**
@@ -123,11 +123,13 @@ class Item {
    */
   public function __get($name)
   {
+    echo 'asssssssssssss';
+
     if ($this->items == NULL)
       throw new QueueException('Item object isn\'t instantiated.');
     
     if (! isset($this->items->$name))
-      throw new QueueException('Unknown column passed to item: '.$name);
+      return NULL; //throw new QueueException('Unknown column passed to item: '.$name);
 
     return $this->items->$name;
   }
