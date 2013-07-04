@@ -120,6 +120,7 @@ class Mapping {
   {
     // We've got it!
     if (! is_array($fieldLocation) ) :
+      $responseParsed = (array) $responseParsed;
       return $responseParsed[$fieldLocation];
 
     // It's an array meaning that the field is on a location inside of an area on the array
