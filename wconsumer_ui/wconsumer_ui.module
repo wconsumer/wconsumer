@@ -78,27 +78,27 @@ function wconsumer_ui_menu()
         'access arguments' => array('manage web ' . $name),
         'weight' => $i
       );
-
-      // Add the callback page
-      $items['wconsumer/callback/'.$name] = array(
-        'title' => ucwords($name),
-        'type' => MENU_LOCAL_TASK,
-        'description' => 'Manage Service',
-
-        // Location of the Form
-        'file' => 'wconsumer_ui_form.inc',
-        'file path' => drupal_get_path('module', 'wconsumer_ui'),
-
-        // Arguments to the Function
-        'page arguments' => array('_wconsumer_ui_callback', $name),
-        'page callback' => 'drupal_get_form',
-
-        // Permissions
-        'access callback' => 'user_access',
-        'access arguments' => array('manage web ' . $name),
-        'weight' => $i
-      );
     endforeach;
+
+    // Add the callback page
+    $items['wconsumer/callback/%'] = array(
+      'title' => ucwords($name),
+      'type' => MENU_LOCAL_TASK,
+      'description' => 'Manage Service',
+
+      // Location of the Form
+      'file' => 'wconsumer_ui_form.inc',
+      'file path' => drupal_get_path('module', 'wconsumer_ui'),
+
+      // Arguments to the Function
+      'page arguments' => array(2),
+      'page callback' => '_wconsumer_ui_callback',
+
+      // Permissions
+      'access callback' => 'user_access',
+      'access arguments' => array('manage web ' . $name),
+      'weight' => $i
+    );
   endif;
   return $items;
 }

@@ -163,12 +163,12 @@ function _wconsumer_ui_form_submit($form, &$form_state)
 /**
  * Callback for the Service
  */
-function _wconsumer_ui_callback($form, &$form_state, $service = NULL) {
+function _wconsumer_ui_callback($service = NULL) {
   global $user;
 
   try {
     $object = Service::getObject($service);
-    $object->request->authencation->onCallback($user, array($_REQUEST, $form_state['input']));
+    $object->request->authencation->onCallback($user, array($_REQUEST));
   }
   catch (\Drupal\wconsumer\Exception $e)
   {
