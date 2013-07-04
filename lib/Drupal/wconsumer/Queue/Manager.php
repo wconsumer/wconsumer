@@ -11,9 +11,9 @@ class Manager {
   public static function checkScheduled() {
     $query = db_select('wc_requests')
       ->condition('time', time(), '<')
+      ->condition('status', 'pending', '=')
       ->fields('wc_requests')
       ->execute();
-
 
     // No pending requests
     if (! $query) return;
@@ -21,7 +21,16 @@ class Manager {
     foreach($query as $data) :
       echo 'Performing Web Consumer request #'.$data->request_id.'...'.PHP_EOL;
       $item = new Item($data);
-      $item->perform();
+      
+      // Mark it as done
+      db_update('wc_requests')
+        ->fields(array(
+          'status' => 'complete',
+        ))
+        ->condition(array(
+          'request_id' => $data->request_id,
+        ))
+        ->execute();
     endforeach;
   }
 
