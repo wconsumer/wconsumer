@@ -1,6 +1,6 @@
 <?php
 
-namespace Fishtrap\Guzzle\Plugin\AccessToken;
+namespace Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken;
 
 class MacToken implements TokenInterface
 {

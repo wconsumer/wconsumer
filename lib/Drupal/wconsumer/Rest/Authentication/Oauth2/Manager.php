@@ -3,7 +3,7 @@ namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Drupal\wconsumer\Common\AuthInterface,
-  Fishtrap\Guzzle\Plugin\OAuth2Plugin as GuzzleOAuth2,
+  Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as GuzzleOAuth2,
   Drupal\wconsumer\Exception as ManagerException;
 
 /**
@@ -167,8 +167,8 @@ class Manager extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new GuzzleOAuth2(array(
       'consumer_key' => $registry->credentials['consumer_key'],
       'consumer_secret' => $registry->credentials['consumer_secret'],
-      'token' => $credentials->credentials['access_token'],
-      'token_secret' => $credentials->credentials['access_token_secret'],
+      'token_type' => 'Bearer',
+      'access_token' => $credentials->credentials['access_token'],
     )));
   }
 
