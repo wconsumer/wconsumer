@@ -76,8 +76,8 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
 {
   global $user;
 
-  $service = (isset($form_state['values']['service-name'])) ? $form_state['values']['service-name'] : die('Unknown service.');
-
+  $service = (isset($form_state['clicked_button']['#name'])) ? $form_state['clicked_button']['#name'] : die('Unknown service.');
+  
   $services = Service::services();
 
   if (! isset($services[$service]))
