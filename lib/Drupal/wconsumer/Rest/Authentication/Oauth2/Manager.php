@@ -65,6 +65,13 @@ class Manager extends AuthencationBase implements AuthInterface {
    */
   public $accessTokenURL;
   
+  /**
+   * Scopes to be requested access to
+   * 
+   * @var array
+   */
+  public $scopes = array();
+
   protected $consumer = NULL;
   protected $token = NULL;
 
@@ -181,15 +188,15 @@ class Manager extends AuthencationBase implements AuthInterface {
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
+
+    $registry = $this->_instance->getRegistry();
     
-    try {
-      $this->createConnection();
-      $request_token = $this->getRequestToken($callback);
-    }
-    catch (\Exception $e) {
-      // Throw this back to the front-end
-      throw new \Exception($e->getMessage(), 500, $e);
-    }
+    $url = 'https://github.com/login/oauth/authorize?client_id='.$registry->credentials['consumer_key']
+      .'&redirect_uri='.urlencode($callback)
+      .'&scope='.implode(',', $this->scopes)
+      .'&state=wconsumer';
+
+    return drupal_goto($url, array('external' => TRUE));
 
     // Something went south on the returned request
     if (! isset($request_token['oauth_token']) OR ! isset($request_token['oauth_token_secret']))

@@ -119,6 +119,7 @@ class Google_OAuth2 {
    * Create a URL to obtain user authorization.
    * The authorization endpoint allows the user to first
    * authenticate, and then grant/deny the access request.
+   * 
    * @param string $scope The scope is expressed as a list of space-delimited strings.
    * @return string
    */
@@ -132,18 +133,11 @@ class Google_OAuth2 {
         'approval_prompt=' . urlencode($this->approvalPrompt),
     );
 
-    // if the list of scopes contains plus.login, add request_visible_actions
-    // to auth URL
-    if(strpos($scope, 'plus.login') && count($this->requestVisibleActions) > 0) {
-        $params[] = 'request_visible_actions=' .
-            urlencode($this->requestVisibleActions);
-    }
-
-    if (isset($this->state)) {
+    if (isset($this->state))
       $params[] = 'state=' . urlencode($this->state);
-    }
+
     $params = implode('&', $params);
-    return self::OAUTH2_AUTH_URL . "?$params";
+    return self::OAUTH2_AUTH_URL . '?'.$params;
   }
 
   /**
