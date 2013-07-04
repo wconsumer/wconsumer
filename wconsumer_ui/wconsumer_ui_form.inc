@@ -65,7 +65,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   switch(get_class($object->request->authencation)) :
     case 'Drupal\wconsumer\Rest\Authentication\Oauth' :
-
+    case 'Drupal\wconsumer\Rest\Authentication\Oauth2\Manager' :
       $form['creds']['consumer_key'] = array(
         '#type' => 'textfield',
         '#title' => t('Consumer Key'),
