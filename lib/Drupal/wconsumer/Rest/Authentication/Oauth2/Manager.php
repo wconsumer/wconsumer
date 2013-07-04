@@ -134,7 +134,7 @@ class Manager extends AuthencationBase implements AuthInterface {
         $credentials = $this->_instance->getCredentials();
         if (! $credentials OR ! isset($registry->credentials)) return FALSE;
 
-        if (! isset($registry['access_token']) OR ! isset($registry['access_token_secret']))
+        if (! isset($registry['access_token']))
           return FALSE;
 
         // Access token/secret exist
