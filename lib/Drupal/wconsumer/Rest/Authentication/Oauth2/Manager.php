@@ -90,10 +90,10 @@ class Manager extends AuthencationBase implements AuthInterface {
   public function formatRegistry($d)
   {
     if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth2 Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
+      throw new ManagerException('OAuth2 Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
 
     if (empty($d['consumer_key']) OR empty($d['consumer_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth2 Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
+      throw new ManagerException('OAuth2 Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
 
     $credentials = array();
     $credentials['consumer_key'] = $d['consumer_key'];
