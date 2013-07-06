@@ -1,7 +1,12 @@
 Web Consumer Manager
 ===============
 
-For development issues, [see the current issues](https://github.com/kaw393939/wconsumer/issues). For documentation and our future roadmap, see [the wiki](https://github.com/kaw393939/wconsumer/wiki). 
+For development issues, [see the current issues](https://github.com/mywebclass/wconsumer/issues). For documentation and our future road-map, see [the wiki](https://github.com/mywebclass/wconsumer/wiki). 
+### Getting Started
+- [Installationn](https://github.com/mywebclass/wconsumer/wiki/Installation)
+- [Creating Service Module](https://github.com/mywebclass/wconsumer/wiki/Create-a-Service-Module)
+- [Making Requests](https://github.com/mywebclass/wconsumer/wiki/Making-Requests)
+- [Full Wiki](https://github.com/mywebclass/wconsumer/wiki)
 
 #### Currently Supported Services
 - [LinkedIn](https://github.com/kaw393939/wconsumer_linkedIn)
