@@ -25,10 +25,15 @@
   <filter>
     <whitelist addUncoveredFilesFromWhitelist="true">
       <directory suffix=".php">./</directory>
-      <!--<exclude>
-        <file>src/bootstrap.php</file>
+      <directory suffix=".module">./</directory>
+      <directory suffix=".install">./</directory>
+      <directory suffix=".inc">./</directory>
+      
+      <exclude>
+        <directory>./vendor</directory>
+        <directory>./tests</directory>
+        <directory>./build</directory>
       </exclude>
-    -->
     </whitelist>
   </filter>
 
