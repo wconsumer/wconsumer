@@ -2,10 +2,10 @@
 
 <project name="wconsumer" default="build">
  <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpdox,phpcb"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpdox,phpcb,phpunit"/>
 
  <target name="build-parallel"
-   depends="prepare,lint,tools-parallel,phpcb"/>
+   depends="prepare,lint,tools-parallel,phpcb,phpunit"/>
 
  <target name="tools-parallel" description="Run tools in parallel">
   <parallel threadCount="2">
@@ -120,11 +120,16 @@
  <target name="phpdox" description="Generate API documentation using phpDox">
   <exec executable="phpdox"/>
  </target>
-<!--
+
  <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exec executable="phpunit" failonerror="true"/>
+  <exec dir="."
+      command="phpunit --log-junit 'reports/unitreport.xml'
+                       --coverage-html 'reports/coverage'
+                       --coverage-clover 'reports/coverage/coverage.xml'
+                       test/"
+  />
  </target>
-  -->
+
  <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
   <exec executable="phpcb">
    <arg value="--log" />
