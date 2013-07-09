@@ -4,10 +4,11 @@
          backupGlobals="false"
          backupStaticAttributes="false"
          strict="true"
-         verbose="true">
+         verbose="true"
+         stopOnFailure="false">
        
   <testsuites>
-    <testsuite name="ProjectName">
+    <testsuite name="wconsumer">
       <directory suffix="Test.php">tests/unit/</directory>
       <directory suffix="Test.php">tests/integration/</directory>
     </testsuite>
@@ -23,10 +24,11 @@
 
   <filter>
     <whitelist addUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">src</directory>
-      <exclude>
+      <directory suffix=".php">./</directory>
+      <!--<exclude>
         <file>src/bootstrap.php</file>
       </exclude>
+    -->
     </whitelist>
   </filter>
 

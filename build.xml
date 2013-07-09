@@ -121,15 +121,6 @@
   <exec executable="phpdox"/>
  </target>
 
- <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exec dir="."
-      command="phpunit --log-junit 'reports/unitreport.xml'
-                       --coverage-html 'reports/coverage'
-                       --coverage-clover 'reports/coverage/coverage.xml'
-                       test/"
-  />
- </target>
-
  <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
   <exec executable="phpcb">
    <arg value="--log" />
@@ -139,5 +130,22 @@
    <arg value="--output" />
    <arg path="${basedir}/build/code-browser" />
   </exec>
+ </target>
+
+  <!-- Composer last as to not interfere with other stuff -->
+ <target name="composer" description="Installing dependencies">
+    <exec executable="composer" failonerror="true">
+      <arg value="install" />
+      <arg value="--install-suggests" />
+    </exec>
+  </target>
+
+  <target name="phpunit" description="Run unit tests with PHPUnit">
+  <exec dir="."
+      command="phpunit --log-junit 'reports/unitreport.xml'
+                       --coverage-html 'reports/coverage'
+                       --coverage-clover 'reports/coverage/coverage.xml'
+                       test/"
+  />
  </target>
 </project>
