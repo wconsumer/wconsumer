@@ -146,9 +146,8 @@
       <arg value="install" />
     </exec>
   </target>
-  </target>
 
-  <target name="phpunit" description="Run unit tests with PHPUnit" >
+  <target name="phpunit" description="Run unit tests with PHPUnit">
   <exec dir="."
       command="phpunit --log-junit 'reports/unitreport.xml'
                        --coverage-html 'reports/coverage'
