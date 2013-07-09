@@ -7,5 +7,8 @@
   <description>Description of your coding standard</description>
 
   <rule ref="rulesets/codesize.xml/CyclomaticComplexity" />
-  <!-- ... -->
+  <rule ref="rulesets/design.xml" />
+  <rule ref="rulesets/unusedcode.xml" />
+  <rule ref="rulesets/codesize.xml" />
+  <rule ref="rulesets/naming.xml" />
 </ruleset>
