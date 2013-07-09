@@ -148,11 +148,7 @@
   </target>
 
   <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exec dir="."
-      command="phpunit --log-junit 'reports/unitreport.xml'
-                       --coverage-html 'reports/coverage'
-                       --coverage-clover 'reports/coverage/coverage.xml'
-                       test/" failonerror="true"
-  />
+    <exec dir="." executable="phpunit" failonerror="true" >
+    </exec>
  </target>
 </project>
