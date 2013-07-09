@@ -9,8 +9,10 @@ namespace Drupal\wconsumer\Rest\Authentication\QueryString;
 
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Drupal\wconsumer\Common\AuthInterface,
-  Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth,
-  Drupal\wconsumer\Exception as WcException;
+  //Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth,
+  Drupal\wconsumer\Exception as WcException,
+  Drupal\wconsumer\Rest\Authentication\QueryString\Plugin as GuzzlePlugin,
+  Drupal\wconsumer\Exception as ManagerException;
 
 /**
  * Query String Authentication
@@ -121,10 +123,10 @@ class QueryString extends AuthencationBase implements AuthInterface {
 
     $key = ($this->queryKey !== NULL) ? $this->queryKey : $registry->credentials['query_key'];
 
-    // Set a single query string parameter using path syntax
-    $client->setDefaultOption('query/'.$key, $registry->credentials['query_value']);
-
-    var_dump($client);
+    $client->addSubscriber(new GuzzlePlugin(array(
+      'query_key' => $key,
+      'query_value' => $registry->credentials['query_value'],
+    )));
   }
 
   /**

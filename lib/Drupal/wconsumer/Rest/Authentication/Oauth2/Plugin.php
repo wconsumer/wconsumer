@@ -1,15 +1,20 @@
 <?php
+namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
-namespace Fishtrap\Guzzle\Plugin;
+use Guzzle\Common\Event,
+    Guzzle\Common\Collection,
+    Symfony\Component\EventDispatcher\EventSubscriberInterface,
+    Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken\TokenInterface,
+    Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken\BearerToken,
+    Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken\MacToken;
 
-use Guzzle\Common\Event;
-use Guzzle\Common\Collection;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Fishtrap\Guzzle\Plugin\AccessToken\TokenInterface;
-use Fishtrap\Guzzle\Plugin\AccessToken\BearerToken;
-use Fishtrap\Guzzle\Plugin\AccessToken\MacToken;
-
-class OAuth2Plugin implements EventSubscriberInterface 
+/**
+ * OAuth2Plugin
+ *
+ * This is written by <https://github.com/natmchugh/guzzle-oauth2-plugin>
+ * Almost all credit is due to the other of the above mentioned oauth2 plugin
+ */
+class Plugin implements EventSubscriberInterface 
 {
 
     public function __construct($config)

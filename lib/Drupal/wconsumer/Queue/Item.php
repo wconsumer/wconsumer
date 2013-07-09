@@ -22,7 +22,7 @@ class Item {
    * 
    * @var array
    */
-  private $defaults = array(
+  protected $defaults = array(
     'request_id' => -1,
     'service' => -1,
     'request' => -1,
@@ -34,7 +34,7 @@ class Item {
     'created_date' => 0
   );
 
-  private $items = NULL;
+  protected $items = NULL;
 
   /**
    * Table for Storage
@@ -42,6 +42,12 @@ class Item {
    * @var string
    */
   protected $table = 'wc_requests';
+
+  /**
+   * Requests table in static
+   * 
+   * @var string
+   */
   protected static $static_table = 'wc_requests';
 
   /**
@@ -86,7 +92,7 @@ class Item {
   {
     $data = db_select(self::$static_table)
       ->fields(self::$static_table)
-      ->condition('request_id', $id)
+      ->condition('request_id', $id, '=')
       ->execute()->fetchObject();
 
       if ($data == NULL) return NULL;

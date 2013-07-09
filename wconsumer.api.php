@@ -32,6 +32,10 @@ function hook_wconsumer_config($services) {
   $service_object->request->authencation->authorizeURL = 'https://www.linkedin.com/uas/oauth/authenticate';
   $service_object->request->authencation->requestTokenURL = 'https://api.linkedin.com/uas/oauth/requestToken';
 
+  // We have a number of other authentication methods
+  // To review, take a look at this wiki page:
+  // https://github.com/mywebclass/wconsumer/wiki/Authentication
+  
   // Service Specific Options
   // These settings are on a per-service basis such as allow the user to log in and create
   // and account with this service.
