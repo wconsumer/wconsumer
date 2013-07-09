@@ -2,10 +2,10 @@
 
 <project name="wconsumer" default="build">
  <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpdox,phpcb,phpunit,composer"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpdox,phpcb,composer,phpunit"/>
 
  <target name="build-parallel"
-   depends="prepare,lint,tools-parallel,phpcb,phpunit,composer"/>
+   depends="prepare,lint,tools-parallel,phpcb,composer,phpunit"/>
 
  <target name="tools-parallel" description="Run tools in parallel">
   <parallel threadCount="2">
@@ -28,6 +28,7 @@
   <delete dir="${basedir}/build/pdepend"/>
   <delete dir="${basedir}/vendor"/>
   <delete file="${basedir}/composer.lock"/>
+  <delete file="${basedir}/composer.phar"/>
  </target>
 
  <target name="prepare" depends="clean" description="Prepare for build">
@@ -136,17 +137,23 @@
 
   <!-- Composer last as to not interfere with other stuff -->
  <target name="composer" description="Installing dependencies">
-    <exec executable="composer" failonerror="true">
+    <exec executable="wget" failonerror="true">
+      <arg value="-nc" />
+      <arg value="http://getcomposer.org/composer.phar" />
+    </exec>
+    <exec executable="php" failonerror="true">
+      <arg value="composer.phar" />
       <arg value="install" />
     </exec>
   </target>
+  </target>
 
-  <target name="phpunit" description="Run unit tests with PHPUnit">
+  <target name="phpunit" description="Run unit tests with PHPUnit" >
   <exec dir="."
       command="phpunit --log-junit 'reports/unitreport.xml'
                        --coverage-html 'reports/coverage'
                        --coverage-clover 'reports/coverage/coverage.xml'
-                       test/"
+                       test/" failonerror="true"
   />
  </target>
 </project>
