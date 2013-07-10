@@ -1,6 +1,8 @@
 <?php
 namespace Drupal\wconsumer;
 
+use Drupal\wconsumer\Exception as ServiceException;
+
 /**
  * Service Manager Class
  *
@@ -49,7 +51,7 @@ class Service {
   {
     $services = self::services($services);
     if (!isset($services[$service]))
-      throw new \Exception('Unknown service: '.$service);
+      throw new ServiceException('Unknown service: '.$service);
 
     return $services[$service];
   }

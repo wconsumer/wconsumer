@@ -9,8 +9,7 @@
        
   <testsuites>
     <testsuite name="wconsumer">
-      <directory suffix="Test.php">tests/unit/</directory>
-      <directory suffix="Test.php">tests/integration/</directory>
+      <directory suffix="Test.php">tests/</directory>
     </testsuite>
   </testsuites>
 
