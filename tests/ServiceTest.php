@@ -1,6 +1,5 @@
 <?php
-use Drupal\wconsumer\Service,
-  Drupal\wconsumer\Exception;
+use Drupal\wconsumer\Service;
 
 class ServiceTest extends PHPUnit_Framework_TestCase {
   /**
