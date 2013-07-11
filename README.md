@@ -1,3 +1,4 @@
+[![Stories in Ready](http://badge.waffle.io/mywebclass/wconsumer.png)](http://waffle.io/mywebclass/wconsumer)  
 Web Consumer Manager
 ===============
 
