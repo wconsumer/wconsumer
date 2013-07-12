@@ -8,17 +8,25 @@
  * @link https://github.com/mywebclass/wconsumer/
  */
 
-use Drupal\wconsumer\Service;
-use Guzzle\Http\Client;
+/**
+ * Core Global Version
+ *
+ * @global string
+ */
+define('WCONSUMER_VERSION', '0.3');
 
 // Load Composer
-require (__DIR__.'/vendor/autoload.php');
+if (! file_exists(__DIR__.'/vendor/autoload.php'))
+{
+  drupal_set_message(t('Composer not initialized for wconsumer.', 'error'));
+  return;
+}
 
 /**
  * Implements hook_init()
  */
 function wconsumer_init() {
-  
+  require (__DIR__.'/vendor/autoload.php');
 }
 
 
