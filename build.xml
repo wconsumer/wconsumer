@@ -26,6 +26,7 @@
   <delete dir="${basedir}/build/coverage"/>
   <delete dir="${basedir}/build/logs"/>
   <delete dir="${basedir}/build/pdepend"/>
+  <delete dir="${basedir}/build/docs"/>
   <delete dir="${basedir}/vendor"/>
   <delete file="${basedir}/composer.lock"/>
   <delete file="${basedir}/composer.phar"/>
@@ -119,10 +120,23 @@
    <arg path="${basedir}" />
   </exec>
  </target>
-
+  
+  <!--
  <target name="phpdox" description="Generate API documentation using phpDox">
   <exec executable="phpdox"/>
  </target>
+ -->
+
+ <target name="phpdoc"
+        description="Generate API documentation using PHPDocumentor">
+ <exec executable="phpdoc">
+  <arg value="--directory" />
+  <arg path="${basedir}" />
+  <arg value="--target" />
+  <arg path="${basedir}/build/docs" />
+
+ </exec>
+</target>
 
  <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
   <exec executable="phpcb">
