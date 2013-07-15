@@ -129,9 +129,9 @@
  <target name="phpdoc"
         description="Generate API documentation using PHPDocumentor">
  <exec executable="phpdoc">
-  <arg value="--directory" />
+  <arg value="directory" />
   <arg path="${basedir}" />
-  <arg value="--target" />
+  <arg value="target" />
   <arg path="${basedir}/build/docs" />
 
  </exec>
