@@ -2,10 +2,10 @@
 
 <project name="wconsumer" default="build">
  <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpdoc,phpcb,composer,phpunit"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpcb,composer,apigen,phpunit"/>
 
  <target name="build-parallel"
-   depends="prepare,lint,tools-parallel,phpdoc,phpcb,composer,phpunit"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpcb,composer,apigen,phpunit"/>
 
  <target name="tools-parallel" description="Run tools in parallel">
   <parallel threadCount="2">
@@ -125,7 +125,7 @@
   <exec executable="phpdox"/>
  </target>
  -->
-
+<!--
  <target name="phpdoc"
         description="Generate API documentation using PHPDocumentor">
  <exec executable="phpdoc">
@@ -136,7 +136,7 @@
 
  </exec>
 </target>
-
+-->
  <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
   <exec executable="phpcb">
    <arg value="--log" />
@@ -159,6 +159,15 @@
       <arg value="install" />
       <arg value="--dev" />
     </exec>
+  </target>
+  
+
+ <target name="apigen"
+        description="Generate API documentation using ApiGen">
+   <exec executable="apigen">
+    <arg value="--config" />
+    <arg path="${basedir}/build/apigen.neon" />
+   </exec>
   </target>
 
   <target name="phpunit" description="Run unit tests with PHPUnit">
