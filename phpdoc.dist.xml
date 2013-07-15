@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpdoc>
+  <title>wconsumer documentation</title>
+
+  <parser>
+    <target>build/docs</target>
+  </parser>
+
+  <transformer>
+    <target>build/docs</target>
+  </transformer>
+
+  <files>
+    <directory>.</directory>
+    <ignore>vendor/*</ignore>
+    <ignore>build/*</ignore>
+  </files>
+
+  <extensions>
+    <extension>php</extension>
+    <extension>module</extension>
+    <extension>install</extension>
+    <extension>inc</extension>
+  </extensions>
+</phpdoc>

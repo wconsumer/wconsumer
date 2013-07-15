@@ -2,11 +2,7 @@
 use Drupal\wconsumer\Service;
 
 /**
- * [_wconsumer_frontend_form description]
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
- * @param  [type] $service    [description]
- * @return [type]             [description]
+ * Frontend form user/1/wconsumer
  */
 function _wconsumer_frontend_form($form, &$form_state)
 {
@@ -80,8 +76,8 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
 {
   global $user;
 
-  $service = (isset($form_state['values']['service-name'])) ? $form_state['values']['service-name'] : die('Unknown service.');
-
+  $service = (isset($form_state['clicked_button']['#name'])) ? $form_state['clicked_button']['#name'] : die('Unknown service.');
+  
   $services = Service::services();
 
   if (! isset($services[$service]))

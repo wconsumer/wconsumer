@@ -1,0 +1,7 @@
+vendor/
+composer.lock
+
+# Build
+build/logs
+build/docs
+build/coverage

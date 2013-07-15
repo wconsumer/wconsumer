@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="tests/bootstrap.php"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         strict="true"
+         verbose="true"
+         syntaxCheck="true"
+         stopOnFailure="false">
+       
+  <testsuites>
+    <testsuite name="wconsumer">
+      <directory suffix="Test.php">tests/</directory>
+    </testsuite>
+  </testsuites>
+
+  <logging>
+    <log type="coverage-html" target="build/coverage" title="BankAccount"
+         charset="UTF-8" yui="true" highlight="true"
+         lowUpperBound="35" highLowerBound="70"/>
+    <log type="coverage-clover" target="build/logs/clover.xml"/>
+    <log type="coverage-xml" target="build/logs/phpunitCoverage.xml"/>
+    <log type="junit" target="build/logs/junit.xml" logIncompleteSkipped="false"/>
+  </logging>
+
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">./</directory>
+      <directory suffix=".module">./</directory>
+      <directory suffix=".install">./</directory>
+      <directory suffix=".inc">./</directory>
+      
+      <exclude>
+        <directory>./vendor</directory>
+        <directory>./tests</directory>
+        <directory>./build</directory>
+      </exclude>
+    </whitelist>
+  </filter>
+
+</phpunit>

@@ -3,13 +3,11 @@
  * @file
  * Hooks provided by wconsumer Core
  *
- * The .module file wouldn't be namespaced
+ * The .module file cannot be in a namespace
  */
 
 /**
- * LinkedIn Service Configuration
- *
- * @return array
+ * Implements hook_wconsumer_config()
  */
 function hook_wconsumer_config($services) {
   // Instantiate a new service object for this service module
@@ -34,6 +32,10 @@ function hook_wconsumer_config($services) {
   $service_object->request->authencation->authorizeURL = 'https://www.linkedin.com/uas/oauth/authenticate';
   $service_object->request->authencation->requestTokenURL = 'https://api.linkedin.com/uas/oauth/requestToken';
 
+  // We have a number of other authentication methods
+  // To review, take a look at this wiki page:
+  // https://github.com/mywebclass/wconsumer/wiki/Authentication
+  
   // Service Specific Options
   // These settings are on a per-service basis such as allow the user to log in and create
   // and account with this service.
