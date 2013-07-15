@@ -1,5 +1,5 @@
 <?php
-namespace Drupla\wconsumer\Common;
+namespace Drupal\wconsumer\Common;
 
 use Drupal\wconsumer\Rest\Request as RestBase;
 use Drupal\wconsumer\Rest\Authentication\Oauth as Oauth;
