@@ -2,6 +2,6 @@ vendor/
 composer.lock
 
 # Build
-build/
-!/build/*.xml
-!/build/*.neon
+build/logs
+build/docs
+build/coverage
