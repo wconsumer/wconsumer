@@ -4,3 +4,4 @@ composer.lock
 # Build
 build/
 !/build/*.xml
+!/build/*.neon
