@@ -1,9 +1,9 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
-use Drupal\wconsumer\Common\AuthInterface;
-use Guzzle\Plugin\Oauth\OauthPlugin
-  as GuzzleOAuth;
+
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
+  Drupal\wconsumer\Common\AuthInterface,
+  Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
 // OAuth Classes
 use Drupal\wconsumer\Rest\Authentication\Oauth,
@@ -114,25 +114,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * @var string
    */
   public $requestTokenURL;
-
-  /**
-   * Instance of the Service Object
-   *
-   * @var object
-   */
-  private $_instance;
-
+  
   protected $consumer = NULL;
   protected $token = NULL;
-
-  /**
-   * Construct OAuth Class
-   *
-   * @param object Object Passed by reference of the Service Object
-   */
-  public function __construct(&$service) {
-    $this->_instance = $service;
-  }
 
   function getAccessTokenURL()  { return $this->accessTokenURL; }
   function getAuthenticateURL() { return $this->authenticateURL; }
@@ -210,7 +194,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
         $registry = $this->_instance->getRegistry();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
-        if (! isset($registry['consumer_key']) OR ! isset($registry['consumer_secret']))
+        if (! isset($registry->credentials['consumer_key']) OR ! isset($registry->credentials['consumer_secret']))
           return FALSE;
 
         // Consumer key and secret exist
@@ -229,6 +213,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * 
    * @param object Guzzle Client Passed by reference
    * @return void
+   * @access private
    */
   public function sign_request(&$client)
   {
@@ -325,14 +310,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
   /**
    * Create a OAuth Connection for the Service
    *
-   * @param string|null $consumer_key A consumer key or NULL
-   *                                  to retrieve from registry
-   * @param string|null $consumer_secret A consumer secret or
-   *                                     NULL to retrieve from registry
-   * @param string|null $oauth_token OAuth Token or NULL to retrieve
-   *                                 creds. from registry
-   * @param string|null $oauth_token_secret OAuth Token or NULL to retrieve
-   *                                 creds. from registry
+   * @param string|null A consumer key or NULL to retrieve from registry
+   * @param string|null A consumer secret or NULL to retrieve from registry
+   * @param string|null OAuth Token or NULL to retrieve creds. from registry
+   * @param string|null OAuth Token or NULL to retrieve creds. from registry
    * @return void
    */
   public function createConnection($consumer_key = NULL, $consumer_secret = NULL, $oauth_token = NULL, $oauth_token_secret = NULL)

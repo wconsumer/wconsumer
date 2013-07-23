@@ -234,13 +234,9 @@ function entity_example_schema() {
   return $schema;
 }
 
-
-/*
- * Implements hook_uninstall().
- *
- * At uninstall time we'll notify field.module that the entity was deleted
- * so that attached fields can be cleaned up.
+/**
+ * Implements hook_enable()
  */
-function entity_example_uninstall() {
-  field_attach_delete_bundle('entity_example_basic' , 'first_example_bundle' );
+function wconsumer_enable() {
+  drupal_set_message(t('Welcome to Web Consumer Manager! For information on how to build out service modules, check out <a href="https://github.com/mywebclass/wconsumer/wiki">our wiki</a>.'));
 }

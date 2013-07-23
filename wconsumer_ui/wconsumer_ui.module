@@ -17,7 +17,6 @@ function wconsumer_ui_menu()
   $services = Service::services();
 
   $items['user/%/wconsumer'] = array(
-    // The title - do NOT use t() as t() is called automatically.
     'title' => 'Web Services',
     'description' => 'Manage Web Services',
     'type' => MENU_LOCAL_TASK,
@@ -26,6 +25,7 @@ function wconsumer_ui_menu()
     'page arguments' => array('_wconsumer_frontend_form'),
     'file' => 'wconsumer_frontend_form.inc',
     'file path' => drupal_get_path('module', 'wconsumer_ui'),
+    
     'access callback' => 'user_access',
     'access arguments' => array(
       'manage web consumer'
@@ -78,27 +78,49 @@ function wconsumer_ui_menu()
         'access arguments' => array('manage web ' . $name),
         'weight' => $i
       );
-
-      // Add the callback page
-      $items['wconsumer/callback/'.$name] = array(
-        'title' => ucwords($name),
-        'type' => MENU_LOCAL_TASK,
-        'description' => 'Manage Service',
-
-        // Location of the Form
-        'file' => 'wconsumer_ui_form.inc',
-        'file path' => drupal_get_path('module', 'wconsumer_ui'),
-
-        // Arguments to the Function
-        'page arguments' => array('_wconsumer_ui_callback', $name),
-        'page callback' => 'drupal_get_form',
-
-        // Permissions
-        'access callback' => 'user_access',
-        'access arguments' => array('manage web ' . $name),
-        'weight' => $i
-      );
     endforeach;
+
+    // Add the callback page
+    $items['wconsumer/callback/%'] = array(
+      'title' => ucwords($name),
+      'type' => MENU_LOCAL_TASK,
+      'description' => 'Manage Service',
+
+      // Location of the Form
+      'file' => 'wconsumer_ui_form.inc',
+      'file path' => drupal_get_path('module', 'wconsumer_ui'),
+
+      // Arguments to the Function
+      'page arguments' => array(2),
+      'page callback' => '_wconsumer_ui_callback',
+
+      // Permissions
+      'access callback' => 'user_access',
+      'access arguments' => array('manage web ' . $name),
+      'weight' => $i
+    );
   endif;
   return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function wconsumer_ui_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#wconsumer_ui':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module is an API for Drupal that provides useful functions to developers creating web service consuming modules and specializes in handling the OAUTH authentication method commonly used by many major websites like Twitter, LinkedIn, GitHub, etc....') . '</p>';
+      $output .= '<h3>' . t('Documentation') . '</h3>';
+      $output .= '<ul>';
+      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Installation">' . t('Installation') . '</a></li>';
+      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Create-a-Service-Module">' . t('Create a Service Module') . '</a></li>';
+      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Service-Configuration">' . t('Service Configuration') . '</a></li>';
+      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Making-Requests">' . t('Making Requests') . '</a></li>';
+
+      $output .= '</ul>';
+      return $output;
+      break;
+  }
 }

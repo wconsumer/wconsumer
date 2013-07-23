@@ -22,7 +22,7 @@ class Item {
    * 
    * @var array
    */
-  private $defaults = array(
+  protected $defaults = array(
     'request_id' => -1,
     'service' => -1,
     'request' => -1,
@@ -34,7 +34,7 @@ class Item {
     'created_date' => 0
   );
 
-  private $items = NULL;
+  protected $items = NULL;
 
   /**
    * Table for Storage
@@ -42,6 +42,12 @@ class Item {
    * @var string
    */
   protected $table = 'wc_requests';
+
+  /**
+   * Requests table in static
+   * 
+   * @var string
+   */
   protected static $static_table = 'wc_requests';
 
   /**
@@ -61,19 +67,19 @@ class Item {
 
     // They're taking a predefined role
     $this->items = new \stdClass;
-
-    foreach($data as $k => $v) :
+    
+    foreach((array) $data as $k => $v) :
       if (! isset($this->defaults[$k]))
         throw new QueueException('Unknown key passed to construct object: '.$k);
 
-      if ($k == 'request' OR $k == 'response' AND $v !== '' AND $v !== NULL)
+      if (($k == 'request' OR $k == 'response') AND $v !== '' AND $v !== NULL)
         $v = unserialize($v);
       
       $this->items->$k = $v;
-
-      $this->sanitizeLoading($this->items);
-      return $this->items;
     endforeach;
+
+    $this->sanitizeLoading($this->items);
+    return $this->items;
   }
 
   /**
@@ -86,7 +92,7 @@ class Item {
   {
     $data = db_select(self::$static_table)
       ->fields(self::$static_table)
-      ->condition('request_id', $id)
+      ->condition('request_id', $id, '=')
       ->execute()->fetchObject();
 
       if ($data == NULL) return NULL;
@@ -127,7 +133,7 @@ class Item {
       throw new QueueException('Item object isn\'t instantiated.');
     
     if (! isset($this->items->$name))
-      throw new QueueException('Unknown column passed to item: '.$name);
+      return NULL; //throw new QueueException('Unknown column passed to item: '.$name);
 
     return $this->items->$name;
   }
@@ -147,29 +153,33 @@ class Item {
 
       // We don't want to overwrite the ID
       // or the creation date of the request
-      unset($items->request_id);
-      unset($items->created_date);
+      unset($items['request_id]']);
+      unset($items['created_date]']);
 
       // They're updating
       db_update($this->table)
-        ->fields((array) $items)
+        ->fields($items)
         ->condition('request_id', $this->request_id)
         ->execute();
     else :
       // Inserting
       $items = $this->sanitizeSaving(clone $this->items);
 
-      unset($items->request_id);
-      $items->created_date = time();
+      unset($items['request_id']);
+      $items['created_date'] = time();
 
       // Set the new insert ID
       $this->request_id = db_insert($this->table)
-        ->fields((array) $items)
+        ->fields($items)
         ->execute();
     endif;
 
     // Are we firing this?
-    $this->checkFire();
+    $check = $this->checkFire();
+    if ($check == FALSE)
+      return TRUE;
+    else
+      return $check;
   }
 
   /**
@@ -189,11 +199,12 @@ class Item {
    * Sanitize Items for Saving
    *
    * @param object
+   * @return array
    */
   public function sanitizeSaving($object)
   {
     foreach(array(
-
+      'request'
     ) as $v) :
       if (is_object($object->$v) OR is_array($object->$v))
         $object->$v = serialize($object->$v);
@@ -201,12 +212,14 @@ class Item {
 
     if (is_object($object->response))
       $object->response = Manager::serializeResponse($object->response);
+    else
+      $object->response = NULL;
 
-    $object->service = $object->service;
     $object->moderate = (int) $object->moderate;
     $object->approver_uid = (int) $object->approver_uid;
+    $object->time = (int) $object->time;
 
-    return $object;
+    return (array) $object;
   }
 
   /**
@@ -284,7 +297,7 @@ class Item {
     // Call the Item's callback
     if (isset($request['callback']))
       call_user_func_array($request['callback'], $this);
-
-    return TRUE;
+    
+    return $this->response;
   }
 }

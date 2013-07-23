@@ -4,11 +4,13 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 
+use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthUtil;
+
 class OAuthUtil {
   public static function urlencode_rfc3986($input) {
     if (is_array($input)) {
       return array_map(array(
-        'OAuthUtil',
+        'Drupal\wconsumer\Rest\Authentication\Oauth\OAuthUtil',
         'urlencode_rfc3986'
       ), $input);
     } //is_array($input)
