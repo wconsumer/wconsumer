@@ -16,11 +16,11 @@ class Request implements RequestInterface
    *
    * @var string
    */
-  public $apiURL;
+  private $apiURL;
 
   /**
    * Instance Object of this Request Class
-   * 
+   *
    * @var object
    * @access private
    */
@@ -35,8 +35,13 @@ class Request implements RequestInterface
   private $_serviceInstance;
 
   /**
+   * @var Client
+   */
+  private $client;
+
+  /**
    * Authentication Object
-   * 
+   *
    * @var object
    */
   public $authencation;
@@ -44,11 +49,11 @@ class Request implements RequestInterface
   /**
    * Construct the Request Object
    *
-   * @param object
+   * @param $client Client
    */
-  public function __construct()
+  public function __construct(Client $client)
   {
-
+    $this->client = $client;
   }
 
   /**
@@ -56,52 +61,44 @@ class Request implements RequestInterface
    *
    * @return object
    * @access public
+   * @codeCoverageIgnore
    */
   public static function Instance()
   {
     if (static::$instance !== NULL)
-      static::$instance = new Request();
+      static::$instance = new Request(new Client());
 
     return static::$instance;
   }
 
   /**
    * Set the API Url
-   * 
+   *
    * @param string A valid URL base
    */
   public function setApiUrl($url) { $this->apiURL = $url; }
 
   /**
    * Retrieve the API Base
-   * 
+   *
    * @return string
    */
   public function getApiUrl() { return $this->apiURL; }
 
   /**
    * Magic Method to make a request a bit easier
-   * 
+   *
    * @return object
    * @access private
    */
   public function __call($method, $arguments = array())
   {
-    $client = new Client($this->getApiUrl());
-
-    // Manage Authentication
-    $this->authencation->sign_request($client);
-
-    // Make the request
-    array_unshift($arguments, $method);
-
-    $request = call_user_func_array(array($client, 'createRequest'), $arguments);
-    return $request->send();
+    $this->makeRequest($this->getApiUrl(), $method, $arguments);
   }
 
   /**
    * Manually setup and Execute the Request
-   * 
+   *
    * @param  string
    * @param  string HTTP method
    * @param  array
@@ -109,6 +106,15 @@ class Request implements RequestInterface
    */
   public function makeRequest($endPoint, $method, $arguments)
   {
+    $this->client->setBaseUrl($endPoint);
 
+    // Manage Authentication
+    $this->authencation->sign_request($this->client);
+
+    // Make the request
+    array_unshift($arguments, $method);
+
+    $request = call_user_func_array(array($this->client, 'createRequest'), $arguments);
+    return $request->send();
   }
 }
