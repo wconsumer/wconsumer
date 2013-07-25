@@ -4,6 +4,9 @@
  *
  * Get started for PHPUnit
  */
+
+error_reporting(E_ALL);
+
 define('WC_BASE', dirname(__DIR__));
 define('WC_LIB_BASE', WC_BASE.'/lib');
 
@@ -16,7 +19,7 @@ if (! class_exists('PHPUnit_Framework_TestCase'))
 spl_autoload_register(function($class)
 {
   $fileName = str_replace(trim('\ '), "/", $class);
-  
+
   if (file_exists(WC_LIB_BASE.'/'.$fileName.'.php'))
     require_once (WC_LIB_BASE.'/'.$fileName.'.php');
 });
