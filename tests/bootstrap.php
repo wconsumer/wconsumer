@@ -16,6 +16,8 @@ require_once (WC_BASE.'/wconsumer.module');
 if (! class_exists('PHPUnit_Framework_TestCase'))
   die('PHPUnit is not installed from composer.');
 
+require(WC_BASE.'/vendor/autoload.php');
+
 spl_autoload_register(function($class)
 {
   $fileName = str_replace(trim('\ '), "/", $class);
