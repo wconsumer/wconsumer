@@ -12,11 +12,15 @@ define('WC_LIB_BASE', WC_BASE.'/lib');
 
 require_once (WC_BASE.'/wconsumer.module');
 
+// Let's see if they initialized Composer
+if (!file_exists(WC_BASE.'/vendor/autoload.php'))
+  die('Composer not initialized.');
+
+require(WC_BASE.'/vendor/autoload.php');
+
 // Let's see if they installed PHPUnit
 if (! class_exists('PHPUnit_Framework_TestCase'))
   die('PHPUnit is not installed from composer.');
-
-require(WC_BASE.'/vendor/autoload.php');
 
 spl_autoload_register(function($class)
 {
