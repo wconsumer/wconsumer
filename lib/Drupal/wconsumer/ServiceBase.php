@@ -11,7 +11,7 @@ abstract class ServiceBase {
   /**
    * Define a way to specify the internal name of the service
    * Optional -- will default to the class name
-   * 
+   *
    * @var string
    * @access protected
    */
@@ -31,7 +31,7 @@ abstract class ServiceBase {
 
   /**
    * Options Class
-   * 
+   *
    * @var object|void
    */
   public $options  = NULL;
@@ -52,7 +52,7 @@ abstract class ServiceBase {
 
   /**
    * Set the Service Registry Credentials
-   * 
+   *
    * @param mixed Will be serialized regardless
    * @return int The Service ID for inserting or the number of rows affected for update
    */
@@ -82,7 +82,7 @@ abstract class ServiceBase {
    *
    * Checks the database to see if the registry row exists.
    * If not, returns FALSE.
-   * 
+   *
    * @return object|bool
    */
   public function getRegistry()
@@ -112,7 +112,7 @@ abstract class ServiceBase {
 
     // We need to retrieve the service ID first
     $object = $this->getRegistry();
-    
+
     if ($this->getCredentials($user_id)) :
       // Update
       return db_update($this->serviceCred)
@@ -148,7 +148,7 @@ abstract class ServiceBase {
   {
     // We need to retrieve the service ID first
     $object = $this->getRegistry();
-    
+
     if ($object == NULL)
       throw new Exception('Service registry not initialized: '.$this->_service);
 
@@ -171,7 +171,7 @@ abstract class ServiceBase {
   /**
    * Internal Function to unserialize the credentials for us
    * Do not pass variables by reference
-   * 
+   *
    * @param object|array
    * @return mixed
    */
@@ -213,7 +213,7 @@ abstract class ServiceBase {
         } catch (Exception $e) {
           return FALSE;
         }
-        
+
         if ($creds == NULL OR $creds->credentials == NULL) return FALSE;
 
         return TRUE;
