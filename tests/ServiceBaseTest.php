@@ -24,7 +24,7 @@ class ServiceBaseTest extends PHPUnit_Framework_TestCase {
     $this->assertNotEmpty($queueItem->service);
     $this->assertEquals(-1, $queueItem->request);
     $this->assertEquals(0, $queueItem->time);
-    $this->assertEmpty($queueItem->response);
+    $this->assertEquals(-1, $queueItem->response);
     $this->assertEquals('pending', $queueItem->status);
 
     $this->assertEquals(0, $queueItem->moderate);

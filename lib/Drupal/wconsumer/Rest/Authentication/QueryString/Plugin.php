@@ -1,12 +1,11 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\QueryString;
 
-use Guzzle\Common\Event,
-    Guzzle\Common\Collection,
-    Symfony\Component\EventDispatcher\EventSubscriberInterface,
-    Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken\TokenInterface,
-    Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken\BearerToken,
-    Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken\MacToken;
+use Guzzle\Common\Event;
+use Guzzle\Common\Collection;
+use Guzzle\Http\Message\Request;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
 
 /**
  * QueryString Plugin
@@ -16,16 +15,15 @@ use Guzzle\Common\Event,
  * @package wconsumer
  * @subpackage querystring
  */
-class Plugin implements EventSubscriberInterface 
+class Plugin implements EventSubscriberInterface
 {
+    private $config;
+
+
+
     public function __construct($config)
     {
-        $this->config = Collection::fromConfig($config, array(
-            'query_key' => 'query_key',
-            'query_value' => 'query_value',
-        ), array(
-            'query_key', 'query_value',
-        ));
+        $this->config = Collection::fromConfig($config, array(), array('query_key', 'query_value'));
     }
 
    /**
@@ -44,7 +42,9 @@ class Plugin implements EventSubscriberInterface
      */
     public function onRequestBeforeSend(Event $event)
     {
-        $query = $event['request']->getQuery();
+        /** @var Request $request */
+        $request = $event['request'];
+        $query = $request->getQuery();
         $query->add($this->config['query_key'], $this->config['query_value']);
     }
 }

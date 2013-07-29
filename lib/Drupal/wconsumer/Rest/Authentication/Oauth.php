@@ -114,7 +114,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * @var string
    */
   public $requestTokenURL;
-  
+
   protected $consumer = NULL;
   protected $token = NULL;
 
@@ -210,7 +210,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
   /**
    * Sign the request with the authentication parameters
-   * 
+   *
    * @param object Guzzle Client Passed by reference
    * @return void
    * @access private
@@ -237,7 +237,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
-    
+
     try {
       $this->createConnection();
       $request_token = $this->getRequestToken($callback);
@@ -345,7 +345,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     if (is_null($oauth_token) && is_null($oauth_token_secret)) {
       $credentials = $this->_instance->getCredentials();
-      
+
       if ($credentials !== FALSE && is_array($credentials->credentials)
         AND isset($credentials->credentials->oauth_token)
         AND isset($credentials->credentials->oauth_token_secret)

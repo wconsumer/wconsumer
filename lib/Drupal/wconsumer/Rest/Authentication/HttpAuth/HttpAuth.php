@@ -12,6 +12,9 @@ use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth,
   Drupal\wconsumer\Exception as WcException;
 
+use Guzzle\Http\Client;
+
+
 /**
  * HTTP Authentication
  *
@@ -23,43 +26,55 @@ use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
 class HttpAuth extends AuthencationBase implements AuthInterface {
   /**
    * Define if they need a username
-   * 
+   *
    * @var boolean
    */
-  public $needsUsername = false;
+  private $needsUsername;
 
   /**
    * Define if they need a password
-   * 
+   *
    * @var boolean
    */
-  public $needsPassword = false;
-  
+  private $needsPassword;
+
+
+
+  public function __construct($instance = null, $needsUsername = false, $needsPassword = false)
+  {
+    parent::__construct($instance);
+
+    $this->needsUsername = $needsUsername;
+    $this->needsPassword = $needsPassword;
+  }
+
   /**
    * Format Registry Credentials
-   * 
-   * @param array
+   *
+   * @param array $data
    * @return array
+   *
+   * @throws WcException
    */
   public function formatRegistry($data)
   {
-    if ($this->needsUsername AND ( ! isset($data['username']) OR empty($data['username'])))
-      throw new WcException('HTTP Auth requires username and is not set or is empty.');
+    if ($this->needsUsername && empty($data['username']))
+      throw new WcException('HTTP Auth requires username and it is not set or is empty.');
 
-    if ($this->needsPassword AND ( ! isset($data['password']) OR empty($data['password'])))
-      throw new WcException('HTTP Auth requires password and is not set or is empty.');
-    
+    if ($this->needsPassword && empty($data['password']))
+      throw new WcException('HTTP Auth requires password and it is not set or is empty.');
+
     return array(
-      'username' => ($this->needsUsername) ? $data['username'] : '',
-      'password' => ($this->needsPassword) ? $data['password'] : ''
+      'username' => ($this->needsUsername) ? $data['username'] : null,
+      'password' => ($this->needsPassword) ? $data['password'] : null,
     );
   }
-  
+
   /**
    * Format the Saved Credentials
    *
    * Not used in HTTP Auth API
-   * 
+   *
    * @param array
    * @return array Empty array
    */
@@ -70,7 +85,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
 
   /**
    * Validate if they're setup
-   * 
+   *
    * @param string
    * @return boolean
    */
@@ -101,8 +116,8 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
 
   /**
    * Sign the request before sending it off
-   * 
-   * @param object Client
+   *
+   * @param Client $client
    * @access private
    */
   public function sign_request(&$client)
@@ -122,13 +137,17 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    * Authenticate the User
    *
    * Not needed for HTTP Auth
+   *
+   * @codeCoverageIgnore
    */
   public function authenticate(&$user) { }
-  
+
   /**
    * Log the user out
    *
    * Not needed for HTTP Auth
+   *
+   * @codeCoverageIgnore
    */
   public function logout(&$logout) { }
 
@@ -136,6 +155,8 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    * Callback
    *
    * Not needed for HTTP Auth
+   *
+   * @codeCoverageIgnore
    */
   public function onCallback(&$user, $values) { }
 }
