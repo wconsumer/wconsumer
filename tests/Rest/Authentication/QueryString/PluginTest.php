@@ -17,7 +17,7 @@
       $this->plugin(array());
     }
 
-    public function testSubsribedEvents()
+    public function testSubscribedEvents()
     {
       $plugin = $this->plugin();
       $this->assertSame(array('request.before_send' => 'onRequestBeforeSend'), $plugin->getSubscribedEvents());
