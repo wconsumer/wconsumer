@@ -51,8 +51,13 @@ class Request implements RequestInterface
    *
    * @param $client Client
    */
-  public function __construct(Client $client)
+  public function __construct(Client $client = null)
   {
+    if (!isset($client))
+    {
+      $client = new Client();
+    }
+
     $this->client = $client;
   }
 
@@ -74,7 +79,7 @@ class Request implements RequestInterface
   /**
    * Set the API Url
    *
-   * @param string A valid URL base
+   * @param string $url A valid URL base
    */
   public function setApiUrl($url) { $this->apiURL = $url; }
 
