@@ -16,7 +16,7 @@ class Request implements RequestInterface
    *
    * @var string
    */
-  private $apiURL;
+  protected $apiURL;
 
   /**
    * Instance Object of this Request Class
