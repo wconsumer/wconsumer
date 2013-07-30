@@ -20,7 +20,7 @@
 
       $item = new Item(array('response' => serialize($expectedResponse)));
       $actualResponse = $item->response;
-
+      
       $this->assertSame($expectedResponse, $actualResponse);
     }
   }

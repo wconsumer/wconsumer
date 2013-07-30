@@ -27,7 +27,7 @@ class Item {
     'service' => -1,
     'request' => -1,
     'time' => 0,
-    'response' => NULL,
+    'response' => -1,
     'status' => 'pending',
     'moderate' => 0,
     'approver_uid' => 0,
