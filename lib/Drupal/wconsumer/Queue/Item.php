@@ -19,7 +19,7 @@ class Item {
 
   /**
    * Internal Information about the columns in the Queue table
-   * 
+   *
    * @var array
    */
   protected $defaults = array(
@@ -27,7 +27,7 @@ class Item {
     'service' => -1,
     'request' => -1,
     'time' => 0,
-    'response' => '',
+    'response' => -1,
     'status' => 'pending',
     'moderate' => 0,
     'approver_uid' => 0,
@@ -38,14 +38,14 @@ class Item {
 
   /**
    * Table for Storage
-   * 
+   *
    * @var string
    */
   protected $table = 'wc_requests';
 
   /**
    * Requests table in static
-   * 
+   *
    * @var string
    */
   protected static $static_table = 'wc_requests';
@@ -67,14 +67,14 @@ class Item {
 
     // They're taking a predefined role
     $this->items = new \stdClass;
-    
+
     foreach((array) $data as $k => $v) :
       if (! isset($this->defaults[$k]))
         throw new QueueException('Unknown key passed to construct object: '.$k);
 
       if (($k == 'request' OR $k == 'response') AND $v !== '' AND $v !== NULL)
         $v = unserialize($v);
-      
+
       $this->items->$k = $v;
     endforeach;
 
@@ -84,7 +84,7 @@ class Item {
 
   /**
    * Retrieve an Item by the ID
-   * 
+   *
    * @param int The `request_id`
    * @return object|void
    */
@@ -131,7 +131,7 @@ class Item {
   {
     if ($this->items == NULL)
       throw new QueueException('Item object isn\'t instantiated.');
-    
+
     if (! isset($this->items->$name))
       return NULL; //throw new QueueException('Unknown column passed to item: '.$name);
 
@@ -232,16 +232,16 @@ class Item {
       'request',
       'response',
     ) as $v) :
-      if (is_string($object->$v))
+      if (isset($object->$v) && is_string($object->$v))
         $object->$v = unserialize($object->$v);
     endforeach;
   }
 
   /**
    * Check to see if this request should be fired off
-   * 
+   *
    * If it needs to be fired off, it will trigger that.
-   * 
+   *
    * @return bool|object
    */
   private function checkFire() {
@@ -293,11 +293,11 @@ class Item {
 
     // Save the Response
     $this->save();
-    
+
     // Call the Item's callback
     if (isset($request['callback']))
       call_user_func_array($request['callback'], $this);
-    
+
     return $this->response;
   }
 }
