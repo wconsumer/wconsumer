@@ -2,6 +2,8 @@
 namespace Drupal\wconsumer;
 
 use Drupal\wconsumer\Exception as ServiceException;
+use Guzzle\Common\Collection;
+use Guzzle\Http\Client;
 
 /**
  * Service Manager Class
@@ -54,5 +56,17 @@ class Service {
       throw new ServiceException('Unknown service: '.$service);
 
     return $services[$service];
+  }
+
+  public static function createHttpClient($baseUrl = null, array $config = null) {
+    $config = Collection::fromConfig($config, array(
+      'timeout' => 30,
+    ));
+
+    $client = new Client($baseUrl, $config);
+
+    $client->setUserAgent('Web Consumer Manager', true);
+
+    return $client;
   }
 }

@@ -3,8 +3,9 @@ namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Drupal\wconsumer\Common\AuthInterface,
-  Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as GuzzleOAuth2,
+  Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin,
   Drupal\wconsumer\Exception as ManagerException;
+use Drupal\wconsumer\Service;
 
 /**
  * OAuth Authentication Class
@@ -15,41 +16,6 @@ use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
  */
 class Manager extends AuthencationBase implements AuthInterface {
   /**
-   * Set up the API root URL.
-   *
-   * @var string
-   */
-  public $host = NULL;
-
-  /**
-   * Set timeout default.
-   *
-   * @var int
-   */
-  public $timeout = 30;
-
-  /**
-   * Set connect timeout.
-   *
-   * @var int
-   */
-  public $connecttimeout = 30;
-
-  /**
-   * Decode returned json data.
-   *
-   * @var bool
-   */
-  public $decode_json = TRUE;
-
-  /**
-   * HTTP User Agent
-   *
-   * @var string
-   */
-  public $useragent = 'Web Consumer Manager';
-
-  /**
    * @var string
    */
   public $authorizeURL;
@@ -58,34 +24,28 @@ class Manager extends AuthencationBase implements AuthInterface {
    * @var string
    */
   public $accessTokenURL;
-  
+
   /**
    * Scopes to be requested access to
-   * 
+   *
    * @var array
    */
   public $scopes = array();
 
   /**
-   * Scope delimiter
-   * 
-   * @var string
+   * Guzzle client to make HTTP requests to oauth provider
+   *
+   * @var \Guzzle\Http\Client
    */
-  public $scopeDelimiter = ',';
+  public $client;
 
-
-  protected $consumer = NULL;
-  protected $token = NULL;
-
-  function getAuthorizeURL()  { return $this->authorizeURL; }
-  function getAccessTokenURL() { return $this->accessTokenURL; }
 
   /**
    * Process the Registry Information to be in the format to be saved properly
    *
    * @return array
    * @param array
-   * @throws Drupal\wconsumer\Exception
+   * @throws \Drupal\wconsumer\Exception
    */
   public function formatRegistry($d)
   {
@@ -106,7 +66,7 @@ class Manager extends AuthencationBase implements AuthInterface {
    *
    * @return array
    * @param array
-   * @throws Drupal\wconsumer\Exception
+   * @throws \Drupal\wconsumer\Exception
    */
   public function formatCredentials($d)
   {
@@ -132,58 +92,59 @@ class Manager extends AuthencationBase implements AuthInterface {
     switch ($type)
     {
       case 'user' :
-        $credentials = $this->_instance->getCredentials();
-        if (! $credentials OR ! isset($registry->credentials)) return FALSE;
+        $registry = $this->_instance->getCredentials();
 
-        if (! isset($registry['access_token']))
+        if (!$registry || !isset($registry->credentials)) {
           return FALSE;
+        }
+
+        if (!isset($registry->credentials['access_token'])) {
+          return FALSE;
+        }
 
         // Access token/secret exist
         return TRUE;
-        break;
+      break;
 
       case 'system' :
         $registry = $this->_instance->getRegistry();
-        if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
-        if (! isset($registry->credentials['consumer_key']) OR ! isset($registry->credentials['consumer_secret']))
+        if (!$registry || !isset($registry->credentials)) {
           return FALSE;
+        }
+
+        if (!isset($registry->credentials['consumer_key']) || !isset($registry->credentials['consumer_secret'])) {
+          return FALSE;
+        }
 
         // Consumer key and secret exist
         // TODO: Add in additional authentication by checking the key/secret against the API
         return TRUE;
-        break;
+      break;
 
       // Unknown to check for
       default :
         return FALSE;
+      break;
     }
   }
 
   /**
    * Sign the request with the authentication parameters
-   * 
-   * @param object Guzzle Client Passed by reference
+   *
+   * @param \Guzzle\Http\Client $client Guzzle Client Passed by reference
    * @return void
-   * @access private
    */
   public function sign_request(&$client)
   {
-    $registry = $this->_instance->getRegistry();
-    $credentials = $this->_instance->getCredentials();
-
-    $client->addSubscriber(new GuzzleOAuth2(array(
-      'consumer_key' => $registry->credentials['consumer_key'],
-      'consumer_secret' => $registry->credentials['consumer_secret'],
-      'token_type' => 'Bearer',
-      'access_token' => $credentials->credentials['access_token'],
-    )));
+    $accessToken = $this->_instance->getCredentials()->credentials['access_token'];
+    $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
   /**
    * Authenticate the user and set them up for OAuth Authentication
    *
-   * @param object the user object
+   * @param object $user The user object
    */
   public function authenticate(&$user)
   {
@@ -191,11 +152,14 @@ class Manager extends AuthencationBase implements AuthInterface {
     $callback = $this->_instance->callback();
     $registry = $this->_instance->getRegistry();
 
-    $url = $this->authorizeURL
-      .'?client_id='.$registry->credentials['consumer_key']
-      .'&redirect_uri='.urlencode($callback)
-      .'&scope='.implode($this->scopeDelimiter, $this->scopes)
-      .'&state=wconsumer';
+    $url =
+      $this->authorizeURL .
+      http_build_query(array(
+        'client_id'     => $registry->credentials['consumer_key'],
+        'redirect_uri'  => $callback,
+        'scope'         => implode(',', $this->scopes),
+        'satte'         => 'wconsumer',
+      ), null, '&');
 
     return drupal_goto($url, array('external' => TRUE));
 
@@ -214,55 +178,48 @@ class Manager extends AuthencationBase implements AuthInterface {
    * Callback for authencation
    *
    * @param object $user The User Object
-   * @param object $values The array of values passed
+   * @param array $values The array of values passed
+   *
+   * @throws ManagerException
    */
   public function onCallback(&$user, $values) {
     // Check the state
-    if (!isset($values[0]['state']) OR $values[0]['state'] !== 'wconsumer')
-      throw new \Exception('State for OAuth2 Interface not matching');
+    if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
+      throw new ManagerException('State for OAuth2 Interface not matching');
+    }
 
-    if (! isset($values[0]['code']))
-      throw new \Exception('No code passed to OAuth2 Interface');
+    if (empty($values[0]['code'])) {
+      throw new ManagerException('No code passed to OAuth2 Interface');
+    }
 
     $registry = $this->_instance->getRegistry();
 
-    // Make a new request with Guzzle
-    $url = $this->accessTokenURL
-      .'?client_id='.$registry->credentials['consumer_key']
-      .'&client_secret='.$registry->credentials['consumer_secret']
-      .'&code='.$values[0]['code'];
-
-    // Make a request to the service
-    \Guzzle\Http\StaticClient::mount();
-    $response = \Guzzle::post($this->accessTokenURL, array(
-        'headers' => array('Accept' => 'application/json'),
-        'body'    => array(
-          'client_id' => $registry->credentials['consumer_key'],
-          'client_secret' => $registry->credentials['consumer_secret'],
-          'code' => $values[0]['code'],
-        ),
-        'query'   => array(),
-        'timeout' => $this->timeout,
-        'debug'   => true,
-        'verify' => false,
-    ));
-
-    if ($response->isError())
-      throw new ManagerException('Unknown error on OAuth 2 callback: '.print_r($response));
-
-    $tokens = (array) $response->json();
-
-    try {
-      $access_tokens = $this->formatCredentials($tokens);
+    // @codeCoverageIgnoreStart
+    if (!isset($this->client)) {
+      $this->client = Service::createHttpClient();
     }
-    catch (ManagerException $e) {
-      // Throw this back to the front-end
-      throw new ManagerException($e->getMessage(), 500, $e);
+    // @codeCoverageIgnoreEnd
+
+    $request = $this->client->post(
+      $this->accessTokenURL,
+      array(
+        'Accept' => 'application/json'
+      ),
+      array(
+        'client_id'     => $registry->credentials['consumer_key'],
+        'client_secret' => $registry->credentials['consumer_secret'],
+        'code'          => $values[0]['code'],
+      )
+    );
+
+    $response = $request->send();
+
+    if ($response->isError()) {
+      throw new ManagerException('Unknown error on OAuth 2 callback: '.print_r($response, true));
     }
 
-    // Save them in the service
-    $this->_instance->setCredentials($access_tokens, $user->uid);
-
-    return true;
+    $tokens = $response->json();
+    $tokens = $this->formatCredentials($tokens);
+    $this->_instance->setCredentials($tokens, $user->uid);
   }
 }
