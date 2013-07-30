@@ -56,7 +56,7 @@ function _wconsumer_frontend_form($form, &$form_state)
     else:
     // Not setup yet
       $form[$name]['markup'] = array(
-        '#markup' => 'You haven\'t setup this service yet so you may not authenticate with it.'
+        '#markup' => 'The site administrator hasn\'t setup this service yet so users may not authenticate with it.'
       );
     endif;
 
