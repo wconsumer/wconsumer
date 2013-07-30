@@ -219,7 +219,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   {
     $registry = $this->_instance->getRegistry();
     $credentials = $this->_instance->getCredentials();
-
+    
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key' => $registry->credentials['consumer_key'],
       'consumer_secret' => $registry->credentials['consumer_secret'],

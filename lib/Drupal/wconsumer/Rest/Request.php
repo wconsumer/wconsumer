@@ -81,7 +81,12 @@ class Request implements RequestInterface
    *
    * @param string $url A valid URL base
    */
-  public function setApiUrl($url) { $this->apiURL = $url; }
+  public function setApiUrl($url) {
+    $this->apiURL = $url;
+
+    // Set to Guzzle as well
+    $this->client->setBaseUrl($url);
+  }
 
   /**
    * Retrieve the API Base
@@ -98,7 +103,7 @@ class Request implements RequestInterface
    */
   public function __call($method, $arguments = array())
   {
-    $this->makeRequest($this->getApiUrl(), $method, $arguments);
+    return $this->makeRequest($this->getApiUrl(), $method, $arguments);
   }
 
   /**
@@ -111,8 +116,6 @@ class Request implements RequestInterface
    */
   public function makeRequest($endPoint, $method, $arguments)
   {
-    $this->client->setBaseUrl($endPoint);
-
     // Manage Authentication
     $this->authencation->sign_request($this->client);
 
@@ -120,6 +123,7 @@ class Request implements RequestInterface
     array_unshift($arguments, $method);
 
     $request = call_user_func_array(array($this->client, 'createRequest'), $arguments);
+
     return $request->send();
   }
 }

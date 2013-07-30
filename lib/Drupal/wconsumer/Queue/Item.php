@@ -27,7 +27,7 @@ class Item {
     'service' => -1,
     'request' => -1,
     'time' => 0,
-    'response' => -1,
+    'response' => NULL,
     'status' => 'pending',
     'moderate' => 0,
     'approver_uid' => 0,
@@ -287,7 +287,7 @@ class Item {
       $request['headers'],
       $request['body']
     ));
-
+    
     // See HTTP header
     $this->status = ($this->response->isError()) ? self::STATUS_ERROR : self::STATUS_COMPLETE;
 
