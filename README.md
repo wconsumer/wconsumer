@@ -1,6 +1,6 @@
 ## Web Consumer Manager 
 
-[![Stories in Ready](http://badge.waffle.io/mywebclass/wconsumer.png)](http://waffle.io/mywebclass/wconsumer) [![Build Status](https://travis-ci.org/mywebclass/wconsumer.png)](https://travis-ci.org/mywebclass/wconsumer)
+[![Stories in Ready](https://badge.waffle.io/mywebclass/wconsumer.png)](http://waffle.io/mywebclass/wconsumer) [![Build Status](https://travis-ci.org/mywebclass/wconsumer.png)](https://travis-ci.org/mywebclass/wconsumer)
 
 For development issues, [see the current issues](https://github.com/mywebclass/wconsumer/issues). For documentation and our future road-map, see [the wiki](https://github.com/mywebclass/wconsumer/wiki). 
 ### Getting Started
