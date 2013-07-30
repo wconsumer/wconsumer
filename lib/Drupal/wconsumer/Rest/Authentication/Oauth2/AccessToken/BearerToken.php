@@ -1,35 +1,27 @@
 <?php
-namespace Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken;
+  namespace Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken;
 
-use Guzzle\Common\Collection;
 
-class BearerToken implements TokenInterface
-{
-    private $format;
 
-    public function __construct($config)
+  class BearerToken implements TokenInterface
+  {
+    private $accessToken;
+
+
+
+    public function __construct($accessToken)
     {
-        $config = Collection::fromConfig($config, array(
-            'token_format' => 'Bearer',
-        ), array(
-            'token_format',
-        ));
-        $this->tokenString = $config['access_token'];
-        $this->format = $config['token_format'];
+      if (empty($accessToken))
+      {
+        throw new \InvalidArgumentException("Cannot create a bearer token from an empty access token");
+      }
+
+      $this->accessToken = $accessToken;
     }
 
-    public function __toString()
+    public function buildAuthorizationHeader()
     {
-        return sprintf('%s %s', $this->getFormat(), $this->tokenString);
+      return "Bearer {$this->accessToken}";
     }
-
-    public function getFormat()
-    {
-        return $this->format;
-    }
-
-    public function setFormat($format)
-    {
-        $this->format = $format;
-    }
-}
+  }
+?>

@@ -1,30 +1,25 @@
 <?php
+  namespace Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken;
 
-namespace Drupal\wconsumer\Rest\Authentication\Oauth2\AccessToken;
-
-class MacToken implements TokenInterface
-{
+  class MacToken implements TokenInterface
+  {
     public function __construct($config)
     {
-        $this->config = $config;
+      $this->config = $config;
     }
 
-    public function getFormat()
+    public function buildAuthorizationHeader()
     {
-        return 'MAC';
-    }
+      $macString = 'MAC ';
 
-    public function __toString()
-    {
-        $macString = sprintf('%s ', $this->getFormat());
-        foreach ($this->config as $key => $value) {
-            $macString .= sprintf('%s="%s",'.PHP_EOL, $key, $value);
-        }
-        return trim($macString, PHP_EOL.",");
-    }
+      foreach ($this->config as $key => $value)
+      {
+          $macString .= sprintf('%s="%s",'.PHP_EOL, $key, $value);
+      }
 
-    public function setFormat($format)
-    {
-        $this->format = $format;
+      $macString = trim($macString, PHP_EOL.",");
+
+      return $macString;
     }
-}
+  }
+?>
