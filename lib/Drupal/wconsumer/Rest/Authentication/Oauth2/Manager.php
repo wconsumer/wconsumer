@@ -244,7 +244,7 @@ class Manager extends AuthencationBase implements AuthInterface {
         'query'   => array(),
         'timeout' => $this->timeout,
         'debug'   => true,
-        'verify' => false,
+        'verify' => true,
     ));
 
     if ($response->isError())
