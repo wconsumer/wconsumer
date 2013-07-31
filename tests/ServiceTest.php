@@ -35,6 +35,15 @@ class ServiceTest extends PHPUnit_Framework_TestCase {
     // Try again to ensure it's the same object
     $this->assertSame($object, $service);
   }
+
+  public function testHttpClientCreation()
+  {
+    $client = Service::createHttpClient('http://example.invalid');
+
+    $this->assertInstanceOf('Guzzle\Http\Client', $client);
+    $this->assertSame('http://example.invalid', $client->getBaseUrl());
+    $this->assertTrue($client->getDefaultOption('verify'));
+  }
 }
 
 /**

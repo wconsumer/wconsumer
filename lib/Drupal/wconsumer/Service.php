@@ -58,9 +58,10 @@ class Service {
     return $services[$service];
   }
 
-  public static function createHttpClient($baseUrl = null, array $config = null) {
+  public static function createHttpClient($baseUrl = null, array $config = array()) {
     $config = Collection::fromConfig($config, array(
       'timeout' => 30,
+      'verify'  => true,
     ));
 
     $client = new Client($baseUrl, $config);
