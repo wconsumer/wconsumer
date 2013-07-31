@@ -213,13 +213,16 @@ class Manager extends AuthencationBase implements AuthInterface {
     );
 
     $response = $request->send();
-
     if ($response->isError()) {
       throw new ManagerException('Unknown error on OAuth 2 callback: '.print_r($response, true));
     }
 
-    $tokens = $response->json();
-    $tokens = $this->formatCredentials($tokens);
+    $response = $response->json();
+    if (!empty($response['error'])) {
+      throw new ManagerException("Error while requesting access_token: '{$response['error']}'");
+    }
+
+    $tokens = $this->formatCredentials($response);
     $this->_instance->setCredentials($tokens, $user->uid);
   }
 }

@@ -293,8 +293,17 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
   /**
    * @expectedException \Drupal\wconsumer\Exception
    */
-  public function testCallbackHandlerFailsOnAccessTokenRequestFail() {
+  public function testCallbackHandlerFailsOnAccessTokenRequestHttpLevelError() {
     $response = new Response(401);
+    $this->testCallbackHandler(null, null, null, $response, true);
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Exception
+   * @expectedExceptionMessage 'bad_verification_code'
+   */
+  public function testCallbackHandlerFailsOnAccessTokenRequestApplicationLevelError() {
+    $response = new Response(200, null, json_encode(array('error' => 'bad_verification_code')));
     $this->testCallbackHandler(null, null, null, $response, true);
   }
 
