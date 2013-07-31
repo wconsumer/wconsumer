@@ -132,9 +132,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
    *
    * @return array
    * @param array
-   * @throws Drupal\wconsumer\Exception
+   * @throws \Drupal\wconsumer\Exception
    */
-  public function formatRegistry($d)
+  public function formatServiceCredentials($d)
   {
     if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
       throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
@@ -191,7 +191,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
         break;
 
       case 'system' :
-        $registry = $this->_instance->getRegistry();
+        $registry = $this->_instance->getServiceCredentials();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
         if (! isset($registry->credentials['consumer_key']) OR ! isset($registry->credentials['consumer_secret']))
@@ -217,9 +217,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
    */
   public function sign_request(&$client)
   {
-    $registry = $this->_instance->getRegistry();
+    $registry = $this->_instance->getServiceCredentials();
     $credentials = $this->_instance->getCredentials();
-    
+
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key' => $registry->credentials['consumer_key'],
       'consumer_secret' => $registry->credentials['consumer_secret'],
@@ -320,7 +320,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   {
     // If they didn't pass them
     if ($consumer_key == NULL AND $consumer_secret == NULL) :
-      $registry = (array) $this->_instance->getRegistry();
+      $registry = (array) $this->_instance->getServiceCredentials();
 
       // Retrieve them from the registry
       if (

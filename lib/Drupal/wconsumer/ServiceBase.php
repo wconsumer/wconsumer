@@ -56,9 +56,9 @@ abstract class ServiceBase {
    * @param mixed Will be serialized regardless
    * @return int The Service ID for inserting or the number of rows affected for update
    */
-  public function setRegistry($config = array())
+  public function setServiceCredentials($config = array())
   {
-    $object = $this->getRegistry();
+    $object = $this->getServiceCredentials();
 
     if (! $object) :
       return db_insert($this->serviceRegistry)
@@ -85,7 +85,7 @@ abstract class ServiceBase {
    *
    * @return object|bool
    */
-  public function getRegistry()
+  public function getServiceCredentials()
   {
     $data = db_select($this->serviceRegistry)
       ->fields($this->serviceRegistry)
@@ -111,7 +111,7 @@ abstract class ServiceBase {
     endif;
 
     // We need to retrieve the service ID first
-    $object = $this->getRegistry();
+    $object = $this->getServiceCredentials();
 
     if ($this->getCredentials($user_id)) :
       // Update
@@ -147,7 +147,7 @@ abstract class ServiceBase {
   public function getCredentials($user_id = NULL)
   {
     // We need to retrieve the service ID first
-    $object = $this->getRegistry();
+    $object = $this->getServiceCredentials();
 
     if ($object == NULL)
       throw new Exception('Service registry not initialized: '.$this->_service);
@@ -220,7 +220,7 @@ abstract class ServiceBase {
         break;
 
       case 'system' :
-        $registry = $this->getRegistry();
+        $registry = $this->getServiceCredentials();
         if ($registry == NULL) return NULL;
 
         return TRUE;

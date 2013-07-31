@@ -53,7 +53,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
   }
 
   // Registry Settings
-  $registry = $object->getRegistry();
+  $registry = $object->getServiceCredentials();
   $credentials = (! $registry) ? FALSE : $registry->credentials;
 
   $form['creds'] = array(
@@ -148,14 +148,14 @@ function _wconsumer_ui_form_submit($form, &$form_state)
 
   // Validate
   try {
-    $credentials = $object->request->authencation->formatRegistry($values);
+    $credentials = $object->request->authencation->formatServiceCredentials($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
     return;
   }
 
   // CRUD
-  $object->setRegistry($credentials);
+  $object->setServiceCredentials($credentials);
 
   drupal_set_message(t('Service Configuration Saved.'));
 }
