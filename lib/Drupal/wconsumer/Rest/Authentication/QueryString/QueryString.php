@@ -53,7 +53,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
    * @param array
    * @return array
    */
-  public function formatRegistry($data)
+  public function formatServiceCredentials($data)
   {
     $this->getQueryKey($data);
 
@@ -92,7 +92,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
     switch($type)
     {
       case 'system' :
-        $registry = $this->_instance->getRegistry();
+        $registry = $this->_instance->getServiceCredentials();
 
         if (!isset($registry) || !isset($registry->credentials))
         {
@@ -132,7 +132,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
    */
   public function sign_request(&$client)
   {
-    $registry = $this->_instance->getRegistry();
+    $registry = $this->_instance->getServiceCredentials();
 
     $key = $this->getQueryKey($registry->credentials);
 

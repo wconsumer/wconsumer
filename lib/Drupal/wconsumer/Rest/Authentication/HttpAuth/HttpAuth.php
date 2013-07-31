@@ -56,7 +56,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    *
    * @throws WcException
    */
-  public function formatRegistry($data)
+  public function formatServiceCredentials($data)
   {
     if ($this->needsUsername && empty($data['username']))
       throw new WcException('HTTP Auth requires username and it is not set or is empty.');
@@ -93,7 +93,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
   {
     switch($type) {
       case 'system' :
-        $registry = $this->_instance->getRegistry();
+        $registry = $this->_instance->getServiceCredentials();
         if (! $registry OR ! isset($registry->credentials)) return FALSE;
 
         if ($this->needsUsername AND empty($registry->credentials['username']))
@@ -122,7 +122,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
    */
   public function sign_request(&$client)
   {
-    $registry = $this->_instance->getRegistry();
+    $registry = $this->_instance->getServiceCredentials();
 
     // Add the auth plugin to the client object
     $authPlugin = new GuzzleHttpAuth(

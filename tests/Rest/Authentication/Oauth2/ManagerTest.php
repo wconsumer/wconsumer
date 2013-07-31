@@ -13,7 +13,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
    */
   public function testSystemCredentialsValidationFailsOnEmptyConsumerKey() {
     $manager = new Manager(NULL);
-    $manager->formatRegistry(array('consumer_key' => NULL, 'consumer_secret' => 'xyz'));
+    $manager->formatServiceCredentials(array('consumer_key' => NULL, 'consumer_secret' => 'xyz'));
   }
 
   /**
@@ -21,13 +21,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
    */
   public function testSystemCredentialsValidationFailsOnEmptyConsumerSecret() {
     $manager = new Manager(NULL);
-    $manager->formatRegistry(array('consumer_key' => 'abc'));
+    $manager->formatServiceCredentials(array('consumer_key' => 'abc'));
   }
 
   public function testSystemCredentialsFormatting() {
     $manager = new Manager(NULL);
 
-    $result = $manager->formatRegistry(array(
+    $result = $manager->formatServiceCredentials(array(
       'consumer_key' => 'abc',
       'consumer_secret' => 'xyz',
       'dummy' => 'dummy'
@@ -84,7 +84,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
     $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
     $service
       ->expects($this->exactly(3))
-      ->method('getRegistry')
+      ->method('getServiceCredentials')
       ->will($this->returnValue($registry));
 
     $manager = new Manager($service);
@@ -229,7 +229,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
 
       $service
         ->expects($onceOrAny())
-        ->method('getRegistry')
+        ->method('getServiceCredentials')
         ->will($this->returnValue($registry));
 
       $service
@@ -326,7 +326,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
 
     $service
       ->expects($this->once())
-      ->method('getRegistry')
+      ->method('getServiceCredentials')
       ->will($this->returnValue($registry));
 
     $manager = new Manager($service);

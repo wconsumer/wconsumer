@@ -13,7 +13,7 @@
     public function testServiceCredentialsValidationFailsOnEmptyUsernameIfItsRequired()
     {
       $auth = new HttpAuth(null, true, false);
-      $auth->formatRegistry(array('username' => ''));
+      $auth->formatServiceCredentials(array('username' => ''));
     }
 
     /**
@@ -22,13 +22,13 @@
     public function testServiceCredentialsValidationFailsOnEmptyPasswordIfItsRequired()
     {
       $auth = new HttpAuth(null, false, true);
-      $auth->formatRegistry(array('password' => null));
+      $auth->formatServiceCredentials(array('password' => null));
     }
 
     public function testServiceCredentialsValidation()
     {
       $auth = new HttpAuth(null, true, false);
-      $result = $auth->formatRegistry(array('username' => 'john doe', 'password' => 'dummy'));
+      $result = $auth->formatServiceCredentials(array('username' => 'john doe', 'password' => 'dummy'));
       $this->assertSame(array('username' => 'john doe', 'password' => null), $result);
     }
 
@@ -43,14 +43,14 @@
     {
       $service = null;
       {
-        $getRegistryResult = new \stdClass();
-        $getRegistryResult->credentials = array('username' => 'johndoe', 'password' => 'parole');
+        $credentials = new \stdClass();
+        $credentials->credentials = array('username' => 'johndoe', 'password' => 'parole');
 
         $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
         $service
           ->expects($this->any())
-          ->method('getRegistry')
-          ->will($this->returnValue($getRegistryResult));
+          ->method('getServiceCredentials')
+          ->will($this->returnValue($credentials));
       }
 
       $auth = new HttpAuth($service, true, true);
@@ -63,14 +63,14 @@
     {
       $service = null;
       {
-        $getRegistryResult = new \stdClass();
-        $getRegistryResult->credentials = array('username' => 'johndoe', 'password' => '');
+        $credentials = new \stdClass();
+        $credentials->credentials = array('username' => 'johndoe', 'password' => '');
 
         $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
         $service
           ->expects($this->any())
-          ->method('getRegistry')
-          ->will($this->returnValue($getRegistryResult));
+          ->method('getServiceCredentials')
+          ->will($this->returnValue($credentials));
       }
 
       $auth = new HttpAuth($service, true, true);
@@ -89,14 +89,14 @@
     {
       $service = null;
       {
-        $getRegistryResult = new \stdClass();
-        $getRegistryResult->credentials = array('username' => 'johndoe', 'password' => 'dummy');
+        $credentials = new \stdClass();
+        $credentials->credentials = array('username' => 'johndoe', 'password' => 'dummy');
 
         $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
         $service
           ->expects($this->once())
-          ->method('getRegistry')
-          ->will($this->returnValue($getRegistryResult));
+          ->method('getServiceCredentials')
+          ->will($this->returnValue($credentials));
       }
 
       $client = null;

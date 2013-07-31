@@ -47,7 +47,7 @@ class Manager extends AuthencationBase implements AuthInterface {
    * @param array
    * @throws \Drupal\wconsumer\Exception
    */
-  public function formatRegistry($d)
+  public function formatServiceCredentials($d)
   {
     if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
       throw new ManagerException('OAuth2 Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
@@ -107,7 +107,7 @@ class Manager extends AuthencationBase implements AuthInterface {
       break;
 
       case 'system' :
-        $registry = $this->_instance->getRegistry();
+        $registry = $this->_instance->getServiceCredentials();
 
         if (!$registry || !isset($registry->credentials)) {
           return FALSE;
@@ -150,7 +150,7 @@ class Manager extends AuthencationBase implements AuthInterface {
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
-    $registry = $this->_instance->getRegistry();
+    $registry = $this->_instance->getServiceCredentials();
 
     $url =
       $this->authorizeURL .
@@ -192,7 +192,7 @@ class Manager extends AuthencationBase implements AuthInterface {
       throw new ManagerException('No code passed to OAuth2 Interface');
     }
 
-    $registry = $this->_instance->getRegistry();
+    $registry = $this->_instance->getServiceCredentials();
 
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {

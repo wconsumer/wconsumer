@@ -14,7 +14,7 @@
     {
       $auth = new QueryString(null);
       $auth->queryKey = null;
-      $auth->formatRegistry(array('query_key' => '', 'query_value' => '12345'));
+      $auth->formatServiceCredentials(array('query_key' => '', 'query_value' => '12345'));
     }
 
     /**
@@ -23,14 +23,14 @@
     public function testServiceCredentialsFailsIfNoQueryValueProvided()
     {
       $auth = new QueryString(null);
-      $auth->formatRegistry(array('query_key' => 'key', 'query_value' => ''));
+      $auth->formatServiceCredentials(array('query_key' => 'key', 'query_value' => ''));
     }
 
     public function testServiceCredentialsValidationWithPredefinedQueryKey()
     {
       $auth = new QueryString(null);
       $auth->queryKey = 'password';
-      $result = $auth->formatRegistry(array('query_key' => '', 'query_value' => '12345'));
+      $result = $auth->formatServiceCredentials(array('query_key' => '', 'query_value' => '12345'));
       $this->assertSame(array('query_key' => '', 'query_value' => '12345'), $result);
     }
 
@@ -38,7 +38,7 @@
     {
       $auth = new QueryString(null);
       $auth->queryKey = null;
-      $result = $auth->formatRegistry(array('query_key' => 'password', 'query_value' => '12345'));
+      $result = $auth->formatServiceCredentials(array('query_key' => 'password', 'query_value' => '12345'));
       $this->assertSame(array('query_key' => 'password', 'query_value' => '12345'), $result);
     }
 
@@ -52,14 +52,14 @@
     {
       $service = null;
       {
-        $getRegistryResult = new \stdClass();
-        $getRegistryResult->credentials = array('query_key' => '', 'query_value' => 'parole');
+        $credentials = new \stdClass();
+        $credentials->credentials = array('query_key' => '', 'query_value' => 'parole');
 
         $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
         $service
           ->expects($this->any())
-          ->method('getRegistry')
-          ->will($this->returnValue($getRegistryResult));
+          ->method('getServiceCredentials')
+          ->will($this->returnValue($credentials));
       }
 
       $auth = new QueryString($service);
@@ -94,14 +94,14 @@
     {
       $service = null;
       {
-        $getRegistryResult = new \stdClass();
-        $getRegistryResult->credentials = array('query_key' => $storedQueryKey, 'query_value' => 'parole');
+        $credentials = new \stdClass();
+        $credentials->credentials = array('query_key' => $storedQueryKey, 'query_value' => 'parole');
 
         $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
         $service
           ->expects($this->any())
-          ->method('getRegistry')
-          ->will($this->returnValue($getRegistryResult));
+          ->method('getServiceCredentials')
+          ->will($this->returnValue($credentials));
       }
 
       $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();
