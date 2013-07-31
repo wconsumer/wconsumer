@@ -1,18 +1,18 @@
 <?php
 namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
 
-use Drupal\wconsumer\Rest\Authentication\Oauth2\Manager;
+use Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2;
 use Guzzle\Http\Message\Response;
 
 
 
-class ManagerTest extends \PHPUnit_Framework_TestCase {
+class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
   /**
    * @expectedException \Drupal\wconsumer\Exception
    */
   public function testSystemCredentialsValidationFailsOnEmptyConsumerKey() {
-    $manager = new Manager(NULL);
+    $manager = new Oauth2(NULL);
     $manager->formatServiceCredentials(array('consumer_key' => NULL, 'consumer_secret' => 'xyz'));
   }
 
@@ -20,12 +20,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
    * @expectedException \Drupal\wconsumer\Exception
    */
   public function testSystemCredentialsValidationFailsOnEmptyConsumerSecret() {
-    $manager = new Manager(NULL);
+    $manager = new Oauth2(NULL);
     $manager->formatServiceCredentials(array('consumer_key' => 'abc'));
   }
 
   public function testSystemCredentialsFormatting() {
-    $manager = new Manager(NULL);
+    $manager = new Oauth2(NULL);
 
     $result = $manager->formatServiceCredentials(array(
       'consumer_key' => 'abc',
@@ -43,12 +43,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
    * @expectedException \Drupal\wconsumer\Exception
    */
   public function testUserCredentialsValidationFailsOnEmptyAccessToken() {
-    $manager = new Manager(NULL);
+    $manager = new Oauth2(NULL);
     $manager->formatCredentials(array());
   }
 
   public function testUserCredentialsFormatting() {
-    $manager = new Manager(NULL);
+    $manager = new Oauth2(NULL);
     $result = $manager->formatCredentials(array('access_token' => '123', 'dummy' => 'value'));
     $this->assertSame(array('access_token' => '123'), $result);
   }
@@ -63,7 +63,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
       ->method('getCredentials')
       ->will($this->returnValue($registry));
 
-    $manager = new Manager($service);
+    $manager = new Oauth2($service);
 
     // Positive case
     $this->assertTrue($manager->is_initialized('user'));
@@ -87,7 +87,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
       ->method('getServiceCredentials')
       ->will($this->returnValue($registry));
 
-    $manager = new Manager($service);
+    $manager = new Oauth2($service);
 
     // Positive case
     $this->assertTrue($manager->is_initialized('system'));
@@ -102,7 +102,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testIsNotInitializedForUnknown() {
-    $manager = new Manager(null);
+    $manager = new Oauth2(NULL);
     $this->assertFalse($manager->is_initialized('dummy'));
   }
 
@@ -118,7 +118,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
 
     $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();
 
-    $manager = new Manager($service);
+    $manager = new Oauth2($service);
 
     $manager->sign_request($client);
 
@@ -176,7 +176,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
       ->method('setCredentials')
       ->with($this->identicalTo(null), $user->uid);
 
-    $manager = new Manager($service);
+    $manager = new Oauth2($service);
 
     $manager->logout($user);
   }
@@ -266,7 +266,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
         }));
     }
 
-    $manager = new Manager($service);
+    $manager = new Oauth2($service);
     $manager->accessTokenURL = $accessTokenUrl;
     $manager->client = $client;
 
@@ -329,7 +329,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
       ->method('getServiceCredentials')
       ->will($this->returnValue($registry));
 
-    $manager = new Manager($service);
+    $manager = new Oauth2($service);
     $manager->scopes = $scopes;
 
     $php =

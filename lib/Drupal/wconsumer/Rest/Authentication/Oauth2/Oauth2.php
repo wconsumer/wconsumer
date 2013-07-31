@@ -1,20 +1,19 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
-  Drupal\wconsumer\Common\AuthInterface,
-  Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin,
-  Drupal\wconsumer\Exception as ManagerException;
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
+use Drupal\wconsumer\Exception as WconsumerException;
 use Drupal\wconsumer\Service;
 
 /**
- * OAuth Authentication Class
+ * OAuth2 Authentication Class
  *
- * @todo Refactor
  * @package wconsumer
  * @subpackage request
  */
-class Manager extends AuthencationBase implements AuthInterface {
+class Oauth2 extends AuthencationBase implements AuthInterface {
   /**
    * @var string
    */
@@ -43,49 +42,55 @@ class Manager extends AuthencationBase implements AuthInterface {
   /**
    * Process the Registry Information to be in the format to be saved properly
    *
+   * @param array $data
    * @return array
-   * @param array
-   * @throws \Drupal\wconsumer\Exception
+   *
+   * @throws WconsumerException
    */
-  public function formatServiceCredentials($d)
+  public function formatServiceCredentials($data)
   {
-    if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
-      throw new ManagerException('OAuth2 Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
+    if (empty($data['consumer_key'])) {
+      throw new WconsumerException("OAuth2 Consumer Key is empty or is not set");
+    }
 
-    if (empty($d['consumer_key']) OR empty($d['consumer_secret']))
-      throw new ManagerException('OAuth2 Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
+    if (empty($data['consumer_secret'])) {
+      throw new WconsumerException("OAuth2 Consumer Secret is empty or is not set");
+    }
 
-    $credentials = array();
-    $credentials['consumer_key'] = $d['consumer_key'];
-    $credentials['consumer_secret'] = $d['consumer_secret'];
+    $credentials = array(
+      'consumer_key'    => $data['consumer_key'],
+      'consumer_secret' => $data['consumer_secret'],
+    );
+
     return $credentials;
   }
 
   /**
    * Process the Registry Information to be in the format to be saved properly
    *
+   * @param array $data
    * @return array
-   * @param array
-   * @throws \Drupal\wconsumer\Exception
+   *
+   * @throws WconsumerException
    */
-  public function formatCredentials($d)
+  public function formatCredentials($data)
   {
-    if (! isset($d['access_token']))
-      throw new ManagerException('OAuth2 Access Token not set in formatting pass.' . print_r($d, TRUE));
+    if (empty($data['access_token'])) {
+      throw new WconsumerException("OAuth2 Access Key empty or is not set in formatting pass");
+    }
 
-    if (empty($d['access_token']))
-      throw new ManagerException('OAuth2 Access Key empty in formatting pass.' . print_r($d, TRUE));
+    $credentials = array(
+      'access_token' => $data['access_token'],
+    );
 
-    $credentials = array();
-    $credentials['access_token'] = $d['access_token'];
     return $credentials;
   }
 
   /**
    * Validate the Authentication data to see if they are properly setup
    *
-   * @return bool
    * @param string $type 'user' to check the user's info, 'system' to check the system specific info
+   * @return bool
    */
   public function is_initialized($type = 'user')
   {
@@ -133,7 +138,6 @@ class Manager extends AuthencationBase implements AuthInterface {
    * Sign the request with the authentication parameters
    *
    * @param \Guzzle\Http\Client $client Guzzle Client Passed by reference
-   * @return void
    */
   public function sign_request(&$client)
   {
@@ -161,8 +165,7 @@ class Manager extends AuthencationBase implements AuthInterface {
         'satte'         => 'wconsumer',
       ), null, '&');
 
-    return drupal_goto($url, array('external' => TRUE));
-
+    drupal_goto($url, array('external' => TRUE));
   }
 
   /**
@@ -171,7 +174,7 @@ class Manager extends AuthencationBase implements AuthInterface {
    * @uses ServiceBase Removes their credentials
    */
   public function logout(&$user) {
-    return $this->_instance->setCredentials(null, $user->uid);
+    $this->_instance->setCredentials(null, $user->uid);
   }
 
   /**
@@ -180,16 +183,16 @@ class Manager extends AuthencationBase implements AuthInterface {
    * @param object $user The User Object
    * @param array $values The array of values passed
    *
-   * @throws ManagerException
+   * @throws WconsumerException
    */
   public function onCallback(&$user, $values) {
     // Check the state
     if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
-      throw new ManagerException('State for OAuth2 Interface not matching');
+      throw new WconsumerException('State for OAuth2 Interface not matching');
     }
 
     if (empty($values[0]['code'])) {
-      throw new ManagerException('No code passed to OAuth2 Interface');
+      throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
     $registry = $this->_instance->getServiceCredentials();
@@ -214,12 +217,12 @@ class Manager extends AuthencationBase implements AuthInterface {
 
     $response = $request->send();
     if ($response->isError()) {
-      throw new ManagerException('Unknown error on OAuth 2 callback: '.print_r($response, true));
+      throw new WconsumerException('Unknown error on OAuth 2 callback: '.print_r($response, true));
     }
 
     $response = $response->json();
     if (!empty($response['error'])) {
-      throw new ManagerException("Error while requesting access_token: '{$response['error']}'");
+      throw new WconsumerException("Error while requesting access_token: '{$response['error']}'");
     }
 
     $tokens = $this->formatCredentials($response);
