@@ -1,12 +1,28 @@
 language: php
 
-php: 
+php:
   - 5.3
   - 5.4
   - 5.5
 
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
 before_script:
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction --dev
+  - "mysql -e 'create database drupal;'"
+  - pear channel-discover pear.drush.org
+  - pear install drush/drush
+  - phpenv rehash
+  - mkdir ../drupal
+  - cd ../drupal
+  - drush site-install --db-url=mysql://root:@127.0.0.1/drupal
+  - cp ../wconsumer/ ./sites/modules/all/
+  - drush en -y wconsumer
+  - drush en -y wconsumer_ui
+  - cd ../wconsumer/
 
 script: phpunit
