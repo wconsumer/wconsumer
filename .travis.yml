@@ -17,12 +17,12 @@ before_script:
   - pear channel-discover pear.drush.org
   - pear install drush/drush
   - phpenv rehash
-  - mkdir ../drupal
-  - cd ../drupal
+  - cd ..
+  - drush dl drupal --drupal-project-rename=drupal
+  - cd drupal
   - drush site-install --db-url=mysql://root:@127.0.0.1/drupal
   - cp ../wconsumer/ ./sites/modules/all/
   - drush en -y wconsumer
-  - drush en -y wconsumer_ui
   - cd ../wconsumer/
 
 script: phpunit
