@@ -6,17 +6,9 @@ use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
   Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
 // OAuth Classes
-use Drupal\wconsumer\Rest\Authentication\Oauth,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthConsumer,
+use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthConsumer,
   Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException,
   Drupal\wconsumer\Rest\Authentication\Oauth\OAuthRequest,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthServer,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthSignatureMethod,
-
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthSignatureMethod_PLAINTEXT,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthSignatureMethod_RSA_SHA1,
-
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthToken,
   Drupal\wconsumer\Rest\Authentication\Oauth\OAuthUtil;
 
 /**
@@ -153,7 +145,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
    *
    * @return array
    * @param array
-   * @throws Drupal\wconsumer\Exception
+   * @throws \Drupal\wconsumer\Exception
    */
   public function formatCredentials($d)
   {
@@ -248,8 +240,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
     }
 
     // Something went south on the returned request
-    if (! isset($request_token['oauth_token']) OR ! isset($request_token['oauth_token_secret']))
-      return drupal_set_message('Unknown error with retrieving the request token: '.print_r($request_token, TRUE), 'error');
+    if (! isset($request_token['oauth_token']) OR ! isset($request_token['oauth_token_secret'])) {
+      drupal_set_message('Unknown error with retrieving the request token: '.print_r($request_token, TRUE), 'error');
+    }
 
     // They've got it!
     $_SESSION[$this->_instance->getName().':oauth_token'] = $token = $request_token['oauth_token'];

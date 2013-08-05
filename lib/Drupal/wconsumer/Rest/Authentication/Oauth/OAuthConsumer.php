@@ -1,7 +1,4 @@
 <?php
-/**
- * @file OAuthConsumer
- */
 namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 
 /**
