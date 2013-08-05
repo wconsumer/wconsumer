@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="./bootstrap.php"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         strict="true"
+         verbose="true"
+         syntaxCheck="true"
+         stopOnFailure="false">
+
+  <testsuites>
+    <testsuite name="wconsumer">
+      <directory suffix="Test.php">.</directory>
+    </testsuite>
+  </testsuites>
+
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">./</directory>
+      <directory suffix=".module">./</directory>
+      <directory suffix=".install">./</directory>
+      <directory suffix=".inc">./</directory>
+
+      <exclude>
+        <directory>../vendor</directory>
+        <directory>../tests</directory>
+        <directory>../integration-tests</directory>
+        <directory>../build</directory>
+      </exclude>
+    </whitelist>
+  </filter>
+
+</phpunit>

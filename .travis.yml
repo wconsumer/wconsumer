@@ -21,8 +21,10 @@ before_script:
   - drush dl drupal --drupal-project-rename=drupal
   - cd drupal
   - drush site-install --db-url=mysql://root:@127.0.0.1/drupal --yes
-  - cp ../wconsumer/ ./sites/modules/all/
-  - drush en -y wconsumer
+  - cp -r ../wconsumer/ ./sites/all/modules/
+  - drush en --yes wconsumer
   - cd ../wconsumer/
 
-script: phpunit
+script:
+  - phpunit
+  - cd ../drupal/sites/all/modules/wconsumer/integration-tests && phpunit
