@@ -1,10 +1,4 @@
 <?php
-/**
- * Web Consumer Manager
- *
- * Get started for PHPUnit
- */
-
 error_reporting(E_ALL);
 
 define('WC_BASE', dirname(__DIR__));

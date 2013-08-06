@@ -44,10 +44,11 @@ abstract class ServiceBase {
   public function __construct()
   {
     // Identity the name of the service
-    if (! isset($this->_service))
-      $this->_service = strtolower(get_called_class());
-    else
-      $this->_service = strtolower($this->_service);
+    if (!isset($this->_service)) {
+      $this->_service = str_replace('\\', '__', get_called_class());
+    }
+
+    $this->_service = strtolower($this->_service);
   }
 
   /**
