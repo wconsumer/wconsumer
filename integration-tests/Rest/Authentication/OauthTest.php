@@ -126,6 +126,26 @@ class OauthTest extends DrupalTestBase {
     $auth->authenticate($GLOBALS['user']);
   }
 
+  /**
+   * @expectedException \Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException
+   */
+  public function testCallbackHandlerFailsOnInvalidRequestToken() {
+    $auth = $this->auth();
+
+    $_SESSION['oauth_test_sevice:oauth_token'] = 'abc';
+    $_SESSION['oauth_test_sevice:oauth_token_secret'] = '123';
+
+    $auth->onCallback($GLOBALS['user'], array());
+  }
+
+  /**
+   * @expectedException \BadMethodCallException
+   */
+  public function testCallbackHandlerFailsIfNoRequestTokenInSession() {
+    $auth = $this->auth();
+    $auth->onCallback($GLOBALS['user'], array());
+  }
+
   private function auth($service = null) {
     global $user;
 

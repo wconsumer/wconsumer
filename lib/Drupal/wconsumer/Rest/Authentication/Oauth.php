@@ -263,7 +263,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $token = (isset($_SESSION[$this->_instance->getName().':oauth_token'])) ? $_SESSION[$this->_instance->getName().':oauth_token'] : null;
     $token_secret = (($_SESSION[$this->_instance->getName().':oauth_token_secret'])) ? $_SESSION[$this->_instance->getName().':oauth_token_secret'] : null;
 
-    if ($token == null || $token_secret == null) {
+    if (empty($token) || empty($token_secret)) {
       throw new \BadMethodCallException('Request token/secret not found in user\'s session. Seems authenticate() has not been called prior to onCallback()?');
     }
 

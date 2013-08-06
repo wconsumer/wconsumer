@@ -1,21 +1,25 @@
 <?php
 namespace Drupal\wconsumer\Rest;
 
+use Drupal\wconsumer\ServiceBase;
+
+
+
 abstract class Authentication {
   /**
    * Instance of the Service Object
    *
-   * @var object
+   * @var ServiceBase
    */
   protected $_instance;
 
-  /**
-   * Setup the Service Instance
-   *
-   * @param object
-   */
-  public function __construct($instance)
-  {
+
+
+  public function __construct(ServiceBase $instance) {
     $this->_instance = $instance;
+  }
+
+  public function getService() {
+    return $this->_instance;
   }
 }
