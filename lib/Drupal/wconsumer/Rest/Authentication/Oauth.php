@@ -177,36 +177,40 @@ class Oauth extends AuthencationBase implements AuthInterface {
    * @return bool
    * @param string $type 'user' to check the user's info, 'system' to check the system specific info
    */
-  public function is_initialized($type = 'user')
-  {
-    switch ($type)
-    {
-      case 'user' :
-        $credentials = $this->_instance->getCredentials();
-        if (! $credentials OR ! isset($registry->credentials)) return FALSE;
-
-        if (! isset($registry['access_token']) OR ! isset($registry['access_token_secret']))
+  public function is_initialized($type = 'user') {
+    switch ($type) {
+      case 'user':
+        $registry = $this->_instance->getCredentials();
+        if (!$registry || !isset($registry->credentials)) {
           return FALSE;
+        }
 
-        // Access token/secret exist
+        $credentials = $registry->credentials;
+        if (empty($credentials['access_token']) || empty($credentials['access_token_secret'])) {
+          return FALSE;
+        }
+
         return TRUE;
-        break;
+      break;
 
-      case 'system' :
+      case 'system':
         $registry = $this->_instance->getServiceCredentials();
-        if (! $registry OR ! isset($registry->credentials)) return FALSE;
-
-        if (! isset($registry->credentials['consumer_key']) OR ! isset($registry->credentials['consumer_secret']))
+        if (!$registry || !isset($registry->credentials)) {
           return FALSE;
+        }
 
-        // Consumer key and secret exist
-        // TODO: Add in additional authentication by checking the key/secret against the API
+        $credentials = $registry->credentials;
+
+        if (empty($credentials['consumer_key']) || empty($credentials['consumer_secret'])) {
+          return FALSE;
+        }
+
         return TRUE;
-        break;
+      break;
 
-      // Unknown to check for
-      default :
+      default:
         return FALSE;
+      break;
     }
   }
 

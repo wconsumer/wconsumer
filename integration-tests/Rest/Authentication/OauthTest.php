@@ -33,32 +33,37 @@ class OauthTest extends DrupalTestBase {
       ->method('drupal_goto');
   }
 
-  public function testIsInitialized() {
+  /**
+   * @dataProvider isInitializedDataProvider
+   */
+  public function testIsInitialized($serviceCredentials, $userCredentials, $domain, $expectedResult) {
     $auth = $this->auth(new OauthTestSevice());
+    $service = $auth->getService();
 
-    $this->assertFalse($auth->is_initialized('user'));
-    $this->assertFalse($auth->is_initialized('system'));
-    $this->assertFalse($auth->is_initialized('unknown'));
+    $service->setServiceCredentials($serviceCredentials);
+    $service->setCredentials($userCredentials);
 
-    $auth->getService()->setServiceCredentials(array('consumer_key' => '123', 'consumer_secret' => 'abc'));
-    $this->assertFalse($auth->is_initialized('user'));
-    $this->assertTrue($auth->is_initialized('system'));
-    $this->assertFalse($auth->is_initialized('unknown'));
+    $this->assertSame($expectedResult, $auth->is_initialized($domain));
+  }
 
-    $auth->getService()->setCredentials(array('access_token' => '123', 'access_token_secret' => 'abc'));
-    $this->assertTrue($auth->is_initialized('user'));
-    $this->assertTrue($auth->is_initialized('system'));
-    $this->assertFalse($auth->is_initialized('unknown'));
+  public static function isInitializedDataProvider() {
+    $serviceCredentials = array('consumer_key' => '123', 'consumer_secret' => 'abc');
+    $userCredentials = array('access_token' => '123', 'access_token_secret' => 'abc');
 
-    $auth->getService()->setServiceCredentials(null);
-    $this->assertTrue($auth->is_initialized('user'));
-    $this->assertFalse($auth->is_initialized('system'));
-    $this->assertFalse($auth->is_initialized('unknown'));
-
-    $auth->getService()->setCredentials(null);
-    $this->assertFalse($auth->is_initialized('user'));
-    $this->assertFalse($auth->is_initialized('system'));
-    $this->assertFalse($auth->is_initialized('unknown'));
+    return array(
+      array(null, null, 'user', false),
+      array(null, null, 'system', false),
+      array(null, null, 'unknown', false),
+      array($serviceCredentials, null, 'user', false),
+      array($serviceCredentials, null, 'system', true),
+      array($serviceCredentials, null, 'unknown', false),
+      array(null, $userCredentials, 'user', true),
+      array(null, $userCredentials, 'system', false),
+      array(null, $userCredentials, 'unknown', false),
+      array($serviceCredentials, $userCredentials, 'user', true),
+      array($serviceCredentials, $userCredentials, 'system', true),
+      array($serviceCredentials, $userCredentials, 'unknown', false),
+    );
   }
 
   /**
