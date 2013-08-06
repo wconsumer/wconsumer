@@ -33,6 +33,34 @@ class OauthTest extends DrupalTestBase {
       ->method('drupal_goto');
   }
 
+  public function testIsInitialized() {
+    $auth = $this->auth(new OauthTestSevice());
+
+    $this->assertFalse($auth->is_initialized('user'));
+    $this->assertFalse($auth->is_initialized('system'));
+    $this->assertFalse($auth->is_initialized('unknown'));
+
+    $auth->getService()->setServiceCredentials(array('consumer_key' => '123', 'consumer_secret' => 'abc'));
+    $this->assertFalse($auth->is_initialized('user'));
+    $this->assertTrue($auth->is_initialized('system'));
+    $this->assertFalse($auth->is_initialized('unknown'));
+
+    $auth->getService()->setCredentials(array('access_token' => '123', 'access_token_secret' => 'abc'));
+    $this->assertTrue($auth->is_initialized('user'));
+    $this->assertTrue($auth->is_initialized('system'));
+    $this->assertFalse($auth->is_initialized('unknown'));
+
+    $auth->getService()->setServiceCredentials(null);
+    $this->assertTrue($auth->is_initialized('user'));
+    $this->assertFalse($auth->is_initialized('system'));
+    $this->assertFalse($auth->is_initialized('unknown'));
+
+    $auth->getService()->setCredentials(null);
+    $this->assertFalse($auth->is_initialized('user'));
+    $this->assertFalse($auth->is_initialized('system'));
+    $this->assertFalse($auth->is_initialized('unknown'));
+  }
+
   /**
    * @allowDrupalGoto
    */

@@ -147,12 +147,6 @@ abstract class ServiceBase {
    */
   public function getCredentials($user_id = NULL)
   {
-    // We need to retrieve the service ID first
-    $object = $this->getServiceCredentials();
-
-    if ($object == NULL)
-      throw new Exception('Service registry not initialized: '.$this->_service);
-
     if ($user_id == NULL) :
       global $user;
       $user_id = $user->uid;
@@ -178,10 +172,15 @@ abstract class ServiceBase {
    */
   private function unserializeCredentials(&$data)
   {
-    if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '')
+    if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '') {
       $data->credentials = unserialize($data->credentials);
-    elseif(is_array($data) AND isset($data['credentials']) AND $data['credentials'] !== '')
+    }
+    elseif(is_array($data) AND isset($data['credentials']) AND $data['credentials'] !== '') {
       $data['credentials'] = unserialize($data['credentials']);
+    }
+    elseif ($data === false) {
+      $data = null;
+    }
 
     return $data;
   }
