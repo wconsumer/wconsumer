@@ -100,12 +100,22 @@ class Oauth extends AuthencationBase implements AuthInterface {
   /**
    * @var string
    */
+  public $authorizeURL;
+
+  /**
+   * @var string
+   */
   public $authenticateURL;
 
   /**
    * @var string
    */
   public $requestTokenURL;
+
+  /**
+   * @var string
+   */
+  public $accessTokenURL;
 
   protected $consumer = NULL;
   protected $token = NULL;
@@ -220,32 +230,16 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  /**
-   * Authenticate the user and set them up for OAuth Authentication
-   *
-   * @param object the user object
-   */
   public function authenticate(&$user)
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
 
-    try {
-      $this->createConnection();
-      $request_token = $this->getRequestToken($callback);
-    }
-    catch (\Exception $e) {
-      // Throw this back to the front-end
-      throw new \Exception($e->getMessage(), 500, $e);
-    }
-
-    // Something went south on the returned request
-    if (! isset($request_token['oauth_token']) OR ! isset($request_token['oauth_token_secret'])) {
-      drupal_set_message('Unknown error with retrieving the request token: '.print_r($request_token, TRUE), 'error');
-    }
+    $this->createConnection();
+    $request_token = $this->getRequestToken($callback);
 
     // They've got it!
-    $_SESSION[$this->_instance->getName().':oauth_token'] = $token = $request_token['oauth_token'];
+    $_SESSION[$this->_instance->getName().':oauth_token'] = $request_token['oauth_token'];
     $_SESSION[$this->_instance->getName().':oauth_token_secret'] = $request_token['oauth_token_secret'];
     $url = $this->createAuthorizeURL($request_token['oauth_token'], FALSE);
 
@@ -264,32 +258,19 @@ class Oauth extends AuthencationBase implements AuthInterface {
     return $this->_instance->setCredentials(null, $user->uid);
   }
 
-  /**
-   * Callback for authencation
-   *
-   * @param object $user The User Object
-   * @param object $values The array of values passed
-   */
   public function onCallback(&$user, $values) {
     // Find the Old Stuff
     $token = (isset($_SESSION[$this->_instance->getName().':oauth_token'])) ? $_SESSION[$this->_instance->getName().':oauth_token'] : null;
     $token_secret = (($_SESSION[$this->_instance->getName().':oauth_token_secret'])) ? $_SESSION[$this->_instance->getName().':oauth_token_secret'] : null;
 
     if ($token == null || $token_secret == null) {
-      throw \Exception('Temporary token/secret not found in user\'s session. Cannot complete.');
-      return;
+      throw new \BadMethodCallException('Request token/secret not found in user\'s session. Seems authenticate() has not been called prior to onCallback()?');
     }
 
-    try {
-      $this->createConnection(null, null, $token, $token_secret);
-      $access_tokens = $this->getAccessToken($_REQUEST['oauth_verifier']);
+    $this->createConnection(null, null, $token, $token_secret);
+    $access_tokens = $this->getAccessToken($_REQUEST['oauth_verifier']);
 
-      $access_tokens = $this->formatCredentials($access_tokens);
-    }
-    catch (\Exception $e) {
-      // Throw this back to the front-end
-      throw new \Exception($e->getMessage(), 500, $e);
-    }
+    $access_tokens = $this->formatCredentials($access_tokens);
 
     // Save them in the service
     $this->_instance->setCredentials(array(
@@ -323,7 +304,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
         OR
           empty($registry['credentials']['consumer_secret'])
         )
-        throw new \Exception('Consumer key/secret not set in registry: '.print_r($registry, TRUE));
+      {
+        throw new \BadMethodCallException('Consumer key/secret not set in registry: '.print_r($registry, TRUE));
+      }
 
       $consumer_key = $registry['credentials']['consumer_key'];
       $consumer_secret = $registry['credentials']['consumer_secret'];
@@ -364,8 +347,13 @@ class Oauth extends AuthencationBase implements AuthInterface {
     if (!empty($oauth_callback))
       $parameters['oauth_callback'] = $oauth_callback;
 
-    $request = $this->oAuthRequest($this->getRequestTokenURL(), 'GET', $parameters);
-    $token = OAuthUtil::parse_parameters($request);
+    $response = $this->oAuthRequest($this->getRequestTokenURL(), 'GET', $parameters);
+
+    $token = OAuthUtil::parse_parameters($response);
+    if (empty($token['oauth_token']) || empty($token['oauth_token_secret'])) {
+      throw new OAuthException("Failed to parse Request Token response '{$response}'");
+    }
+
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
 
     return $token;
@@ -538,8 +526,13 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $this->http_info = array_merge($this->http_info, curl_getinfo($ci));
     $this->url = $url;
 
-    if (curl_errno($ci))
+    if (curl_errno($ci)) {
       throw new OAuthException('CURL Error: '.curl_errno($ci));
+    }
+
+    if ($this->http_code != 200) {
+      throw new OAuthException("API returns HTTP error '{$this->http_code}'");
+    }
 
     curl_close($ci);
     return $response;
