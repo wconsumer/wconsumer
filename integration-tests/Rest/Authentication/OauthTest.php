@@ -190,6 +190,21 @@ class OauthTest extends DrupalTestBase {
     $auth->authenticate($GLOBALS['user']);
   }
 
+  public function testLogout() {
+    $user = new \stdClass();
+    $user->uid = 123;
+
+    $service = new OauthTestSevice();
+    $service->setCredentials("test123", $user->uid);
+    $this->assertSame("test123", $service->getCredentials($user->uid)->credentials);
+
+    $auth = $this->auth($service);
+
+    $auth->logout($user);
+
+    $this->assertSame(null, $service->getCredentials($user->uid)->credentials);
+  }
+
   /**
    * @expectedException \Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException
    */
