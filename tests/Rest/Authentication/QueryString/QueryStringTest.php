@@ -2,6 +2,8 @@
   namespace Drupal\wconsumer\Tests\Authentication\QueryString;
 
   use Drupal\wconsumer\Rest\Authentication\QueryString\QueryString;
+  use Drupal\wconsumer\ServiceBase;
+  use Drupal\wconsumer\Tests\TestService;
 
 
 
@@ -12,7 +14,7 @@
      */
     public function testServiceCredentialsValidationFailsIfNoQueryKeyProvided()
     {
-      $auth = new QueryString(null);
+      $auth = $this->auth();
       $auth->queryKey = null;
       $auth->formatServiceCredentials(array('query_key' => '', 'query_value' => '12345'));
     }
@@ -22,13 +24,13 @@
      */
     public function testServiceCredentialsFailsIfNoQueryValueProvided()
     {
-      $auth = new QueryString(null);
+      $auth = $this->auth();
       $auth->formatServiceCredentials(array('query_key' => 'key', 'query_value' => ''));
     }
 
     public function testServiceCredentialsValidationWithPredefinedQueryKey()
     {
-      $auth = new QueryString(null);
+      $auth = $this->auth();
       $auth->queryKey = 'password';
       $result = $auth->formatServiceCredentials(array('query_key' => '', 'query_value' => '12345'));
       $this->assertSame(array('query_key' => '', 'query_value' => '12345'), $result);
@@ -36,7 +38,7 @@
 
     public function testServiceCredentialsValidationWithNoPredefinedKey()
     {
-      $auth = new QueryString(null);
+      $auth = $this->auth();
       $auth->queryKey = null;
       $result = $auth->formatServiceCredentials(array('query_key' => 'password', 'query_value' => '12345'));
       $this->assertSame(array('query_key' => 'password', 'query_value' => '12345'), $result);
@@ -62,7 +64,7 @@
           ->will($this->returnValue($credentials));
       }
 
-      $auth = new QueryString($service);
+      $auth = $this->auth($service);
       $auth->queryKey = 'pass';
 
       $result = $auth->is_initialized('system');
@@ -106,7 +108,7 @@
 
       $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();
 
-      $auth = new QueryString($service);
+      $auth = $this->auth($service);
       $auth->queryKey = $predefinedQueryKey;
 
       $auth->sign_request($client);
@@ -120,9 +122,15 @@
       $this->assertSame('pass=parole', $query);
     }
 
-    private function auth()
+    private function auth(ServiceBase $service = null)
     {
-      return new QueryString(null);
+      if (!isset($service)) {
+        $service = new TestService();
+      }
+
+      $auth = new QueryString($service);
+
+      return $auth;
     }
   }
 ?>

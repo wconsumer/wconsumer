@@ -11,6 +11,7 @@ if (!file_exists(WC_BASE.'/vendor/autoload.php'))
   die('Composer not initialized.');
 
 require(WC_BASE.'/vendor/autoload.php');
+require(__DIR__.'/TestService.php');
 
 // Let's see if they installed PHPUnit
 if (! class_exists('PHPUnit_Framework_TestCase'))

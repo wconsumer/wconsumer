@@ -2,6 +2,8 @@
 namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
 
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2;
+use Drupal\wconsumer\ServiceBase;
+use Drupal\wconsumer\Tests\TestService;
 use Guzzle\Http\Message\Response;
 
 
@@ -12,7 +14,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
    * @expectedException \Drupal\wconsumer\Exception
    */
   public function testSystemCredentialsValidationFailsOnEmptyConsumerKey() {
-    $manager = new Oauth2(NULL);
+    $manager = $this->auth();
     $manager->formatServiceCredentials(array('consumer_key' => NULL, 'consumer_secret' => 'xyz'));
   }
 
@@ -20,12 +22,12 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
    * @expectedException \Drupal\wconsumer\Exception
    */
   public function testSystemCredentialsValidationFailsOnEmptyConsumerSecret() {
-    $manager = new Oauth2(NULL);
+    $manager = $this->auth();
     $manager->formatServiceCredentials(array('consumer_key' => 'abc'));
   }
 
   public function testSystemCredentialsFormatting() {
-    $manager = new Oauth2(NULL);
+    $manager = $this->auth();
 
     $result = $manager->formatServiceCredentials(array(
       'consumer_key' => 'abc',
@@ -43,12 +45,12 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
    * @expectedException \Drupal\wconsumer\Exception
    */
   public function testUserCredentialsValidationFailsOnEmptyAccessToken() {
-    $manager = new Oauth2(NULL);
+    $manager = $this->auth();
     $manager->formatCredentials(array());
   }
 
   public function testUserCredentialsFormatting() {
-    $manager = new Oauth2(NULL);
+    $manager = $this->auth();
     $result = $manager->formatCredentials(array('access_token' => '123', 'dummy' => 'value'));
     $this->assertSame(array('access_token' => '123'), $result);
   }
@@ -63,7 +65,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       ->method('getCredentials')
       ->will($this->returnValue($registry));
 
-    $manager = new Oauth2($service);
+    $manager = $this->auth($service);
 
     // Positive case
     $this->assertTrue($manager->is_initialized('user'));
@@ -87,7 +89,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       ->method('getServiceCredentials')
       ->will($this->returnValue($registry));
 
-    $manager = new Oauth2($service);
+    $manager = $this->auth($service);
 
     // Positive case
     $this->assertTrue($manager->is_initialized('system'));
@@ -102,7 +104,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
   }
 
   public function testIsNotInitializedForUnknown() {
-    $manager = new Oauth2(NULL);
+    $manager = $this->auth();
     $this->assertFalse($manager->is_initialized('dummy'));
   }
 
@@ -118,7 +120,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
     $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();
 
-    $manager = new Oauth2($service);
+    $manager = $this->auth($service);
 
     $manager->sign_request($client);
 
@@ -176,7 +178,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       ->method('setCredentials')
       ->with($this->identicalTo(null), $user->uid);
 
-    $manager = new Oauth2($service);
+    $manager = $this->auth($service);
 
     $manager->logout($user);
   }
@@ -266,7 +268,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
         }));
     }
 
-    $manager = new Oauth2($service);
+    $manager = $this->auth($service);
     $manager->accessTokenURL = $accessTokenUrl;
     $manager->client = $client;
 
@@ -329,7 +331,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       ->method('getServiceCredentials')
       ->will($this->returnValue($registry));
 
-    $manager = new Oauth2($service);
+    $manager = $this->auth($service);
     $manager->scopes = $scopes;
 
     $php =
@@ -344,12 +346,22 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
         $urlTesterCallback($url);
       }));
 
-    $null = null;
+    $null = NULL;
     $manager->authenticate($null);
   }
 
   private function getObjectNamespace($object) {
     $class = new \ReflectionClass($object);
     return $class->getNamespaceName();
+  }
+
+  private function auth(ServiceBase $service = NULL) {
+    if (!isset($service)) {
+      $service = new TestService();
+    }
+
+    $auth = new Oauth2($service);
+
+    return $auth;
   }
 }

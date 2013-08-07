@@ -7,11 +7,11 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\HttpAuth;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
-  Drupal\wconsumer\Common\AuthInterface,
-  Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth,
-  Drupal\wconsumer\Exception as WcException;
-
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Common\AuthInterface;
+use Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth;
+use Drupal\wconsumer\Exception as WcException;
+use Drupal\wconsumer\ServiceBase;
 use Guzzle\Http\Client;
 
 
@@ -40,7 +40,7 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function __construct($instance = null, $needsUsername = false, $needsPassword = false)
+  public function __construct(ServiceBase $instance = null, $needsUsername = false, $needsPassword = false)
   {
     parent::__construct($instance);
 

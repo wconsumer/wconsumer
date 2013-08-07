@@ -2,7 +2,8 @@
   namespace Drupal\wconsumer\Tests\Authentication\HttpAuth;
 
   use Drupal\wconsumer\Rest\Authentication\HttpAuth\HttpAuth;
-
+  use Drupal\wconsumer\ServiceBase;
+  use Drupal\wconsumer\Tests\TestService;
 
 
   class HttpAuthTest extends \PHPUnit_Framework_TestCase
@@ -12,7 +13,7 @@
      */
     public function testServiceCredentialsValidationFailsOnEmptyUsernameIfItsRequired()
     {
-      $auth = new HttpAuth(null, true, false);
+      $auth = $this->auth(null, true, false);
       $auth->formatServiceCredentials(array('username' => ''));
     }
 
@@ -21,20 +22,20 @@
      */
     public function testServiceCredentialsValidationFailsOnEmptyPasswordIfItsRequired()
     {
-      $auth = new HttpAuth(null, false, true);
+      $auth = $this->auth(null, false, true);
       $auth->formatServiceCredentials(array('password' => null));
     }
 
     public function testServiceCredentialsValidation()
     {
-      $auth = new HttpAuth(null, true, false);
+      $auth = $this->auth(null, true, false);
       $result = $auth->formatServiceCredentials(array('username' => 'john doe', 'password' => 'dummy'));
       $this->assertSame(array('username' => 'john doe', 'password' => null), $result);
     }
 
     public function testUserCredentialsValidationIgnoresAnyPassedData()
     {
-      $auth = new HttpAuth();
+      $auth = $this->auth();
       $result = $auth->formatCredentials(array('some' => 'value'));
       $this->assertSame(array(), $result);
     }
@@ -53,7 +54,7 @@
           ->will($this->returnValue($credentials));
       }
 
-      $auth = new HttpAuth($service, true, true);
+      $auth = $this->auth($service, true, true);
       $this->assertTrue($auth->is_initialized('system'));
 
       $this->assertTrue($auth->is_initialized('user')); // should be always true
@@ -73,7 +74,7 @@
           ->will($this->returnValue($credentials));
       }
 
-      $auth = new HttpAuth($service, true, true);
+      $auth = $this->auth($service, true, true);
       $this->assertFalse($auth->is_initialized('system'));
 
       $this->assertTrue($auth->is_initialized('user')); // should be always true
@@ -81,7 +82,7 @@
 
     public function testIsInitializedWithUnknownAuthType()
     {
-      $auth = new HttpAuth();
+      $auth = $this->auth();
       $this->assertFalse($auth->is_initialized('unknown'));
     }
 
@@ -107,9 +108,19 @@
           ->method('addSubscriber');
       }
 
-      $auth = new HttpAuth($service, true, false);
+      $auth = $this->auth($service, true, false);
 
       $auth->sign_request($client);
+    }
+
+    private function auth(ServiceBase $service = null, $requireUsername = false, $requirePassword = false) {
+      if (!isset($service)) {
+        $service = new TestService();
+      }
+
+      $auth = new HttpAuth($service, $requireUsername, $requirePassword);
+
+      return $auth;
     }
   }
 ?>
