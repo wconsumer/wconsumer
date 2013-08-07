@@ -111,9 +111,6 @@ abstract class ServiceBase {
       $user_id = $user->uid;
     endif;
 
-    // We need to retrieve the service ID first
-    $object = $this->getServiceCredentials();
-
     if ($this->getCredentials($user_id)) :
       // Update
       return db_update($this->serviceCred)

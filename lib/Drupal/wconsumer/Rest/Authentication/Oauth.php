@@ -226,6 +226,14 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $registry = $this->_instance->getServiceCredentials();
     $credentials = $this->_instance->getCredentials();
 
+    if (!isset($registry) || !isset($registry->credentials)) {
+      throw new \BadMethodCallException("Service credentials not set");
+    }
+
+    if (!isset($credentials) || !isset($credentials->credentials)) {
+      throw new \BadMethodCallException("No stored user credentials found");
+    }
+
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key' => $registry->credentials['consumer_key'],
       'consumer_secret' => $registry->credentials['consumer_secret'],

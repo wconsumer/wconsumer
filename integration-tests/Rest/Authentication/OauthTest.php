@@ -4,7 +4,7 @@ namespace Drupal\wconsumer\IntegrationTests\Authentication;
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
 use Drupal\wconsumer\Rest\Authentication\Oauth;
 use Drupal\wconsumer\ServiceBase;
-
+use Guzzle\Http\Client;
 
 
 class OauthTest extends DrupalTestBase {
@@ -48,22 +48,53 @@ class OauthTest extends DrupalTestBase {
 
   public static function isInitializedDataProvider() {
     $serviceCredentials = array('consumer_key' => '123', 'consumer_secret' => 'abc');
-    $userCredentials = array('access_token' => '123', 'access_token_secret' => 'abc');
+    $userCredentials    = array('access_token' => '123', 'access_token_secret' => 'abc');
 
     return array(
-      array(null, null, 'user', false),
-      array(null, null, 'system', false),
-      array(null, null, 'unknown', false),
-      array($serviceCredentials, null, 'user', false),
-      array($serviceCredentials, null, 'system', true),
-      array($serviceCredentials, null, 'unknown', false),
-      array(null, $userCredentials, 'user', true),
-      array(null, $userCredentials, 'system', false),
-      array(null, $userCredentials, 'unknown', false),
-      array($serviceCredentials, $userCredentials, 'user', true),
-      array($serviceCredentials, $userCredentials, 'system', true),
-      array($serviceCredentials, $userCredentials, 'unknown', false),
+      array(NULL, NULL, 'user', FALSE),
+      array(NULL, NULL, 'system', FALSE),
+      array(NULL, NULL, 'unknown', FALSE),
+      array($serviceCredentials, NULL, 'user', FALSE),
+      array($serviceCredentials, NULL, 'system', TRUE),
+      array($serviceCredentials, NULL, 'unknown', FALSE),
+      array(NULL, $userCredentials, 'user', TRUE),
+      array(NULL, $userCredentials, 'system', FALSE),
+      array(NULL, $userCredentials, 'unknown', FALSE),
+      array($serviceCredentials, $userCredentials, 'user', TRUE),
+      array($serviceCredentials, $userCredentials, 'system', TRUE),
+      array($serviceCredentials, $userCredentials, 'unknown', FALSE),
     );
+  }
+
+  public function testSignRequest() {
+    $service = $this->service(TRUE, TRUE);
+    $auth = $this->auth($service);
+
+    $client = new Client();
+    $auth->sign_request($client);
+
+    $response = $client->get('https://api.twitter.com/1.1/account/verify_credentials.json')->send();
+    $this->assertTrue($response->isSuccessful());
+    $responseData = $response->json();
+    $this->assertNotEmpty($responseData['name']);
+    $this->assertNotEmpty($responseData['screen_name']);
+  }
+
+  /**
+   * @expectedException \BadMethodCallException
+   */
+  public function testSignRequestFailsOnUninitializedServiceCredentials() {
+    $service = $this->service(FALSE, TRUE);
+    $auth = $this->auth($service);
+    $auth->sign_request($client = new Client());
+  }
+
+  /**
+   * @expectedException \BadMethodCallException
+   */
+  public function testSignRequestFailsOnUninitializedUserCredentials() {
+    $auth = $this->auth();
+    $auth->sign_request($client = new Client());
   }
 
   /**
@@ -180,11 +211,6 @@ class OauthTest extends DrupalTestBase {
   }
 
   private function auth($service = null) {
-    global $user;
-
-    $user = new \stdClass();
-    $user->uid = 99;
-
     if (!isset($service)) {
       $service = $this->service();
     }
@@ -197,15 +223,35 @@ class OauthTest extends DrupalTestBase {
     return $auth;
   }
 
-  private function service() {
-    return $this->configureService(new OauthTestSevice());
+  private function service($setupServiceCredentials = true, $setupUserCredentials = false) {
+    return $this->configureService(new OauthTestSevice(), $setupServiceCredentials, $setupUserCredentials);
   }
 
-  private function configureService(OauthTestSevice $service) {
-    $service->setServiceCredentials(array(
-      'consumer_key'    => $this->sensitiveData['twitter']['app']['key'],
-      'consumer_secret' => $this->sensitiveData['twitter']['app']['secret'],
-    ));
+  private function setupUser() {
+    global $user;
+
+    $user = new \stdClass();
+    $user->uid = 99;
+  }
+
+  private function configureService(OauthTestSevice $service,
+                                    $setupServiceCredentials = true,
+                                    $setupUserCredentials = false) {
+
+    if ($setupServiceCredentials) {
+      $service->setServiceCredentials(array(
+        'consumer_key'    => $this->sensitiveData['twitter']['app']['key'],
+        'consumer_secret' => $this->sensitiveData['twitter']['app']['secret'],
+      ));
+    }
+
+    if ($setupUserCredentials) {
+      $this->setupUser();
+      $service->setCredentials(array(
+        'access_token'        => $this->sensitiveData['twitter']['user']['token'],
+        'access_token_secret' => $this->sensitiveData['twitter']['user']['secret'],
+      ));
+    }
 
     return $service;
   }
