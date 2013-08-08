@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests\Authentication;
 
-use Drupal\wconsumer\Rest\Authentication\Oauth;
+use Drupal\wconsumer\Rest\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\Tests\TestService;
 
 

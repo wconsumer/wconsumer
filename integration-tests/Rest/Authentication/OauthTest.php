@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\IntegrationTests\Authentication;
 
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
-use Drupal\wconsumer\Rest\Authentication\Oauth;
+use Drupal\wconsumer\Rest\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\ServiceBase;
 use Guzzle\Http\Client;
 
@@ -19,7 +19,7 @@ class OauthTest extends DrupalTestBase {
     parent::setUp();
 
     $this->php =
-      \PHPUnit_Extension_FunctionMocker::start($this, 'Drupal\wconsumer\Rest\Authentication')
+      \PHPUnit_Extension_FunctionMocker::start($this, 'Drupal\wconsumer\Rest\Authentication\Oauth')
         ->mockFunction('drupal_goto')
       ->getMock();
 
