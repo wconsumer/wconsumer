@@ -17,6 +17,10 @@ class Credentials {
     return new static(@$data['token'], @$data['secret']);
   }
 
+  public static function getClass() {
+    return get_called_class();
+  }
+
   public function __construct($token, $secret) {
     $this->token = $this->input($token, 'Token');
     $this->secret = $this->input($secret, 'Token secret');
