@@ -139,7 +139,7 @@ class OauthTest extends DrupalTestBase {
   }
 
   /**
-   * @expectedException \Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException
+   * @expectedException \Guzzle\Http\Exception\CurlException
    */
   public function testAuthenticateFailsOnNetworkLevelError() {
     $auth = $this->auth();
@@ -157,7 +157,7 @@ class OauthTest extends DrupalTestBase {
   }
 
   /**
-   * @expectedException \Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException
+   * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
   public function testAuthenticateFailsOnOauthApiLevelError() {
     $service = null;

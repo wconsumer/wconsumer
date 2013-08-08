@@ -1,111 +1,25 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
-  Drupal\wconsumer\Common\AuthInterface,
-  Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Service;
+use Guzzle\Http\Client;
+use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
 // OAuth Classes
-use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthConsumer,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthRequest,
-  Drupal\wconsumer\Rest\Authentication\Oauth\OAuthUtil;
+use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthConsumer;
+use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException;
+use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthRequest;
+use Drupal\wconsumer\Rest\Authentication\Oauth\OAuthUtil;
 
 /**
  * OAuth Authentication Class
  *
- * @todo Refactor
  * @package wconsumer
  * @subpackage request
  */
 class Oauth extends AuthencationBase implements AuthInterface {
-  /**
-   * Contains the last HTTP status code returned.
-   *
-   * @var int
-   */
-  public $http_code;
-
-  /**
-   * Contains the last API call.
-   *
-   * @var string
-   */
-  public $url;
-
-  /**
-   * Set up the API root URL.
-   *
-   * @var string
-   */
-  public $host = NULL;
-
-  /**
-   * Set timeout default.
-   *
-   * @var int
-   */
-  public $timeout = 30;
-
-  /**
-   * Set connect timeout.
-   *
-   * @var int
-   */
-  public $connecttimeout = 30;
-
-  /**
-   * Verify SSL Cert.
-   *
-   * @var bool
-   */
-  public $ssl_verifypeer = FALSE;
-
-  /**
-   * Response format.
-   *
-   * @var string
-   */
-  public $format = 'json';
-
-  /**
-   * Decode returned json data.
-   *
-   * @var bool
-   */
-  public $decode_json = TRUE;
-
-  /**
-   * Contains the last HTTP headers returned.
-   *
-   * @var array
-   */
-  public $http_info;
-
-  /**
-   * HTTP User Agent
-   *
-   * @var string
-   */
-  public $useragent = 'Web Consumer Manager';
-
-  /**
-   * Immediately retry the API call if the response was not successful
-   *
-   * @var bool
-   * @deprecated
-   */
-  public $retry = FALSE;
-
-  /**
-   * @var string
-   */
-  public $authorizeURL;
-
-  /**
-   * @var string
-   */
-  public $authenticateURL;
 
   /**
    * @var string
@@ -115,68 +29,38 @@ class Oauth extends AuthencationBase implements AuthInterface {
   /**
    * @var string
    */
+  public $authorizeURL;
+
+  /**
+   * @var string
+   */
   public $accessTokenURL;
 
-  protected $consumer = NULL;
-  protected $token = NULL;
-
-  function getAccessTokenURL()  { return $this->accessTokenURL; }
-  function getAuthenticateURL() { return $this->authenticateURL; }
-  function getAuthorizeURL()    { return $this->authorizeURL; }
-  function getRequestTokenURL() { return $this->requestTokenURL; }
-
-  // Debug Helpers
-  function lastStatusCode() { return $this->http_status; }
-  function lastAPICall() { return $this->last_api_call; }
-
   /**
-   * Process the Registry Information to be in the format to be saved properly
-   *
-   * @return array
-   * @param array
-   * @throws \Drupal\wconsumer\Exception
+   * @var string
    */
-  public function formatServiceCredentials($d)
+  public $authenticateURL;
+
+
+
+  public function formatServiceCredentials($data)
   {
-    if (! isset($d['consumer_key']) OR ! isset($d['consumer_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret not set in formatting pass.' . print_r($d, TRUE));
-
-    if (empty($d['consumer_key']) OR empty($d['consumer_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Consumer Key/Secret empty in formatting pass.' . print_r($d, TRUE));
-
-    $credentials = array();
-    $credentials['consumer_key'] = $d['consumer_key'];
-    $credentials['consumer_secret'] = $d['consumer_secret'];
-    return $credentials;
+    return $this->requireKeys(
+      array('consumer_key', 'consumer_secret'),
+      $data,
+      'OAuth Consumer Key/Secret not set or is empty in formatting pass'
+    );
   }
 
-  /**
-   * Process the Registry Information to be in the format to be saved properly
-   *
-   * @return array
-   * @param array
-   * @throws \Drupal\wconsumer\Exception
-   */
-  public function formatCredentials($d)
+  public function formatCredentials($data)
   {
-    if (! isset($d['oauth_token']) OR ! isset($d['oauth_token_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Access Token/Secret not set in formatting pass.' . print_r($d, TRUE));
-
-    if (empty($d['oauth_token']) OR empty($d['oauth_token_secret']))
-      throw new \Drupal\wconsumer\Exception('OAuth Access Key/Secret empty in formatting pass.' . print_r($d, TRUE));
-
-    $credentials = array();
-    $credentials['oauth_token'] = $d['oauth_token'];
-    $credentials['oauth_token_secret'] = $d['oauth_token_secret'];
-    return $credentials;
+    return $this->requireKeys(
+      array('oauth_token', 'oauth_token_secret'),
+      $data,
+      'OAuth Access Token/Secret not set or is empty in formatting pass'
+    );
   }
 
-  /**
-   * Validate the Authentication data to see if they are properly setup
-   *
-   * @return bool
-   * @param string $type 'user' to check the user's info, 'system' to check the system specific info
-   */
   public function is_initialized($type = 'user') {
     switch ($type) {
       case 'user':
@@ -214,13 +98,6 @@ class Oauth extends AuthencationBase implements AuthInterface {
     }
   }
 
-  /**
-   * Sign the request with the authentication parameters
-   *
-   * @param object Guzzle Client Passed by reference
-   * @return void
-   * @access private
-   */
   public function sign_request(&$client)
   {
     $registry = $this->_instance->getServiceCredentials();
@@ -234,11 +111,12 @@ class Oauth extends AuthencationBase implements AuthInterface {
       throw new \BadMethodCallException("No stored user credentials found");
     }
 
+    /** @var $client Client */
     $client->addSubscriber(new GuzzleOAuth(array(
-      'consumer_key' => $registry->credentials['consumer_key'],
+      'consumer_key'    => $registry->credentials['consumer_key'],
       'consumer_secret' => $registry->credentials['consumer_secret'],
-      'token' => $credentials->credentials['access_token'],
-      'token_secret' => $credentials->credentials['access_token_secret'],
+      'token'           => $credentials->credentials['access_token'],
+      'token_secret'    => $credentials->credentials['access_token_secret'],
     )));
   }
 
@@ -247,18 +125,33 @@ class Oauth extends AuthencationBase implements AuthInterface {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
 
-    $this->createConnection();
-    $request_token = $this->getRequestToken($callback);
+    $registry = $this->_instance->getServiceCredentials();
+    if (!$registry ||
+        !isset($registry->credentials) ||
+        empty($registry->credentials['consumer_key']) ||
+        empty($registry->credentials['consumer_secret'])) {
+      throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
+    }
 
-    // They've got it!
-    $_SESSION[$this->_instance->getName().':oauth_token'] = $request_token['oauth_token'];
-    $_SESSION[$this->_instance->getName().':oauth_token_secret'] = $request_token['oauth_token_secret'];
-    $url = $this->createAuthorizeURL($request_token['oauth_token'], FALSE);
+    $client = Service::createHttpClient();
+    $client->addSubscriber(new GuzzleOAuth(array(
+      'consumer_key'    => $registry->credentials['consumer_key'],
+      'consumer_secret' => $registry->credentials['consumer_secret'],
+      'callback'        => $callback,
+    )));
 
-    // Redirect them away!
-    drupal_goto($url, array(
-      'external' => TRUE
-    ));
+    $response = $client->post($this->requestTokenURL)->send()->getBody(true);
+    $tokens = OAuthUtil::parse_parameters($response);
+    if (empty($tokens['oauth_token']) || empty($tokens['oauth_token_secret'])) {
+      throw new OAuthException("Failed to parse Request Token response '{$response}'");
+    }
+
+    $service = $this->_instance->getName();
+    $_SESSION["{$service}:oauth_token"] = $tokens['oauth_token'];
+    $_SESSION["{$service}:oauth_token_secret"] = $tokens['oauth_token_secret'];
+
+    $authorizeUrl = $this->createAuthorizeURL($tokens['oauth_token']);
+    drupal_goto($authorizeUrl, array('external' => TRUE));
   }
 
   /**
@@ -371,15 +264,15 @@ class Oauth extends AuthencationBase implements AuthInterface {
     return $token;
   }
 
-  /**
-   * Get the authorize URL
-   *
-   * @return string
-   */
-  public function createAuthorizeURL($token) {
-    if (is_array($token)) $token = $token['oauth_token'];
+  private function createAuthorizeURL($token) {
+    $delimiter = '?';
+    if ((string)parse_url($this->authorizeURL, PHP_URL_QUERY) !== '') {
+      $delimiter = '&';
+    }
 
-    return $this->getAuthorizeURL() . '?oauth_token='.$token;
+    $url = $this->authorizeURL . $delimiter . 'oauth_token='.urlencode($token);
+
+    return $url;
   }
 
   /**
@@ -397,7 +290,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     if (!empty($oauth_verifier))
       $parameters['oauth_verifier'] = $oauth_verifier;
 
-    $request = $this->oAuthRequest($this->getAccessTokenURL(), 'GET', $parameters);
+    $request = $this->oAuthRequest($this->accessTokenURL, 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
     return $token;
