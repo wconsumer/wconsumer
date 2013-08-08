@@ -134,8 +134,10 @@ class OauthTest extends DrupalTestBase {
     $auth = $this->auth();
     $auth->authenticate($GLOBALS['user']);
 
-    $this->assertNotEmpty($_SESSION['oauth_test_sevice:oauth_token']);
-    $this->assertNotEmpty($_SESSION['oauth_test_sevice:oauth_token_secret']);
+    $credentials = $_SESSION['oauth_test_sevice:oauth_user_credentials'];
+    $this->assertNotEmpty($credentials);
+    $this->assertNotEmpty($credentials['oauth_token']);
+    $this->assertNotEmpty($credentials['oauth_token_secret']);
   }
 
   /**
@@ -206,13 +208,15 @@ class OauthTest extends DrupalTestBase {
   }
 
   /**
-   * @expectedException \Drupal\wconsumer\Rest\Authentication\Oauth\OAuthException
+   * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
   public function testCallbackHandlerFailsOnInvalidRequestToken() {
     $auth = $this->auth();
 
-    $_SESSION['oauth_test_sevice:oauth_token'] = 'abc';
-    $_SESSION['oauth_test_sevice:oauth_token_secret'] = '123';
+    $_SESSION['oauth_test_sevice:oauth_user_credentials'] = array(
+      'oauth_token' => 'abc',
+      'oauth_token_secret' => '123',
+    );
 
     $auth->onCallback($GLOBALS['user'], array());
   }
