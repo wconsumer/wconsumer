@@ -44,10 +44,11 @@ abstract class ServiceBase {
   public function __construct()
   {
     // Identity the name of the service
-    if (! isset($this->_service))
-      $this->_service = strtolower(get_called_class());
-    else
-      $this->_service = strtolower($this->_service);
+    if (!isset($this->_service)) {
+      $this->_service = str_replace('\\', '__', get_called_class());
+    }
+
+    $this->_service = strtolower($this->_service);
   }
 
   /**
@@ -110,9 +111,6 @@ abstract class ServiceBase {
       $user_id = $user->uid;
     endif;
 
-    // We need to retrieve the service ID first
-    $object = $this->getServiceCredentials();
-
     if ($this->getCredentials($user_id)) :
       // Update
       return db_update($this->serviceCred)
@@ -146,12 +144,6 @@ abstract class ServiceBase {
    */
   public function getCredentials($user_id = NULL)
   {
-    // We need to retrieve the service ID first
-    $object = $this->getServiceCredentials();
-
-    if ($object == NULL)
-      throw new Exception('Service registry not initialized: '.$this->_service);
-
     if ($user_id == NULL) :
       global $user;
       $user_id = $user->uid;
@@ -177,10 +169,15 @@ abstract class ServiceBase {
    */
   private function unserializeCredentials(&$data)
   {
-    if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '')
+    if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '') {
       $data->credentials = unserialize($data->credentials);
-    elseif(is_array($data) AND isset($data['credentials']) AND $data['credentials'] !== '')
+    }
+    elseif(is_array($data) AND isset($data['credentials']) AND $data['credentials'] !== '') {
       $data['credentials'] = unserialize($data['credentials']);
+    }
+    elseif ($data === false) {
+      $data = null;
+    }
 
     return $data;
   }
