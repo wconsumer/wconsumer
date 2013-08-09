@@ -24,12 +24,8 @@ class Base {
     return $this->_instance;
   }
 
-  public function isInitialized($type) {
-    switch ($type) {
-      case 'user':    return ($this->_instance->getCredentials() !== null);
-      case 'system':  return ($this->_instance->getServiceCredentials() !== null);
-      default:        return FALSE;
-    }
+  public function isInitialized($type, $user = NULL) {
+    return $this->_instance->checkAuthentication($type, (isset($user) ? $user->uid : NULL));
   }
 
   protected function requireKeys(array $keys, array $data, $errorMessage) {

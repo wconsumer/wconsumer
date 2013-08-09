@@ -23,12 +23,12 @@ use Guzzle\Http\Client;
  */
 class HttpAuth extends AuthencationBase implements AuthInterface {
 
-  public function isInitialized($type = 'user') {
+  public function isInitialized($type, $user = NULL) {
     if ($type == 'user') {
       return TRUE;
     }
 
-    return parent::isInitialized($type);
+    return parent::isInitialized($type, $user);
   }
 
   public function signRequest($client) {

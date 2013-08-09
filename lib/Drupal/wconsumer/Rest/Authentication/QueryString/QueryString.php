@@ -50,12 +50,12 @@ class QueryString extends AuthencationBase implements AuthInterface {
 
 
 
-  public function isInitialized($type = 'user') {
+  public function isInitialized($type, $user = NULL) {
     if ($type == 'user') {
       return true;
     }
 
-    return parent::isInitialized($type);
+    return parent::isInitialized($type, $user);
   }
 
   public function signRequest($client) {

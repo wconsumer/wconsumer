@@ -37,13 +37,9 @@ abstract class ServiceBase {
    */
   public $options  = NULL;
 
-  /**
-   * Constructor
-   *
-   * @return void
-   */
-  public function __construct()
-  {
+
+
+  public function __construct() {
     // Identity the name of the service
     if (!isset($this->_service)) {
       $this->_service = str_replace('\\', '__', get_called_class());
@@ -52,8 +48,7 @@ abstract class ServiceBase {
     $this->_service = strtolower($this->_service);
   }
 
-  public function setServiceCredentials(Credentials $credentials = null)
-  {
+  public function setServiceCredentials(Credentials $credentials = null) {
     db_merge($this->serviceRegistry)
       ->key(array('service' => $this->_service))
       ->fields(array(
@@ -66,8 +61,7 @@ abstract class ServiceBase {
   /**
    * @return Credentials|null
    */
-  public function getServiceCredentials()
-  {
+  public function getServiceCredentials() {
     $data = db_select($this->serviceRegistry)
       ->fields($this->serviceRegistry)
       ->condition('service', $this->_service)
@@ -79,8 +73,7 @@ abstract class ServiceBase {
     return (isset($data->credentials) ? $data->credentials : null);
   }
 
-  public function setCredentials(Credentials $credentials = null, $user_id = NULL)
-  {
+  public function setCredentials(Credentials $credentials = null, $user_id = NULL) {
     if ($user_id == NULL) {
       global $user;
       $user_id = $user->uid;
@@ -109,8 +102,7 @@ abstract class ServiceBase {
    * @return Credentials|null
    * @throws \Drupal\wconsumer\Exception
    */
-  public function getCredentials($user_id = NULL)
-  {
+  public function getCredentials($user_id = NULL) {
     if (!isset($user_id)) {
       global $user;
       $user_id = $user->uid;
@@ -134,8 +126,7 @@ abstract class ServiceBase {
    * @param object|array
    * @return mixed
    */
-  private function unserializeCredentials(&$data)
-  {
+  private function unserializeCredentials(&$data) {
     if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '') {
       $data->credentials = unserialize($data->credentials);
     }
@@ -155,8 +146,7 @@ abstract class ServiceBase {
    * @todo Implement Permissions
    * @return bool
    */
-  public function canAccess()
-  {
+  public function canAccess() {
     return TRUE;
   }
 
@@ -167,31 +157,11 @@ abstract class ServiceBase {
    * @param int|null $user_id The user ID (default to NULL for the current user)
    * @return bool
    */
-  public function checkAuthentication($basis = 'user', $user_id = NULL)
-  {
-    switch ($basis)
-    {
-      case 'user' :
-        try {
-          $creds = $this->getCredentials();
-        } catch (Exception $e) {
-          return FALSE;
-        }
-
-        if ($creds == NULL OR $creds->credentials == NULL) return FALSE;
-
-        return TRUE;
-        break;
-
-      case 'system' :
-        $registry = $this->getServiceCredentials();
-        if ($registry == NULL) return NULL;
-
-        return TRUE;
-        break;
-
-      default :
-        return FALSE;
+  public function checkAuthentication($basis = 'user', $user_id = NULL) {
+    switch ($basis) {
+      case 'user':    return ($this->getCredentials($user_id) !== null);
+      case 'system':  return ($this->getServiceCredentials() !== null);
+      default:        return FALSE;
     }
   }
 
@@ -200,8 +170,7 @@ abstract class ServiceBase {
    *
    * @return string
    */
-  public function callback()
-  {
+  public function callback() {
     global $base_url;
     return $base_url.'/wconsumer/callback/'.$this->_service;
   }
@@ -211,8 +180,7 @@ abstract class ServiceBase {
    *
    * @return string
    */
-  public function getName()
-  {
+  public function getName() {
     return $this->_service;
   }
 
@@ -221,8 +189,7 @@ abstract class ServiceBase {
    *
    * @return object Item Object
    */
-  public function newQueueItem()
-  {
+  public function newQueueItem() {
     $i = new Queue\Item();
     $i->service = $this->getName();
 

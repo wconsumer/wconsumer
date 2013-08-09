@@ -14,7 +14,7 @@ namespace Drupal\wconsumer\Rest\Authentication;
  * @subpackage request
  */
 interface AuthInterface {
-  public function isInitialized($type);
+  public function isInitialized($type, $user = NULL);
   public function signRequest($client);
   public function authenticate($user);
   public function logout($user);
