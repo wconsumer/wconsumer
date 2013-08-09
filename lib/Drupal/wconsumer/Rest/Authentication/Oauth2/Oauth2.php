@@ -42,7 +42,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
 
 
-  public function sign_request(&$client)
+  public function sign_request($client)
   {
     $accessToken = $this->_instance->getCredentials()->secret;
 
@@ -55,7 +55,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    *
    * @param object $user The user object
    */
-  public function authenticate(&$user)
+  public function authenticate($user)
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
@@ -78,7 +78,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    *
    * @uses ServiceBase Removes their credentials
    */
-  public function logout(&$user) {
+  public function logout($user) {
     $this->_instance->setCredentials(null, $user->uid);
   }
 

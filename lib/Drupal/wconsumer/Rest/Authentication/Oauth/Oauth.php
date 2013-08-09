@@ -39,7 +39,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function sign_request(&$client)
+  public function sign_request($client)
   {
     $serviceCredentials = $this->_instance->getServiceCredentials();
     if (!isset($serviceCredentials)) {
@@ -60,7 +60,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  public function authenticate(&$user)
+  public function authenticate($user)
   {
     $callback = $this->_instance->callback();
 
@@ -86,7 +86,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     drupal_goto($authorizeUrl, array('external' => TRUE));
   }
 
-  public function logout(&$user) {
+  public function logout($user) {
     $this->_instance->setCredentials(null, $user->uid);
   }
 

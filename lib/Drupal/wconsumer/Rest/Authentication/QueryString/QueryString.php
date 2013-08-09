@@ -58,7 +58,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
     return parent::is_initialized($type);
   }
 
-  public function sign_request(&$client) {
+  public function sign_request($client) {
     $credentials = $this->_instance->getServiceCredentials();
 
     /** @var $client Client */
@@ -71,13 +71,13 @@ class QueryString extends AuthencationBase implements AuthInterface {
   /**
    * @codeCoverageIgnore
    */
-  public function authenticate(&$user) {
+  public function authenticate($user) {
   }
 
   /**
    * @codeCoverageIgnore
    */
-  public function logout(&$logout) {
+  public function logout($user) {
   }
 
   /**
