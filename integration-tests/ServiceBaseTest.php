@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\IntegrationTests;
 
 use Drupal\wconsumer\Rest\Authentication\Credentials;
-use Drupal\wconsumer\Tests\TestService;
+use Drupal\wconsumer\IntegrationTests\TestService;
 
 
 class ServiceBaseTest extends DrupalTestBase {
