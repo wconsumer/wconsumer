@@ -6,7 +6,7 @@ use Drupal\wconsumer\Exception as WconsumerException;
 
 
 
-abstract class Authentication {
+class Authentication {
   /**
    * Instance of the Service Object
    *
