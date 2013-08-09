@@ -1,14 +1,16 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests\Rest\Authentication\Oauth;
 
-use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
+use Drupal\wconsumer\IntegrationTests\Rest\Authentication\AuthenticationTest;
+use Drupal\wconsumer\IntegrationTests\TestService;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\ServiceBase;
 use Guzzle\Http\Client;
 
 
-class OauthTest extends DrupalTestBase {
+
+class OauthTest extends AuthenticationTest {
   /**
    * @var \PHPUnit_Framework_MockObject_MockObject
    */
@@ -32,38 +34,6 @@ class OauthTest extends DrupalTestBase {
     $this->php
       ->expects($neverOrAny)
       ->method('drupal_goto');
-  }
-
-  /**
-   * @dataProvider isInitializedDataProvider
-   */
-  public function testIsInitialized($serviceCredentials, $userCredentials, $domain, $expectedResult) {
-    $auth = $this->auth(new OauthTestSevice());
-    $service = $auth->getService();
-
-    $service->setServiceCredentials($serviceCredentials);
-    $service->setCredentials($userCredentials);
-
-    $this->assertSame($expectedResult, $auth->is_initialized($domain));
-  }
-
-  public static function isInitializedDataProvider() {
-    $credentials = new Credentials('123', 'abc');
-
-    return array(
-      array(NULL, NULL, 'user', FALSE),
-      array(NULL, NULL, 'system', FALSE),
-      array(NULL, NULL, 'unknown', FALSE),
-      array($credentials, NULL, 'user', FALSE),
-      array($credentials, NULL, 'system', TRUE),
-      array($credentials, NULL, 'unknown', FALSE),
-      array(NULL, $credentials, 'user', TRUE),
-      array(NULL, $credentials, 'system', FALSE),
-      array(NULL, $credentials, 'unknown', FALSE),
-      array($credentials, $credentials, 'user', TRUE),
-      array($credentials, $credentials, 'system', TRUE),
-      array($credentials, $credentials, 'unknown', FALSE),
-    );
   }
 
   public function testSignRequest() {
@@ -134,7 +104,7 @@ class OauthTest extends DrupalTestBase {
     $auth = $this->auth();
     $auth->authenticate($GLOBALS['user']);
 
-    $credentials = $_SESSION['oauth_test_sevice:oauth_request_token'];
+    $credentials = $_SESSION['integration_tests_test_service:oauth_request_token'];
     $this->assertNotNull($credentials);
     $this->assertInstanceOf(Credentials::getClass(), $credentials);
   }
@@ -163,7 +133,7 @@ class OauthTest extends DrupalTestBase {
   public function testAuthenticateFailsOnOauthApiLevelError() {
     $service = null;
     {
-      $service = $this->getMock(OauthTestSevice::getClass(), array('callback'));
+      $service = $this->getMock(TestService::getClass(), array('callback'));
 
       $service
         ->expects($this->once())
@@ -195,7 +165,7 @@ class OauthTest extends DrupalTestBase {
     $user = new \stdClass();
     $user->uid = 123;
 
-    $service = new OauthTestSevice();
+    $service = new TestService();
 
     $credentials = new Credentials('test', '123');
     $service->setCredentials($credentials, $user->uid);
@@ -212,7 +182,7 @@ class OauthTest extends DrupalTestBase {
    * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
   public function testCallbackHandlerFailsOnInvalidRequestToken() {
-    $_SESSION['oauth_test_sevice:oauth_request_token'] = new Credentials('abc', '123');
+    $_SESSION['integration_tests_test_service:oauth_request_token'] = new Credentials('abc', '123');
 
     $auth = $this->auth();
     $auth->onCallback($GLOBALS['user'], array());
@@ -226,7 +196,7 @@ class OauthTest extends DrupalTestBase {
     $auth->onCallback($GLOBALS['user'], array());
   }
 
-  private function auth($service = null) {
+  protected function auth(ServiceBase $service = null) {
     if (!isset($service)) {
       $service = $this->service();
     }
@@ -239,8 +209,8 @@ class OauthTest extends DrupalTestBase {
     return $auth;
   }
 
-  private function service($setupServiceCredentials = true, $setupUserCredentials = false) {
-    return $this->configureService(new OauthTestSevice(), $setupServiceCredentials, $setupUserCredentials);
+  protected function service($setupServiceCredentials = true, $setupUserCredentials = false) {
+    return $this->configureService(parent::service(), $setupServiceCredentials, $setupUserCredentials);
   }
 
   private function setupUser() {
@@ -250,7 +220,7 @@ class OauthTest extends DrupalTestBase {
     $user->uid = 99;
   }
 
-  private function configureService(OauthTestSevice $service,
+  private function configureService(TestService $service,
                                     $setupServiceCredentials = true,
                                     $setupUserCredentials = false) {
 
@@ -270,17 +240,5 @@ class OauthTest extends DrupalTestBase {
     }
 
     return $service;
-  }
-}
-
-/**
- * We need this class b/c we need an unique service name which is generated from class name to isolate the test case
- * in this file from others. See ServiceBase::$_instance variable for details.
- */
-class OauthTestSevice extends ServiceBase {
-  protected $_service = 'oauth_test_sevice';
-
-  public static function getClass() {
-    return get_called_class();
   }
 }

@@ -39,22 +39,6 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function is_initialized($type = 'user') {
-    switch ($type) {
-      case 'user':
-        return ($this->_instance->getCredentials() !== null);
-      break;
-
-      case 'system':
-        return ($this->_instance->getServiceCredentials() !== null);
-      break;
-
-      default:
-        return FALSE;
-      break;
-    }
-  }
-
   public function sign_request(&$client)
   {
     $serviceCredentials = $this->_instance->getServiceCredentials();

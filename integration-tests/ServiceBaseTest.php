@@ -2,8 +2,7 @@
 namespace Drupal\wconsumer\IntegrationTests;
 
 use Drupal\wconsumer\Rest\Authentication\Credentials;
-use Drupal\wconsumer\ServiceBase;
-
+use Drupal\wconsumer\Tests\TestService;
 
 
 class ServiceBaseTest extends DrupalTestBase {
@@ -64,5 +63,3 @@ class ServiceBaseTest extends DrupalTestBase {
     $this->assertNull($service->getServiceCredentials());
   }
 }
-
-class TestService extends ServiceBase {}
