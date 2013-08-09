@@ -83,7 +83,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
   /**
    * @codeCoverageIgnore
    */
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
   }
 
   private function getQueryKey(Credentials $credentials = null) {

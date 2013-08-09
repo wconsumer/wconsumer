@@ -53,6 +53,6 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
   /**
    * @codeCoverageIgnore
    */
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
   }
 }

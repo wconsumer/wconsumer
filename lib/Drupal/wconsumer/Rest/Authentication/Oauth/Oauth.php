@@ -90,7 +90,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $this->_instance->setCredentials(null, $user->uid);
   }
 
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
     $serviceCredentials = $this->_instance->getServiceCredentials();
     if (!$serviceCredentials) {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");

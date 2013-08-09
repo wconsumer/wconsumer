@@ -85,12 +85,12 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   /**
    * Callback for authencation
    *
-   * @param object $user The User Object
-   * @param array $values The array of values passed
+   * @param object $user   The User Object
+   * @param array  $values The array of values passed
    *
    * @throws WconsumerException
    */
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
     // Check the state
     if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
       throw new WconsumerException('State for OAuth2 Interface not matching');

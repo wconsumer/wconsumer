@@ -18,5 +18,5 @@ interface AuthInterface {
   public function signRequest($client);
   public function authenticate($user);
   public function logout($user);
-  public function onCallback(&$user, $values);
+  public function onCallback($user, $values);
 }
