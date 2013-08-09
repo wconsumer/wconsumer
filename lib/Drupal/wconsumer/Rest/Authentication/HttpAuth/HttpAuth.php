@@ -24,24 +24,18 @@ use Guzzle\Http\Client;
 class HttpAuth extends AuthencationBase implements AuthInterface {
   public function is_initialized($type = 'user')
   {
-    switch($type) {
-      case 'system' :
-        return ($this->_instance->getServiceCredentials() !== null);
-      break;
-
-      case 'user' :
-        return TRUE;
-      break;
-
-      default :
-        return FALSE;
-      break;
+    if ($type == 'user') {
+      return TRUE;
     }
+
+    return parent::is_initialized($type);
   }
 
   public function sign_request(&$client)
   {
     $credentials = $this->_instance->getServiceCredentials();
+
+    /** @var $client Client */
     $client->addSubscriber(new GuzzleHttpAuth($credentials->token, $credentials->secret));
   }
 

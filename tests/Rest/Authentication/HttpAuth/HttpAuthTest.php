@@ -7,6 +7,7 @@
   use Drupal\wconsumer\Tests\TestService;
 
 
+
   class HttpAuthTest extends \PHPUnit_Framework_TestCase
   {
     public function testIsInitializedWithAllRequiredCredentials()
