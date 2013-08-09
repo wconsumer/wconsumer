@@ -1,11 +1,13 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
 use Drupal\wconsumer\Common\AuthInterface;
-use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
 use Drupal\wconsumer\Exception as WconsumerException;
 use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
+use Guzzle\Http\Client;
 
 /**
  * OAuth2 Authentication Class
@@ -39,109 +41,12 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   public $client;
 
 
-  /**
-   * Process the Registry Information to be in the format to be saved properly
-   *
-   * @param array $data
-   * @return array
-   *
-   * @throws WconsumerException
-   */
-  public function formatServiceCredentials($data)
-  {
-    if (empty($data['consumer_key'])) {
-      throw new WconsumerException("OAuth2 Consumer Key is empty or is not set");
-    }
 
-    if (empty($data['consumer_secret'])) {
-      throw new WconsumerException("OAuth2 Consumer Secret is empty or is not set");
-    }
-
-    $credentials = array(
-      'consumer_key'    => $data['consumer_key'],
-      'consumer_secret' => $data['consumer_secret'],
-    );
-
-    return $credentials;
-  }
-
-  /**
-   * Process the Registry Information to be in the format to be saved properly
-   *
-   * @param array $data
-   * @return array
-   *
-   * @throws WconsumerException
-   */
-  public function formatCredentials($data)
-  {
-    if (empty($data['access_token'])) {
-      throw new WconsumerException("OAuth2 Access Key empty or is not set in formatting pass");
-    }
-
-    $credentials = array(
-      'access_token' => $data['access_token'],
-    );
-
-    return $credentials;
-  }
-
-  /**
-   * Validate the Authentication data to see if they are properly setup
-   *
-   * @param string $type 'user' to check the user's info, 'system' to check the system specific info
-   * @return bool
-   */
-  public function is_initialized($type = 'user')
-  {
-    switch ($type)
-    {
-      case 'user' :
-        $registry = $this->_instance->getCredentials();
-
-        if (!$registry || !isset($registry->credentials)) {
-          return FALSE;
-        }
-
-        if (!isset($registry->credentials['access_token'])) {
-          return FALSE;
-        }
-
-        // Access token/secret exist
-        return TRUE;
-      break;
-
-      case 'system' :
-        $registry = $this->_instance->getServiceCredentials();
-
-        if (!$registry || !isset($registry->credentials)) {
-          return FALSE;
-        }
-
-        if (!isset($registry->credentials['consumer_key']) || !isset($registry->credentials['consumer_secret'])) {
-          return FALSE;
-        }
-
-        // Consumer key and secret exist
-        // TODO: Add in additional authentication by checking the key/secret against the API
-        return TRUE;
-      break;
-
-      // Unknown to check for
-      default :
-        return FALSE;
-      break;
-    }
-  }
-
-  /**
-   * Sign the request with the authentication parameters
-   *
-   * @param \Guzzle\Http\Client $client Guzzle Client Passed by reference
-   */
   public function sign_request(&$client)
   {
-    $accessToken = $this->_instance->getCredentials()->credentials['access_token'];
+    $accessToken = $this->_instance->getCredentials()->secret;
+
+    /** @var $client Client */
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
@@ -154,15 +59,15 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   {
     // Retrieve the OAuth request token
     $callback = $this->_instance->callback();
-    $registry = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->_instance->getServiceCredentials();
 
     $url =
       $this->authorizeURL .
       http_build_query(array(
-        'client_id'     => $registry->credentials['consumer_key'],
+        'client_id'     => $serviceCredentials->token,
         'redirect_uri'  => $callback,
         'scope'         => implode(',', $this->scopes),
-        'satte'         => 'wconsumer',
+        'state'         => 'wconsumer',
       ), null, '&');
 
     drupal_goto($url, array('external' => TRUE));
@@ -195,7 +100,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
-    $registry = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->_instance->getServiceCredentials();
 
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {
@@ -209,8 +114,8 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
         'Accept' => 'application/json'
       ),
       array(
-        'client_id'     => $registry->credentials['consumer_key'],
-        'client_secret' => $registry->credentials['consumer_secret'],
+        'client_id'     => $serviceCredentials->token,
+        'client_secret' => $serviceCredentials->secret,
         'code'          => $values[0]['code'],
       )
     );
@@ -225,7 +130,12 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException("Error while requesting access_token: '{$response['error']}'");
     }
 
-    $tokens = $this->formatCredentials($response);
-    $this->_instance->setCredentials($tokens, $user->uid);
+    if (empty($response['access_token'])) {
+      throw new WconsumerException("Invalid access token response: '".var_export($response, true)."'");
+    }
+
+    $credentials = new Credentials('dummy', $response['access_token']);
+
+    $this->_instance->setCredentials($credentials, $user->uid);
   }
 }

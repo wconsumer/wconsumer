@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
 
+use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2;
 use Drupal\wconsumer\ServiceBase;
 use Drupal\wconsumer\Tests\TestService;
@@ -10,126 +11,27 @@ use Guzzle\Http\Message\Response;
 
 class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
-  /**
-   * @expectedException \Drupal\wconsumer\Exception
-   */
-  public function testSystemCredentialsValidationFailsOnEmptyConsumerKey() {
-    $manager = $this->auth();
-    $manager->formatServiceCredentials(array('consumer_key' => NULL, 'consumer_secret' => 'xyz'));
-  }
-
-  /**
-   * @expectedException \Drupal\wconsumer\Exception
-   */
-  public function testSystemCredentialsValidationFailsOnEmptyConsumerSecret() {
-    $manager = $this->auth();
-    $manager->formatServiceCredentials(array('consumer_key' => 'abc'));
-  }
-
-  public function testSystemCredentialsFormatting() {
-    $manager = $this->auth();
-
-    $result = $manager->formatServiceCredentials(array(
-      'consumer_key' => 'abc',
-      'consumer_secret' => 'xyz',
-      'dummy' => 'dummy'
-    ));
-
-    $this->assertSame(array(
-      'consumer_key' => 'abc',
-      'consumer_secret' => 'xyz',
-    ), $result);
-  }
-
-  /**
-   * @expectedException \Drupal\wconsumer\Exception
-   */
-  public function testUserCredentialsValidationFailsOnEmptyAccessToken() {
-    $manager = $this->auth();
-    $manager->formatCredentials(array());
-  }
-
-  public function testUserCredentialsFormatting() {
-    $manager = $this->auth();
-    $result = $manager->formatCredentials(array('access_token' => '123', 'dummy' => 'value'));
-    $this->assertSame(array('access_token' => '123'), $result);
-  }
-
-  public function testIsInitializedForUser() {
-    $registry = new \stdClass();
-    $registry->credentials = array('access_token' => 'xyz');
-
-    $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
-    $service
-      ->expects($this->exactly(3))
-      ->method('getCredentials')
-      ->will($this->returnValue($registry));
-
-    $manager = $this->auth($service);
-
-    // Positive case
-    $this->assertTrue($manager->is_initialized('user'));
-
-    // Negative case #1
-    unset($registry->credentials['access_token']);
-    $this->assertFalse($manager->is_initialized('user'));
-
-    // Negative case #2
-    unset($registry->credentials);
-    $this->assertFalse($manager->is_initialized('user'));
-  }
-
-  public function testIsInitializedForSystem() {
-    $registry = new \stdClass();
-    $registry->credentials = array('consumer_key' => 'xyz', 'consumer_secret' => 'abc');
-
-    $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
-    $service
-      ->expects($this->exactly(3))
-      ->method('getServiceCredentials')
-      ->will($this->returnValue($registry));
-
-    $manager = $this->auth($service);
-
-    // Positive case
-    $this->assertTrue($manager->is_initialized('system'));
-
-    // Negative case #1
-    unset($registry->credentials['consumer_key']);
-    $this->assertFalse($manager->is_initialized('system'));
-
-    // Negative case #2
-    unset($registry->credentials);
-    $this->assertFalse($manager->is_initialized('system'));
-  }
-
-  public function testIsNotInitializedForUnknown() {
-    $manager = $this->auth();
-    $this->assertFalse($manager->is_initialized('dummy'));
-  }
-
   public function testSignRequest() {
-    $registry = new \stdClass();
-    $registry->credentials = array('access_token' => 'user access token');
-
     $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
     $service
       ->expects($this->once())
       ->method('getCredentials')
-      ->will($this->returnValue($registry));
+      ->will($this->returnValue(new Credentials('dummy', 'oauth2 access token')));
 
     $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();
 
-    $manager = $this->auth($service);
+    /** @noinspection PhpParamsInspection */
+    $auth = $this->auth($service);
 
-    $manager->sign_request($client);
+    /** @noinspection PhpParamsInspection */
+    $auth->sign_request($client);
 
     /** @var \Guzzle\Http\Client $client */
     $request = $client->createRequest();
     $request->dispatch('request.before_send', array('request' => $request));
     $authHeader = (string)$request->getHeader('Authorization');
 
-    $this->assertSame('Bearer user access token', $authHeader);
+    $this->assertSame('Bearer oauth2 access token', $authHeader);
   }
 
   public function testAuthenticate() {
@@ -178,9 +80,10 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       ->method('setCredentials')
       ->with($this->identicalTo(null), $user->uid);
 
-    $manager = $this->auth($service);
+    /** @noinspection PhpParamsInspection */
+    $auth = $this->auth($service);
 
-    $manager->logout($user);
+    $auth->logout($user);
   }
 
   public function testCallbackHandler($accessTokenUrl = null,
@@ -224,20 +127,17 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $user->uid = time();
 
     $service = null; {
-      $registry = new \stdClass();
-      $registry->credentials = array('consumer_key' => 'key', 'consumer_secret' => 'secret');
-
       $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
 
       $service
         ->expects($onceOrAny())
         ->method('getServiceCredentials')
-        ->will($this->returnValue($registry));
+        ->will($this->returnValue(new Credentials('key', 'secret')));
 
       $service
         ->expects($onceOrAny())
         ->method('setCredentials')
-        ->with(array('access_token' => '__access_token__'), $user->uid);
+        ->with(new Credentials('dummy', '__access_token__'), $user->uid);
     }
 
     $request = null; {
@@ -268,11 +168,12 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
         }));
     }
 
-    $manager = $this->auth($service);
-    $manager->accessTokenURL = $accessTokenUrl;
-    $manager->client = $client;
+    /** @noinspection PhpParamsInspection */
+    $auth = $this->auth($service);
+    $auth->accessTokenURL = $accessTokenUrl;
+    $auth->client = $client;
 
-    $manager->onCallback($user, array(array(
+    $auth->onCallback($user, array(array(
       'state' => $state,
       'code' => $code,
     )));
@@ -309,35 +210,28 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $this->testCallbackHandler(null, null, null, $response, true);
   }
 
-  private function onceOrAny($once = true) {
-    return ($once ? $this->once() : $this->any());
-  }
-
   private function authenticateTest($callbackUri, $consumerKey, $consumerSecret, $scopes, $urlTesterCallback) {
     $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
+
     $service
       ->expects($this->once())
       ->method('callback')
       ->will($this->returnValue($callbackUri));
 
-    $registry = new \stdClass();
-    $registry->credentials = array(
-      'consumer_key' => $consumerKey,
-      'consumer_secret' => $consumerSecret
-    );
-
     $service
       ->expects($this->once())
       ->method('getServiceCredentials')
-      ->will($this->returnValue($registry));
+      ->will($this->returnValue(new Credentials($consumerKey, $consumerSecret)));
 
-    $manager = $this->auth($service);
-    $manager->scopes = $scopes;
+
+    /** @noinspection PhpParamsInspection */
+    $auth = $this->auth($service);
+    $auth->scopes = $scopes;
 
     $php =
-      \PHPUnit_Extension_FunctionMocker::start($this, $this->getObjectNamespace($manager))
+      \PHPUnit_Extension_FunctionMocker::start($this, $this->getObjectNamespace($auth))
         ->mockFunction('drupal_goto')
-        ->getMock();
+      ->getMock();
 
     $php
       ->expects($this->once())
@@ -347,7 +241,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       }));
 
     $null = NULL;
-    $manager->authenticate($null);
+    $auth->authenticate($null);
   }
 
   private function getObjectNamespace($object) {

@@ -1,5 +1,6 @@
 <?php
 namespace Drupal\wconsumer;
+use Drupal\wconsumer\Rest\Authentication\Credentials;
 
 /**
  * Base Class for Services
@@ -51,85 +52,51 @@ abstract class ServiceBase {
     $this->_service = strtolower($this->_service);
   }
 
-  /**
-   * Set the Service Registry Credentials
-   *
-   * @param mixed Will be serialized regardless
-   * @return int The Service ID for inserting or the number of rows affected for update
-   */
-  public function setServiceCredentials($config = array())
+  public function setServiceCredentials(Credentials $credentials = null)
   {
-    $object = $this->getServiceCredentials();
-
-    if (! $object) :
-      return db_insert($this->serviceRegistry)
-        ->fields(array(
-          'service' => $this->_service,
-          'credentials' => serialize($config)
-        ))
-        ->execute();
-    else :
-      return db_update($this->serviceRegistry)
-        ->fields(array(
-          'credentials' => serialize($config)
-        ))
-        ->condition('service', $this->_service)
-        ->execute();
-    endif;
+    db_merge($this->serviceRegistry)
+      ->key(array('service' => $this->_service))
+      ->fields(array(
+        'service' => $this->_service,
+        'credentials' => serialize($credentials),
+      ))
+    ->execute();
   }
 
   /**
-   * Retrieve the Service Registry Object
-   *
-   * Checks the database to see if the registry row exists.
-   * If not, returns FALSE.
-   *
-   * @return object|bool
+   * @return Credentials|null
    */
   public function getServiceCredentials()
   {
     $data = db_select($this->serviceRegistry)
       ->fields($this->serviceRegistry)
       ->condition('service', $this->_service)
-      ->execute()->fetchObject();
+    ->execute()
+    ->fetchObject();
 
     $this->unserializeCredentials($data);
-    return $data;
+
+    return (isset($data->credentials) ? $data->credentials : null);
   }
 
-  /**
-   * Set Credentials for the Service
-   *
-   * @param mixed The user's credentials (will be serialized)
-   * @param int The optional user id
-   * @return object|bool
-   */
-  public function setCredentials($credentials, $user_id = NULL)
+  public function setCredentials(Credentials $credentials = null, $user_id = NULL)
   {
-    if ($user_id == NULL) :
+    if ($user_id == NULL) {
       global $user;
       $user_id = $user->uid;
-    endif;
+    }
 
-    if ($this->getCredentials($user_id)) :
-      // Update
-      return db_update($this->serviceCred)
-        ->fields(array(
-          'credentials' => serialize($credentials)
-        ))
-        ->condition('service', $this->_service)
-        ->condition('user_id', $user_id)
-        ->execute();
-    else :
-      // Insert
-      return db_insert($this->serviceCred)
-        ->fields(array(
-          'service' => $this->_service,
-          'user_id' => $user_id,
-          'credentials' => serialize($credentials)
-        ))
-        ->execute();
-    endif;
+    db_merge($this->serviceCred)
+      ->key(array(
+        'service' => $this->_service,
+        'user_id' => $user_id,
+      ))
+      ->fields(array(
+        'service' => $this->_service,
+        'user_id' => $user_id,
+        'credentials' => serialize($credentials),
+      ))
+    ->execute();
   }
 
   /**
@@ -138,18 +105,17 @@ abstract class ServiceBase {
    * Checks the database to see if the credential row exists.
    * If not, returns NULL.
    *
-   * @param int
-   * @return object|null
-   * @throws Drupal/wconsumer/Exception
+   * @param int|null
+   * @return Credentials|null
+   * @throws \Drupal\wconsumer\Exception
    */
   public function getCredentials($user_id = NULL)
   {
-    if ($user_id == NULL) :
+    if (!isset($user_id)) {
       global $user;
       $user_id = $user->uid;
-    endif;
+    }
 
-    // Lift off!
     $data = db_select($this->serviceCred)
       ->fields($this->serviceCred)
       ->condition('service', $this->_service)
@@ -157,7 +123,8 @@ abstract class ServiceBase {
       ->execute()->fetchObject();
 
     $this->unserializeCredentials($data);
-    return $data;
+
+    return (isset($data->credentials) ? $data->credentials : null);
   }
 
   /**

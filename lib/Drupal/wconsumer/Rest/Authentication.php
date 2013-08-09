@@ -24,6 +24,14 @@ abstract class Authentication {
     return $this->_instance;
   }
 
+  public function is_initialized($type) {
+    switch ($type) {
+      case 'user':    return ($this->_instance->getCredentials() !== null);
+      case 'system':  return ($this->_instance->getServiceCredentials() !== null);
+      default:        return FALSE;
+    }
+  }
+
   protected function requireKeys(array $keys, array $data, $errorMessage) {
     $requiredData = array_filter(
       array_intersect_key(

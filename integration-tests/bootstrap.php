@@ -15,6 +15,8 @@ if (!class_exists('PHPUnit_Framework_TestCase')) {
 }
 
 require_once(__DIR__.'/DrupalTestBase.php');
+require_once(__DIR__.'/TestService.php');
+require_once(__DIR__.'/Rest/Authentication/AuthenticationTest.php');
 
 define('DRUPAL_ROOT', __DIR__.'/../../../../..');
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';

@@ -2,6 +2,7 @@
 namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 
 use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Common\AuthInterface;
 use Drupal\wconsumer\Service;
 use Guzzle\Http\Client;
@@ -38,80 +39,24 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function formatServiceCredentials($data)
-  {
-    return $this->requireKeys(
-      array('consumer_key', 'consumer_secret'),
-      $data,
-      'OAuth Consumer Key/Secret not set or is empty in formatting pass'
-    );
-  }
-
-  public function formatCredentials($data)
-  {
-    return $this->requireKeys(
-      array('oauth_token', 'oauth_token_secret'),
-      $data,
-      'OAuth Access Token/Secret not set or is empty in formatting pass'
-    );
-  }
-
-  public function is_initialized($type = 'user') {
-    switch ($type) {
-      case 'user':
-        $registry = $this->_instance->getCredentials();
-        if (!$registry || !isset($registry->credentials)) {
-          return FALSE;
-        }
-
-        $credentials = $registry->credentials;
-        if (empty($credentials['access_token']) || empty($credentials['access_token_secret'])) {
-          return FALSE;
-        }
-
-        return TRUE;
-      break;
-
-      case 'system':
-        $registry = $this->_instance->getServiceCredentials();
-        if (!$registry || !isset($registry->credentials)) {
-          return FALSE;
-        }
-
-        $credentials = $registry->credentials;
-
-        if (empty($credentials['consumer_key']) || empty($credentials['consumer_secret'])) {
-          return FALSE;
-        }
-
-        return TRUE;
-      break;
-
-      default:
-        return FALSE;
-      break;
-    }
-  }
-
   public function sign_request(&$client)
   {
-    $registry = $this->_instance->getServiceCredentials();
-    $credentials = $this->_instance->getCredentials();
-
-    if (!isset($registry) || !isset($registry->credentials)) {
+    $serviceCredentials = $this->_instance->getServiceCredentials();
+    if (!isset($serviceCredentials)) {
       throw new \BadMethodCallException("Service credentials not set");
     }
 
-    if (!isset($credentials) || !isset($credentials->credentials)) {
+    $userCredentials = $this->_instance->getCredentials();
+    if (!isset($userCredentials)) {
       throw new \BadMethodCallException("No stored user credentials found");
     }
 
     /** @var $client Client */
     $client->addSubscriber(new GuzzleOAuth(array(
-      'consumer_key'    => $registry->credentials['consumer_key'],
-      'consumer_secret' => $registry->credentials['consumer_secret'],
-      'token'           => $credentials->credentials['access_token'],
-      'token_secret'    => $credentials->credentials['access_token_secret'],
+      'consumer_key'    => $serviceCredentials->token,
+      'consumer_secret' => $serviceCredentials->secret,
+      'token'           => $userCredentials->token,
+      'token_secret'    => $userCredentials->secret,
     )));
   }
 
@@ -119,43 +64,35 @@ class Oauth extends AuthencationBase implements AuthInterface {
   {
     $callback = $this->_instance->callback();
 
-    $registry = $this->_instance->getServiceCredentials();
-    if (!$registry ||
-        !isset($registry->credentials) ||
-        empty($registry->credentials['consumer_key']) ||
-        empty($registry->credentials['consumer_secret'])) {
+    $serviceCredentials = $this->_instance->getServiceCredentials();
+    if (!$serviceCredentials) {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
     }
 
     $client = Service::createHttpClient();
     $client->addSubscriber(new GuzzleOAuth(array(
-      'consumer_key'    => $registry->credentials['consumer_key'],
-      'consumer_secret' => $registry->credentials['consumer_secret'],
+      'consumer_key'    => $serviceCredentials->token,
+      'consumer_secret' => $serviceCredentials->secret,
       'callback'        => $callback,
     )));
 
     $response = $client->post($this->requestTokenURL)->send()->getBody(true);
-    $tokens = static::parse_parameters($response);
-    if (empty($tokens['oauth_token']) || empty($tokens['oauth_token_secret'])) {
-      throw new OAuthException("Failed to parse Request Token response '{$response}'");
-    }
 
-    $this->useRequestToken($tokens);
+    $requestToken = static::parseParameters($response);
 
-    $authorizeUrl = $this->createAuthorizeURL($tokens['oauth_token']);
+    $this->useRequestToken($requestToken);
+
+    $authorizeUrl = $this->createAuthorizeURL($requestToken->token);
     drupal_goto($authorizeUrl, array('external' => TRUE));
   }
 
   public function logout(&$user) {
-    return $this->_instance->setCredentials(null, $user->uid);
+    $this->_instance->setCredentials(null, $user->uid);
   }
 
   public function onCallback(&$user, $values) {
-    $registry = $this->_instance->getServiceCredentials();
-    if (!$registry ||
-      !isset($registry->credentials) ||
-      empty($registry->credentials['consumer_key']) ||
-      empty($registry->credentials['consumer_secret'])) {
+    $serviceCredentials = $this->_instance->getServiceCredentials();
+    if (!$serviceCredentials) {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
     }
 
@@ -163,35 +100,21 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     $client = Service::createHttpClient();
     $client->addSubscriber(new GuzzleOAuth(array(
-      'consumer_key'    => $registry->credentials['consumer_key'],
-      'consumer_secret' => $registry->credentials['consumer_secret'],
-      'token'           => $requestToken['oauth_token'],
-      'token_secret'    => $requestToken['oauth_token_secret'],
+      'consumer_key'    => $serviceCredentials->token,
+      'consumer_secret' => $serviceCredentials->secret,
+      'token'           => $requestToken->token,
+      'token_secret'    => $requestToken->secret,
       'verifier'        => @$values[0]['oauth_verifier'],
     )));
 
     $response = $client->post($this->accessTokenURL)->send()->getBody(true);
-    $accessToken = static::parse_parameters($response);
-    if (empty($accessToken['oauth_token']) || empty($accessToken['oauth_token_secret'])) {
-      throw new OAuthException("Failed to parse Access Token response '{$response}'");
-    }
 
-    $accessToken = $this->formatCredentials($accessToken);
-
-    // Save them in the service
-    $this->_instance->setCredentials(
-      array(
-        'access_token'        => $accessToken['oauth_token'],
-        'access_token_secret' => $accessToken['oauth_token_secret']
-      ),
-      $user->uid
-    );
-
-    return true;
+    $accessToken = static::parseParameters($response);
+    $this->_instance->setCredentials($accessToken, $user->uid);
   }
 
   private function useRequestToken($value = null) {
-    $key = "{$this->_instance->getName()}:oauth_user_credentials";
+    $key = "{$this->_instance->getName()}:oauth_request_token";
 
     if (func_num_args() > 0) {
       $_SESSION[$key] = $value;
@@ -219,7 +142,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   // This function takes a input like a=b&a=c&d=e and returns the parsed
   // parameters like this
   // array('a' => array('b','c'), 'd' => 'e')
-  private static function parse_parameters($input) {
+  private static function parseParameters($input) {
     if (!isset($input) || !$input) {
       return array();
     }
@@ -249,6 +172,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
       }
     }
 
-    return $parsed_parameters;
+    if (empty($parsed_parameters['oauth_token']) || empty($parsed_parameters['oauth_token_secret'])) {
+      throw new OAuthException("Failed to parse Access Token response '{$input}'");
+    }
+
+    return new Credentials($parsed_parameters['oauth_token'], $parsed_parameters['oauth_token_secret']);
   }
 }

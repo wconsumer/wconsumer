@@ -52,9 +52,29 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
     return;
   }
 
-  // Registry Settings
-  $registry = $object->getServiceCredentials();
-  $credentials = (! $registry) ? FALSE : $registry->credentials;
+  $tokenLabel = 'Username';
+  $secretLabel = 'Password';
+  $tokenPredefined = false;
+
+  $authencation = $object->request->authencation;
+
+  if ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth\Oauth ||
+      $authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2) {
+    $tokenLabel = 'Consumer Key';
+    $secretLabel = 'Consumer Secret';
+  }
+  elseif ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\QueryString\QueryString) {
+    $tokenLabel = $object->request->authencation->keyLabel;
+    $secretLabel = $object->request->authencation->valueLabel;
+
+    if (isset($authencation->queryKey)) {
+      $tokenPredefined = true;
+    }
+  }
+
+  $credentials = $object->getServiceCredentials();
+  $token = (isset($credentials) ? $credentials->token : null);
+  $secret = (isset($credentials) ? $credentials->secret : null);
 
   $form['creds'] = array(
       '#type' => 'fieldset',
@@ -63,46 +83,28 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
       '#collapsed' => FALSE,
     );
 
-  switch(get_class($object->request->authencation)) :
-    case 'Drupal\wconsumer\Rest\Authentication\Oauth' :
-    case 'Drupal\wconsumer\Rest\Authentication\Oauth2\Manager' :
-      $form['creds']['consumer_key'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Consumer Key'),
-        '#required' => TRUE,
-        '#default_value' => (isset($credentials['consumer_key'])) ? $credentials['consumer_key'] : '',
-      );
+  if (!$tokenPredefined) {
+    $form['creds']['token'] = array(
+      '#type' => 'textfield',
+      '#title' => t($tokenLabel),
+      '#required' => TRUE,
+      '#default_value' => $token,
+    );
+  }
+  else {
+    $form['creds']['token'] = array(
+      '#type' => 'hidden',
+      '#required' => TRUE,
+      '#default_value' => (isset($token) ? $token : 'dummy'),
+    );
+  }
 
-      $form['creds']['consumer_secret'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Consumer Secret'),
-        '#required' => TRUE,
-        '#default_value' => (isset($credentials['consumer_secret'])) ? $credentials['consumer_secret'] : '',
-      );
-
-      break;
-
-    case 'Drupal\wconsumer\Rest\Authentication\QueryString\QueryString' :
-      if ($object->request->authencation->queryKey == NULL) :
-        $form['creds']['query_key'] = array(
-          '#type' => 'textfield',
-          '#title' => $object->request->authencation->keyLabel,
-          '#required' => TRUE,
-          '#default_value' => (isset($credentials['query_key'])) ? $credentials['query_key'] : '',
-        );
-      endif;
-
-      $form['creds']['query_value'] = array(
-        '#type' => 'textfield',
-        '#title' => $object->request->authencation->valueLabel,
-        '#required' => TRUE,
-        '#default_value' => (isset($credentials['query_value'])) ? $credentials['query_value'] : '',
-      );
-      break;
-
-    default :
-      die('Unknown');
-  endswitch;
+  $form['creds']['secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t($secretLabel),
+    '#required' => TRUE,
+    '#default_value' => $secret,
+  );
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -124,15 +126,19 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
  * @param object
  * @access private
  */
-function _wconsumer_ui_form_submit($form, &$form_state)
-{
+function _wconsumer_ui_form_submit($form, &$form_state) {
   $values = $form_state['input'];
-  $service = (isset($values['service-name'])) ? $values['service-name'] : drupal_exit();
+  if (!isset($values['service-name'])) {
+    drupal_exit();
+  }
+
+  $service = $values['service-name'];
 
   if ($service == '_internal') :
     // Settings for the system
     variable_set('wconsumer:service_login', $form_state['values']['service-login']);
-    return drupal_set_message(t('Settings updated.'));
+    drupal_set_message(t('Settings updated.'));
+    return;
   endif;
 
   try {
@@ -142,13 +148,12 @@ function _wconsumer_ui_form_submit($form, &$form_state)
   {
     drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
     watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
-
     return;
   }
 
   // Validate
   try {
-    $credentials = $object->request->authencation->formatServiceCredentials($values);
+    $credentials = \Drupal\wconsumer\Rest\Authentication\Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
     return;

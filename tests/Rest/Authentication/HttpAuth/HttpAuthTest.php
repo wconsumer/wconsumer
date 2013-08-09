@@ -1,83 +1,44 @@
 <?php
   namespace Drupal\wconsumer\Tests\Authentication\HttpAuth;
 
+  use Drupal\wconsumer\Rest\Authentication\Credentials;
   use Drupal\wconsumer\Rest\Authentication\HttpAuth\HttpAuth;
   use Drupal\wconsumer\ServiceBase;
   use Drupal\wconsumer\Tests\TestService;
 
 
+
   class HttpAuthTest extends \PHPUnit_Framework_TestCase
   {
-    /**
-     * @expectedException \Drupal\wconsumer\Exception
-     */
-    public function testServiceCredentialsValidationFailsOnEmptyUsernameIfItsRequired()
-    {
-      $auth = $this->auth(null, true, false);
-      $auth->formatServiceCredentials(array('username' => ''));
-    }
-
-    /**
-     * @expectedException \Drupal\wconsumer\Exception
-     */
-    public function testServiceCredentialsValidationFailsOnEmptyPasswordIfItsRequired()
-    {
-      $auth = $this->auth(null, false, true);
-      $auth->formatServiceCredentials(array('password' => null));
-    }
-
-    public function testServiceCredentialsValidation()
-    {
-      $auth = $this->auth(null, true, false);
-      $result = $auth->formatServiceCredentials(array('username' => 'john doe', 'password' => 'dummy'));
-      $this->assertSame(array('username' => 'john doe', 'password' => null), $result);
-    }
-
-    public function testUserCredentialsValidationIgnoresAnyPassedData()
-    {
-      $auth = $this->auth();
-      $result = $auth->formatCredentials(array('some' => 'value'));
-      $this->assertSame(array(), $result);
-    }
-
     public function testIsInitializedWithAllRequiredCredentials()
     {
-      $service = null;
-      {
-        $credentials = new \stdClass();
-        $credentials->credentials = array('username' => 'johndoe', 'password' => 'parole');
+      $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
+      $service
+        ->expects($this->any())
+        ->method('getServiceCredentials')
+        ->will($this->returnValue(Credentials::fromArray(array(
+          'token' => 'johndoe',
+          'secret' => 'parole'
+        ))));
 
-        $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
-        $service
-          ->expects($this->any())
-          ->method('getServiceCredentials')
-          ->will($this->returnValue($credentials));
-      }
-
-      $auth = $this->auth($service, true, true);
+      $auth = $this->auth($service);
       $this->assertTrue($auth->is_initialized('system'));
 
-      $this->assertTrue($auth->is_initialized('user')); // should be always true
+      $this->assertTrue($auth->is_initialized('user')); // always true
     }
 
     public function testIsInitializedWithMissingCredentials()
     {
-      $service = null;
-      {
-        $credentials = new \stdClass();
-        $credentials->credentials = array('username' => 'johndoe', 'password' => '');
+      $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
+      $service
+        ->expects($this->any())
+        ->method('getServiceCredentials')
+        ->will($this->returnValue(null));
 
-        $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
-        $service
-          ->expects($this->any())
-          ->method('getServiceCredentials')
-          ->will($this->returnValue($credentials));
-      }
-
-      $auth = $this->auth($service, true, true);
+      $auth = $this->auth($service);
       $this->assertFalse($auth->is_initialized('system'));
 
-      $this->assertTrue($auth->is_initialized('user')); // should be always true
+      $this->assertTrue($auth->is_initialized('user')); // always true
     }
 
     public function testIsInitializedWithUnknownAuthType()
@@ -88,17 +49,14 @@
 
     public function testSignRequest()
     {
-      $service = null;
-      {
-        $credentials = new \stdClass();
-        $credentials->credentials = array('username' => 'johndoe', 'password' => 'dummy');
-
-        $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
-        $service
-          ->expects($this->once())
-          ->method('getServiceCredentials')
-          ->will($this->returnValue($credentials));
-      }
+      $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
+      $service
+        ->expects($this->once())
+        ->method('getServiceCredentials')
+        ->will($this->returnValue(Credentials::fromArray(array(
+          'token' => 'johndoe',
+          'secret' => 'der parol'
+        ))));
 
       $client = null;
       {
@@ -108,17 +66,17 @@
           ->method('addSubscriber');
       }
 
-      $auth = $this->auth($service, true, false);
+      $auth = $this->auth($service);
 
       $auth->sign_request($client);
     }
 
-    private function auth(ServiceBase $service = null, $requireUsername = false, $requirePassword = false) {
+    private function auth(ServiceBase $service = null) {
       if (!isset($service)) {
         $service = new TestService();
       }
 
-      $auth = new HttpAuth($service, $requireUsername, $requirePassword);
+      $auth = new HttpAuth($service);
 
       return $auth;
     }

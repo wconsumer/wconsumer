@@ -1,8 +1,8 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests;
 
-use Drupal\wconsumer\ServiceBase;
-
+use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\IntegrationTests\TestService;
 
 
 class ServiceBaseTest extends DrupalTestBase {
@@ -14,16 +14,18 @@ class ServiceBaseTest extends DrupalTestBase {
     $this->assertNull($service->getCredentials());
 
     // Insert new credentials
-    $service->setCredentials(array('key' => '123', 'secret' => 'abc'));
-    $this->assertSame(array('key' => '123', 'secret' => 'abc'), $service->getCredentials()->credentials);
+    $credentials = new Credentials('123', 'abc');
+    $service->setCredentials($credentials);
+    $this->assertEquals($credentials, $service->getCredentials());
 
     // Update existing credentials
-    $service->setCredentials(array('key' => '321', 'secret' => 'abc'));
-    $this->assertSame(array('key' => '321', 'secret' => 'abc'), $service->getCredentials()->credentials);
+    $credentials = new Credentials('321', 'abc');
+    $service->setCredentials($credentials);
+    $this->assertEquals($credentials, $service->getCredentials());
 
     // Remove credentials
     $service->setCredentials(null);
-    $this->assertNull($service->getCredentials()->credentials);
+    $this->assertNull($service->getCredentials());
   }
 
   public function testGetCredentialsDoesntFailIfServiceCredentialsAreNotSet() {
@@ -39,6 +41,25 @@ class ServiceBaseTest extends DrupalTestBase {
 
     $this->assertNull($exception);
   }
-}
 
-class TestService extends ServiceBase {}
+  public function testServiceCredentialsGettingSetting() {
+    $service = new TestService();
+
+    // Initial state
+    $this->assertNull($service->getServiceCredentials());
+
+    // Insert new credentials
+    $credentials = new Credentials('123', 'abc');
+    $service->setServiceCredentials($credentials);
+    $this->assertEquals($credentials, $service->getServiceCredentials());
+
+    // Update existing credentials
+    $credentials = new Credentials('321', 'abc');
+    $service->setServiceCredentials($credentials);
+    $this->assertEquals($credentials, $service->getServiceCredentials());
+
+    // Remove credentials
+    $service->setServiceCredentials(null);
+    $this->assertNull($service->getServiceCredentials());
+  }
+}
