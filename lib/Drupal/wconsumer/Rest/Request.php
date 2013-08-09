@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Rest;
 
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Common\RequestInterface;
 use Guzzle\Http\Client;
@@ -35,7 +36,7 @@ class Request implements RequestInterface
   /**
    * Authentication Object
    *
-   * @var object
+   * @var AuthInterface
    */
   public $authencation;
 
@@ -78,7 +79,7 @@ class Request implements RequestInterface
   }
 
   public function makeRequest($method, array $arguments = array()) {
-    $this->authencation->sign_request($this->client);
+    $this->authencation->signRequest($this->client);
 
     array_unshift($arguments, $method);
 

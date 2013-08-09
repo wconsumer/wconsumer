@@ -7,9 +7,9 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\QueryString;
 
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WcException;
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\QueryString\Plugin as GuzzlePlugin;
 use Guzzle\Http\Client;
@@ -50,15 +50,15 @@ class QueryString extends AuthencationBase implements AuthInterface {
 
 
 
-  public function is_initialized($type = 'user') {
+  public function isInitialized($type, $user = NULL) {
     if ($type == 'user') {
       return true;
     }
 
-    return parent::is_initialized($type);
+    return parent::isInitialized($type, $user);
   }
 
-  public function sign_request($client) {
+  public function signRequest($client, $user = NULL) {
     $credentials = $this->_instance->getServiceCredentials();
 
     /** @var $client Client */
@@ -83,7 +83,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
   /**
    * @codeCoverageIgnore
    */
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
   }
 
   private function getQueryKey(Credentials $credentials = null) {

@@ -34,7 +34,7 @@
       $auth = $this->auth($service);
       $auth->queryKey = $predefinedQueryKey;
 
-      $auth->sign_request($client);
+      $auth->signRequest($client);
 
       /** @var \Guzzle\Http\Client $client */
       $request = $client->createRequest();

@@ -15,12 +15,12 @@ function hook_wconsumer_config($services) {
 
   // Setup Request Interface
   // For this module, we're going to be interfacing with a REST based API
-  // To implement a custom Requests interface, look at 
+  // To implement a custom Requests interface, look at
   // `lib/Drupal/wconsumer/Rest/Request.php`
   $service_object->request = new Drupal\wconsumer\Rest\Request();
 
   // Define the base of the REST API URL
-  $service_object->request->apiURL = 'http://api.linkedin.com/v1/';
+  $service_object->request->setApiUrl('http://api.linkedin.com/v1/');
 
   // Authentication for the Service
   // This scenario would be OAuth1
@@ -35,13 +35,13 @@ function hook_wconsumer_config($services) {
   // We have a number of other authentication methods
   // To review, take a look at this wiki page:
   // https://github.com/mywebclass/wconsumer/wiki/Authentication
-  
+
   // Service Specific Options
   // These settings are on a per-service basis such as allow the user to log in and create
   // and account with this service.
   $service_object->options = new Drupal\wconsumer\Common\Options;
   $service_object->options->enable('allow login');
-  
+
   // Register the service into our configuration array
   // The key of the array below, "linkedin", is the internal name used to identify this service
   $services['linkedin'] = $service_object;

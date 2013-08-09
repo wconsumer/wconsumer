@@ -1,9 +1,9 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Service;
 use Guzzle\Http\Client;
 use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
@@ -39,14 +39,13 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function sign_request($client)
-  {
+  public function signRequest($client, $user = NULL) {
     $serviceCredentials = $this->_instance->getServiceCredentials();
     if (!isset($serviceCredentials)) {
       throw new \BadMethodCallException("Service credentials not set");
     }
 
-    $userCredentials = $this->_instance->getCredentials();
+    $userCredentials = $this->_instance->getCredentials(isset($user) ? $user->uid : null);
     if (!isset($userCredentials)) {
       throw new \BadMethodCallException("No stored user credentials found");
     }
@@ -60,8 +59,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  public function authenticate($user)
-  {
+  public function authenticate($user) {
     $callback = $this->_instance->callback();
 
     $serviceCredentials = $this->_instance->getServiceCredentials();
@@ -90,7 +88,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $this->_instance->setCredentials(null, $user->uid);
   }
 
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
     $serviceCredentials = $this->_instance->getServiceCredentials();
     if (!$serviceCredentials) {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");

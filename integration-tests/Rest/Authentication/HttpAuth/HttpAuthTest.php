@@ -8,7 +8,7 @@ use Drupal\wconsumer\IntegrationTests\Rest\Authentication\AuthenticationTest;
 class HttpAuthTest extends AuthenticationTest {
 
   /**
-   * @dataProvider isInitializedDataProvider
+   * @dataProvider Drupal\wconsumer\IntegrationTests\ServiceBaseTest::isInitializedDataProvider
    */
   public function testIsInitialized($serviceCredentials, $userCredentials, $domain, $expectedResult) {
 

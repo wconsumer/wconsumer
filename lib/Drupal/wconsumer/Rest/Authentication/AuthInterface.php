@@ -3,7 +3,7 @@
  * @file
  * Web Consumer Authentication Interface
  */
-namespace Drupal\wconsumer\Common;
+namespace Drupal\wconsumer\Rest\Authentication;
 
 /**
  * Authentication Interface
@@ -14,11 +14,9 @@ namespace Drupal\wconsumer\Common;
  * @subpackage request
  */
 interface AuthInterface {
-  public function is_initialized($type);
-  public function sign_request($client);
+  public function isInitialized($type, $user = NULL);
+  public function signRequest($client, $user = NULL);
   public function authenticate($user);
   public function logout($user);
-
-  // Callback
-  public function onCallback(&$user, $values);
+  public function onCallback($user, $values);
 }

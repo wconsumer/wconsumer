@@ -1,10 +1,10 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WconsumerException;
 use Drupal\wconsumer\Service;
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
 use Guzzle\Http\Client;
@@ -42,9 +42,10 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
 
 
-  public function sign_request($client)
+  public function signRequest($client, $user = NULL)
   {
-    $accessToken = $this->_instance->getCredentials()->secret;
+    $userId = (isset($user) ? $user->uid : NULL);
+    $accessToken = $this->_instance->getCredentials($userId)->secret;
 
     /** @var $client Client */
     $client->addSubscriber(new Oauth2Plugin($accessToken));
@@ -85,12 +86,12 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   /**
    * Callback for authencation
    *
-   * @param object $user The User Object
-   * @param array $values The array of values passed
+   * @param object $user   The User Object
+   * @param array  $values The array of values passed
    *
    * @throws WconsumerException
    */
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
     // Check the state
     if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
       throw new WconsumerException('State for OAuth2 Interface not matching');

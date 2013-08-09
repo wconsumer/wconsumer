@@ -7,8 +7,8 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\HttpAuth;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth;
 use Guzzle\Http\Client;
 
@@ -23,15 +23,15 @@ use Guzzle\Http\Client;
  */
 class HttpAuth extends AuthencationBase implements AuthInterface {
 
-  public function is_initialized($type = 'user') {
+  public function isInitialized($type, $user = NULL) {
     if ($type == 'user') {
       return TRUE;
     }
 
-    return parent::is_initialized($type);
+    return parent::isInitialized($type, $user);
   }
 
-  public function sign_request($client) {
+  public function signRequest($client, $user = NULL) {
     $credentials = $this->_instance->getServiceCredentials();
 
     /** @var $client Client */
@@ -53,6 +53,6 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
   /**
    * @codeCoverageIgnore
    */
-  public function onCallback(&$user, $values) {
+  public function onCallback($user, $values) {
   }
 }
