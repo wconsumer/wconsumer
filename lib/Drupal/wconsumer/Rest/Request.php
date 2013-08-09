@@ -1,7 +1,10 @@
 <?php
 namespace Drupal\wconsumer\Rest;
+
+use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Common\RequestInterface;
 use Guzzle\Http\Client;
+
 
 /**
  * REST Request Class
@@ -17,22 +20,6 @@ class Request implements RequestInterface
    * @var string
    */
   protected $apiURL;
-
-  /**
-   * Instance Object of this Request Class
-   *
-   * @var object
-   * @access private
-   */
-  private static $instance = NULL;
-
-  /**
-   * Instance of the Service Object
-   *
-   * @var object
-   * @access private
-   */
-  private $_serviceInstance;
 
   /**
    * @var Client
@@ -55,25 +42,10 @@ class Request implements RequestInterface
   {
     if (!isset($client))
     {
-      $client = new Client();
+      $client = Service::createHttpClient();
     }
 
     $this->client = $client;
-  }
-
-  /**
-   * Call this method to get a instance
-   *
-   * @return object
-   * @access public
-   * @codeCoverageIgnore
-   */
-  public static function Instance()
-  {
-    if (static::$instance !== NULL)
-      static::$instance = new Request(new Client());
-
-    return static::$instance;
   }
 
   /**
@@ -83,8 +55,6 @@ class Request implements RequestInterface
    */
   public function setApiUrl($url) {
     $this->apiURL = $url;
-
-    // Set to Guzzle as well
     $this->client->setBaseUrl($url);
   }
 
@@ -93,35 +63,20 @@ class Request implements RequestInterface
    *
    * @return string
    */
-  public function getApiUrl() { return $this->apiURL; }
-
-  /**
-   * Magic Method to make a request a bit easier
-   *
-   * @return object
-   * @access private
-   */
-  public function __call($method, $arguments = array())
-  {
-    return $this->makeRequest($this->getApiUrl(), $method, $arguments);
+  public function getApiUrl() {
+    return $this->apiURL;
   }
 
-  /**
-   * Manually setup and Execute the Request
-   *
-   * @param  string
-   * @param  string HTTP method
-   * @param  array
-   * @return object
-   */
-  public function makeRequest($endPoint, $method, $arguments)
-  {
-    // Manage Authentication
+  public function __call($method, array $arguments = array()) {
+    return $this->makeRequest($method, $arguments);
+  }
+
+  public function makeRequest($method, array $arguments = array()) {
     $this->authencation->sign_request($this->client);
 
-    // Make the request
     array_unshift($arguments, $method);
 
+    /** @var \Guzzle\Http\Message\Request $request */
     $request = call_user_func_array(array($this->client, 'createRequest'), $arguments);
 
     return $request->send();
