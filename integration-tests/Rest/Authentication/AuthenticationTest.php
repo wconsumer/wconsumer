@@ -20,7 +20,7 @@ abstract class AuthenticationTest extends DrupalTestBase {
     $service->setServiceCredentials($serviceCredentials);
     $service->setCredentials($userCredentials);
 
-    $this->assertSame($expectedResult, $auth->is_initialized($domain));
+    $this->assertSame($expectedResult, $auth->isInitialized($domain));
   }
 
   public static function isInitializedDataProvider() {

@@ -22,9 +22,9 @@
         ))));
 
       $auth = $this->auth($service);
-      $this->assertTrue($auth->is_initialized('system'));
+      $this->assertTrue($auth->isInitialized('system'));
 
-      $this->assertTrue($auth->is_initialized('user')); // always true
+      $this->assertTrue($auth->isInitialized('user')); // always true
     }
 
     public function testIsInitializedWithMissingCredentials()
@@ -36,15 +36,15 @@
         ->will($this->returnValue(null));
 
       $auth = $this->auth($service);
-      $this->assertFalse($auth->is_initialized('system'));
+      $this->assertFalse($auth->isInitialized('system'));
 
-      $this->assertTrue($auth->is_initialized('user')); // always true
+      $this->assertTrue($auth->isInitialized('user')); // always true
     }
 
     public function testIsInitializedWithUnknownAuthType()
     {
       $auth = $this->auth();
-      $this->assertFalse($auth->is_initialized('unknown'));
+      $this->assertFalse($auth->isInitialized('unknown'));
     }
 
     public function testSignRequest()
@@ -68,7 +68,7 @@
 
       $auth = $this->auth($service);
 
-      $auth->sign_request($client);
+      $auth->signRequest($client);
     }
 
     private function auth(ServiceBase $service = null) {

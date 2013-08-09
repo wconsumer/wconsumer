@@ -41,7 +41,7 @@ class OauthTest extends AuthenticationTest {
     $auth = $this->auth($service);
 
     $client = new Client();
-    $auth->sign_request($client);
+    $auth->signRequest($client);
 
     $response = $client->get('https://api.twitter.com/1.1/account/verify_credentials.json')->send();
     $this->assertTrue($response->isSuccessful());
@@ -56,7 +56,7 @@ class OauthTest extends AuthenticationTest {
   public function testSignRequestFailsOnUninitializedServiceCredentials() {
     $service = $this->service(FALSE, TRUE);
     $auth = $this->auth($service);
-    $auth->sign_request($client = new Client());
+    $auth->signRequest($client = new Client());
   }
 
   /**
@@ -64,7 +64,7 @@ class OauthTest extends AuthenticationTest {
    */
   public function testSignRequestFailsOnUninitializedUserCredentials() {
     $auth = $this->auth();
-    $auth->sign_request($client = new Client());
+    $auth->signRequest($client = new Client());
   }
 
   /**

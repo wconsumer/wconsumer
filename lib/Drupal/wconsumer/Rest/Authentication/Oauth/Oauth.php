@@ -39,7 +39,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function sign_request($client)
+  public function signRequest($client)
   {
     $serviceCredentials = $this->_instance->getServiceCredentials();
     if (!isset($serviceCredentials)) {

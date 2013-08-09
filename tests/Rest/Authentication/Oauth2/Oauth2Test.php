@@ -24,7 +24,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $auth = $this->auth($service);
 
     /** @noinspection PhpParamsInspection */
-    $auth->sign_request($client);
+    $auth->signRequest($client);
 
     /** @var \Guzzle\Http\Client $client */
     $request = $client->createRequest();

@@ -14,11 +14,9 @@ namespace Drupal\wconsumer\Common;
  * @subpackage request
  */
 interface AuthInterface {
-  public function is_initialized($type);
-  public function sign_request($client);
+  public function isInitialized($type);
+  public function signRequest($client);
   public function authenticate($user);
   public function logout($user);
-
-  // Callback
   public function onCallback(&$user, $values);
 }
