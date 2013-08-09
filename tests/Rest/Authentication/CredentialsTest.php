@@ -37,6 +37,6 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
     $this->assertSame('secret', $credentials->secret);
 
     /** @noinspection PhpUndefinedFieldInspection */
-    $this->assertNull($credentials->dummy);
+    $this->assertTrue(!isset($credentials->dummy));
   }
 }

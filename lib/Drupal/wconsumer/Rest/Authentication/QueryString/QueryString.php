@@ -7,12 +7,13 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\QueryString;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase,
-  Drupal\wconsumer\Common\AuthInterface,
-  //Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth,
-  Drupal\wconsumer\Exception as WcException,
-  Drupal\wconsumer\Rest\Authentication\QueryString\Plugin as GuzzlePlugin,
-  Drupal\wconsumer\Exception as ManagerException;
+use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Exception as WcException;
+use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\Rest\Authentication\QueryString\Plugin as GuzzlePlugin;
+use Guzzle\Http\Client;
+
 
 /**
  * Query String Authentication
@@ -47,139 +48,53 @@ class QueryString extends AuthencationBase implements AuthInterface {
    */
   public $valueLabel = 'Query Value';
 
-  /**
-   * Format Registry Credentials
-   *
-   * @param array
-   * @return array
-   */
-  public function formatServiceCredentials($data)
-  {
-    $this->getQueryKey($data);
 
-    if (empty($data['query_value']))
-    {
-      throw new WcException('Query String Auth requires a query value and it is not set or is empty.');
+
+  public function is_initialized($type = 'user') {
+    if ($type == 'user') {
+      return true;
     }
 
-    return array(
-      'query_key' => $data['query_key'],
-      'query_value' => $data['query_value']
-    );
+    return parent::is_initialized($type);
   }
 
-  /**
-   * Format the Saved Credentials
-   *
-   * Not used in Query String Auth API
-   *
-   * @param array
-   * @return array Empty array
-   */
-  public function formatCredentials($data)
-  {
-    return array();
-  }
+  public function sign_request(&$client) {
+    $credentials = $this->_instance->getServiceCredentials();
 
-  /**
-   * Validate if they're setup
-   *
-   * @param string
-   * @return boolean
-   */
-  public function is_initialized($type = 'user')
-  {
-    switch($type)
-    {
-      case 'system' :
-        $registry = $this->_instance->getServiceCredentials();
-
-        if (!isset($registry) || !isset($registry->credentials))
-        {
-          return false;
-        }
-
-        $credentials = $registry->credentials;
-
-        if (!$this->getQueryKey($credentials, true))
-        {
-          return false;
-        }
-
-        if (empty($credentials['query_value']))
-        {
-          return false;
-        }
-
-        return true;
-      break;
-
-      case 'user' :
-        return true;
-      break;
-
-      default :
-        return false;
-      break;
-    }
-  }
-
-  /**
-   * Sign the request before sending it off
-   *
-   * @param object Client
-   * @access private
-   */
-  public function sign_request(&$client)
-  {
-    $registry = $this->_instance->getServiceCredentials();
-
-    $key = $this->getQueryKey($registry->credentials);
-
+    /** @var $client Client */
     $client->addSubscriber(new GuzzlePlugin(array(
-      'query_key' => $key,
-      'query_value' => $registry->credentials['query_value'],
+      'query_key' => $this->getQueryKey($credentials),
+      'query_value' => $credentials->secret,
     )));
   }
 
   /**
-   * Authenticate the User
-   *
-   * Not needed for Query String Auth
+   * @codeCoverageIgnore
    */
-  public function authenticate(&$user) { }
+  public function authenticate(&$user) {
+  }
 
   /**
-   * Log the user out
-   *
-   * Not needed for Query String Auth
+   * @codeCoverageIgnore
    */
-  public function logout(&$logout) { }
+  public function logout(&$logout) {
+  }
 
   /**
-   * Callback
-   *
-   * Not needed for Query String Auth
+   * @codeCoverageIgnore
    */
-  public function onCallback(&$user, $values) { }
+  public function onCallback(&$user, $values) {
+  }
 
-  private function getQueryKey($credentials, $silent = false)
-  {
-    if (!empty($this->queryKey))
-    {
+  private function getQueryKey(Credentials $credentials = null) {
+    if (!empty($this->queryKey)) {
       return $this->queryKey;
     }
 
-    if (!empty($credentials['query_key']))
-    {
-      return $credentials['query_key'];
+    if (isset($credentials)) {
+      return $credentials->token;
     }
 
-    if (!$silent)
-    {
-      throw new WcException('Query String Auth requires a query key and that it is not set or is empty.');
-    }
-
-    return false;
+    throw new WcException('Query String Auth credentials not set');
   }
 }
