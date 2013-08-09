@@ -6,6 +6,7 @@ use Drupal\wconsumer\Rest\Request;
 
 
 class RequestTest extends \PHPUnit_Framework_TestCase {
+
   public function testSetGetApiUrl() {
     $url = 'http://invalid.example';
 

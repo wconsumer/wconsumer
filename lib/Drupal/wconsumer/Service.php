@@ -5,6 +5,7 @@ use Drupal\wconsumer\Exception as ServiceException;
 use Guzzle\Common\Collection;
 use Guzzle\Http\Client;
 
+
 /**
  * Service Manager Class
  *
@@ -21,18 +22,15 @@ class Service {
    * Internal Service Registry
    *
    * @var array
-   * @access private
    */
   private static $_services = NULL;
+
 
   /**
    * Return Active Services
    *
-   * Static Method
-   *
-   * @param array Include your own services, optional
+   * @param array $services Include your own services, optional
    * @return array
-   * @access public
    */
   public static function services($services = array())
   {
@@ -45,19 +43,28 @@ class Service {
   /**
    * Retrieve the Object for a Service
    *
-   * @param string Service
-   * @return object
-   * @throws \Exception
+   * @param string $service
+   * @param array $services
+   * @return mixed
+   * @throws Exception
    */
   public static function getObject($service, $services = array())
   {
     $services = self::services($services);
-    if (!isset($services[$service]))
+    if (!isset($services[$service])) {
       throw new ServiceException('Unknown service: '.$service);
+    }
 
     return $services[$service];
   }
 
+  /**
+   * Creates a new HTTP client configured with default module-wide options like timeout, user-agent, etc.
+   *
+   * @param string|null $baseUrl
+   * @param array $config
+   * @return Client
+   */
   public static function createHttpClient($baseUrl = null, array $config = array()) {
     $config = Collection::fromConfig($config, array(
       'timeout' => 30,

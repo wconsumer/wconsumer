@@ -11,6 +11,12 @@ use Guzzle\Http\Client;
  *
  * @package wconsumer
  * @subpackage request
+ *
+ * @method mixed get()    get   ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs GET HTTP request
+ * @method mixed post()   post  ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs POST HTTP request
+ * @method mixed put()    put   ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs PUT HTTP request
+ * @method mixed delete() delete($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs DELETE HTTP request
+ * @method mixed head()   head  ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs HEAD HTTP request
  */
 class Request implements RequestInterface
 {

@@ -34,7 +34,11 @@ class ServiceBaseTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals(0, $queueItem->moderate);
     $this->assertEquals(0, $queueItem->approver_uid);
     $this->assertEquals(0, $queueItem->created_date);
+  }
 
+  public function testCallbackUrl() {
+    $service = new FooService();
+    $this->assertNotEmpty($service->callback());
   }
 }
 
@@ -42,7 +46,6 @@ class ServiceBaseTest extends \PHPUnit_Framework_TestCase {
  * @ignore
  */
 class FooService extends ServiceBase {
-
 }
 
 /**

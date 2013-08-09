@@ -163,8 +163,8 @@ abstract class ServiceBase {
   /**
    * See if they are authenticated on a system/user basis
    *
-   * @param string On what basis are they being check for (system/user)
-   * @param int The user ID (default to NULL for the current user)
+   * @param string $basis On what basis are they being check for (system/user)
+   * @param int|null $user_id The user ID (default to NULL for the current user)
    * @return bool
    */
   public function checkAuthentication($basis = 'user', $user_id = NULL)
