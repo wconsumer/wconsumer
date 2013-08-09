@@ -39,14 +39,13 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function signRequest($client)
-  {
+  public function signRequest($client, $user = NULL) {
     $serviceCredentials = $this->_instance->getServiceCredentials();
     if (!isset($serviceCredentials)) {
       throw new \BadMethodCallException("Service credentials not set");
     }
 
-    $userCredentials = $this->_instance->getCredentials();
+    $userCredentials = $this->_instance->getCredentials(isset($user) ? $user->uid : null);
     if (!isset($userCredentials)) {
       throw new \BadMethodCallException("No stored user credentials found");
     }
@@ -60,8 +59,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  public function authenticate($user)
-  {
+  public function authenticate($user) {
     $callback = $this->_instance->callback();
 
     $serviceCredentials = $this->_instance->getServiceCredentials();

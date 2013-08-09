@@ -36,12 +36,12 @@ class OauthTest extends AuthenticationTest {
       ->method('drupal_goto');
   }
 
-  public function testSignRequest() {
+  public function testSignRequest($user = null) {
     $service = $this->service(TRUE, TRUE);
     $auth = $this->auth($service);
 
     $client = new Client();
-    $auth->signRequest($client);
+    $auth->signRequest($client, $user);
 
     $response = $client->get('https://api.twitter.com/1.1/account/verify_credentials.json')->send();
     $this->assertTrue($response->isSuccessful());
@@ -65,6 +65,16 @@ class OauthTest extends AuthenticationTest {
   public function testSignRequestFailsOnUninitializedUserCredentials() {
     $auth = $this->auth();
     $auth->signRequest($client = new Client());
+  }
+
+  public function testSignRequestUsesSpecifiedUserCredentials() {
+    // Test for current user which have credentials set up
+    $this->testSignRequest(null);
+
+    // Test for some not existing user which have not credentials set up
+    $this->setExpectedException('\BadMethodCallException');
+    $user = (object)array('uid' => 55);
+    $this->testSignRequest($user);
   }
 
   /**

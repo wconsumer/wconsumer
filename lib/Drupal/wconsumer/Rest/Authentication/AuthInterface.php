@@ -15,7 +15,7 @@ namespace Drupal\wconsumer\Rest\Authentication;
  */
 interface AuthInterface {
   public function isInitialized($type, $user = NULL);
-  public function signRequest($client);
+  public function signRequest($client, $user = NULL);
   public function authenticate($user);
   public function logout($user);
   public function onCallback($user, $values);
