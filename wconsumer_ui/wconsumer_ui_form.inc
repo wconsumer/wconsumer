@@ -58,12 +58,12 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   $authencation = $object->request->authencation;
 
-  if ($authencation instanceof Drupal\wconsumer\Rest\Authentication\Oauth\Oauth ||
-      $authencation instanceof Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2) {
+  if ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth\Oauth ||
+      $authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2) {
     $tokenLabel = 'Consumer Key';
     $secretLabel = 'Consumer Secret';
   }
-  elseif ($authencation instanceof Drupal\wconsumer\Rest\Authentication\QueryString\QueryString) {
+  elseif ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\QueryString\QueryString) {
     $tokenLabel = $object->request->authencation->keyLabel;
     $secretLabel = $object->request->authencation->valueLabel;
 
@@ -89,6 +89,13 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
       '#title' => t($tokenLabel),
       '#required' => TRUE,
       '#default_value' => $token,
+    );
+  }
+  else {
+    $form['creds']['token'] = array(
+      '#type' => 'hidden',
+      '#required' => TRUE,
+      '#default_value' => (isset($token) ? $token : 'dummy'),
     );
   }
 
@@ -119,15 +126,19 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
  * @param object
  * @access private
  */
-function _wconsumer_ui_form_submit($form, &$form_state)
-{
+function _wconsumer_ui_form_submit($form, &$form_state) {
   $values = $form_state['input'];
-  $service = (isset($values['service-name'])) ? $values['service-name'] : drupal_exit();
+  if (!isset($values['service-name'])) {
+    drupal_exit();
+  }
+
+  $service = $values['service-name'];
 
   if ($service == '_internal') :
     // Settings for the system
     variable_set('wconsumer:service_login', $form_state['values']['service-login']);
-    return drupal_set_message(t('Settings updated.'));
+    drupal_set_message(t('Settings updated.'));
+    return;
   endif;
 
   try {
@@ -137,13 +148,12 @@ function _wconsumer_ui_form_submit($form, &$form_state)
   {
     drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
     watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
-
     return;
   }
 
   // Validate
   try {
-    $credentials = $object->request->authencation->formatServiceCredentials($values);
+    $credentials = \Drupal\wconsumer\Rest\Authentication\Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
     return;
