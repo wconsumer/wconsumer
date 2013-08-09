@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Rest;
 
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Common\RequestInterface;
 use Guzzle\Http\Client;

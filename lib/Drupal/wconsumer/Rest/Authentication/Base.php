@@ -1,12 +1,12 @@
 <?php
-namespace Drupal\wconsumer\Rest;
+namespace Drupal\wconsumer\Rest\Authentication;
 
 use Drupal\wconsumer\ServiceBase;
 use Drupal\wconsumer\Exception as WconsumerException;
 
 
 
-class Authentication {
+class Base {
   /**
    * Instance of the Service Object
    *

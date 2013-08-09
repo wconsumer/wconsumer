@@ -7,9 +7,9 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\QueryString;
 
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WcException;
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\QueryString\Plugin as GuzzlePlugin;
 use Guzzle\Http\Client;

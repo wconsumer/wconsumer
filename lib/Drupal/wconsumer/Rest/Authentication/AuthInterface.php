@@ -3,7 +3,7 @@
  * @file
  * Web Consumer Authentication Interface
  */
-namespace Drupal\wconsumer\Common;
+namespace Drupal\wconsumer\Rest\Authentication;
 
 /**
  * Authentication Interface

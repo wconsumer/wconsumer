@@ -7,8 +7,8 @@
  */
 namespace Drupal\wconsumer\Rest\Authentication\HttpAuth;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth;
 use Guzzle\Http\Client;
 

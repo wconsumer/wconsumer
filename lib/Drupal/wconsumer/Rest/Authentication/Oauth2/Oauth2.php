@@ -1,10 +1,10 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WconsumerException;
 use Drupal\wconsumer\Service;
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
 use Guzzle\Http\Client;

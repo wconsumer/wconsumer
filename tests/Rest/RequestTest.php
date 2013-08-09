@@ -28,7 +28,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
       ->with('post', 'joe')
       ->will($this->returnValue($request));
 
-    $auth = $this->getMock('Drupal\wconsumer\Common\AuthInterface');
+    $auth = $this->getMock('Drupal\wconsumer\Rest\Authentication\AuthInterface');
     $auth
       ->expects($this->once())
       ->method('signRequest')

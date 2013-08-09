@@ -1,9 +1,9 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 
-use Drupal\wconsumer\Rest\Authentication as AuthencationBase;
+use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
-use Drupal\wconsumer\Common\AuthInterface;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Service;
 use Guzzle\Http\Client;
 use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
