@@ -1,11 +1,15 @@
 <?php
-use Drupal\wconsumer\Service;
-use Drupal\wconsumer\Exception;
+namespace Drupal\wconsumer\Tests;
 
-class ServiceBaseTest extends PHPUnit_Framework_TestCase {
+use Drupal\wconsumer\Service;
+use Drupal\wconsumer\ServiceBase;
+
+
+class ServiceBaseTest extends \PHPUnit_Framework_TestCase {
+
   public function testServiceName() {
     $object = new FooService();
-    $this->assertEquals('fooservice', $object->getName());
+    $this->assertEquals('drupal__wconsumer__tests__fooservice', $object->getName());
   }
 
   public function testSpecificServiceName() {
@@ -30,20 +34,23 @@ class ServiceBaseTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals(0, $queueItem->moderate);
     $this->assertEquals(0, $queueItem->approver_uid);
     $this->assertEquals(0, $queueItem->created_date);
+  }
 
+  public function testCallbackUrl() {
+    $service = new FooService();
+    $this->assertNotEmpty($service->callback());
   }
 }
 
 /**
  * @ignore
  */
-class FooService extends \Drupal\wconsumer\ServiceBase {
-
+class FooService extends ServiceBase {
 }
 
 /**
  * @ignore
  */
-class FooServiceWithName extends \Drupal\wconsumer\ServiceBase {
+class FooServiceWithName extends ServiceBase {
   protected $_service = 'specialservice';
 }

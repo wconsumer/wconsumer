@@ -1,13 +1,23 @@
 <?php
 namespace Drupal\wconsumer\Rest;
+
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
+use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Common\RequestInterface;
 use Guzzle\Http\Client;
+
 
 /**
  * REST Request Class
  *
  * @package wconsumer
  * @subpackage request
+ *
+ * @method mixed get()    get   ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs GET HTTP request
+ * @method mixed post()   post  ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs POST HTTP request
+ * @method mixed put()    put   ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs PUT HTTP request
+ * @method mixed delete() delete($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs DELETE HTTP request
+ * @method mixed head()   head  ($arg1 = NULL, $arg2 = NULL, $argN = NULL) Performs HEAD HTTP request
  */
 class Request implements RequestInterface
 {
@@ -19,22 +29,6 @@ class Request implements RequestInterface
   protected $apiURL;
 
   /**
-   * Instance Object of this Request Class
-   *
-   * @var object
-   * @access private
-   */
-  private static $instance = NULL;
-
-  /**
-   * Instance of the Service Object
-   *
-   * @var object
-   * @access private
-   */
-  private $_serviceInstance;
-
-  /**
    * @var Client
    */
   private $client;
@@ -42,7 +36,7 @@ class Request implements RequestInterface
   /**
    * Authentication Object
    *
-   * @var object
+   * @var AuthInterface
    */
   public $authencation;
 
@@ -55,25 +49,10 @@ class Request implements RequestInterface
   {
     if (!isset($client))
     {
-      $client = new Client();
+      $client = Service::createHttpClient();
     }
 
     $this->client = $client;
-  }
-
-  /**
-   * Call this method to get a instance
-   *
-   * @return object
-   * @access public
-   * @codeCoverageIgnore
-   */
-  public static function Instance()
-  {
-    if (static::$instance !== NULL)
-      static::$instance = new Request(new Client());
-
-    return static::$instance;
   }
 
   /**
@@ -83,8 +62,6 @@ class Request implements RequestInterface
    */
   public function setApiUrl($url) {
     $this->apiURL = $url;
-
-    // Set to Guzzle as well
     $this->client->setBaseUrl($url);
   }
 
@@ -93,35 +70,20 @@ class Request implements RequestInterface
    *
    * @return string
    */
-  public function getApiUrl() { return $this->apiURL; }
-
-  /**
-   * Magic Method to make a request a bit easier
-   *
-   * @return object
-   * @access private
-   */
-  public function __call($method, $arguments = array())
-  {
-    return $this->makeRequest($this->getApiUrl(), $method, $arguments);
+  public function getApiUrl() {
+    return $this->apiURL;
   }
 
-  /**
-   * Manually setup and Execute the Request
-   *
-   * @param  string
-   * @param  string HTTP method
-   * @param  array
-   * @return object
-   */
-  public function makeRequest($endPoint, $method, $arguments)
-  {
-    // Manage Authentication
-    $this->authencation->sign_request($this->client);
+  public function __call($method, array $arguments = array()) {
+    return $this->makeRequest($method, $arguments);
+  }
 
-    // Make the request
+  public function makeRequest($method, array $arguments = array()) {
+    $this->authencation->signRequest($this->client);
+
     array_unshift($arguments, $method);
 
+    /** @var \Guzzle\Http\Message\Request $request */
     $request = call_user_func_array(array($this->client, 'createRequest'), $arguments);
 
     return $request->send();
