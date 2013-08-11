@@ -11,7 +11,7 @@ function wconsumer_schema() {
 
   $schema['wc_service_registry'] = array(
     'description' => 'Stores Services',
-    
+
     'fields' => array(
       'service_id' => array(
         'type' => 'serial',
@@ -33,18 +33,14 @@ function wconsumer_schema() {
         'serialize' => TRUE,
         'description' => 'The serialized credentials object for this service'
       ),
-     
+
     ),
     'primary key' => array('service_id'),
-    'indexes' => array(
-      'service_id' => array(
-        'service_id'
-      ),
-     'unique keys' => array(
-      'service'
-      ),
-    )
+    'unique keys' => array(
+      'service' => array('service')
+    ),
   );
+
   $schema['wc_requests'] = array(
     'description' => 'Stores Service Requests',
     'fields' => array(
@@ -104,19 +100,12 @@ function wconsumer_schema() {
         'description' => 'Time of request creation',
       ),
     ),
-    'primary key' => array(
-      'request_id'
-    ),
+    'primary key' => array('request_id'),
     'indexes' => array(
-      'request_id' => array(
-        'request_id'
-      ),
-      'service' => array(
-        'service'
-      )
+      'service' => array('service'),
     )
   );
-  
+
   $schema['wc_service_cred'] = array(
     'description' => 'Stores a User\'s Service Credentials',
     'fields' => array(
@@ -143,7 +132,6 @@ function wconsumer_schema() {
         'default' => '',
         'serialize' => TRUE,
         'description' => 'The serialized credentials object for this user'
-       
       )
     ),
     'foreign keys' => array(
@@ -160,19 +148,10 @@ function wconsumer_schema() {
         )
       )
     ),
-    'primary key' => array(
-      'cred_id'
-    ),
+    'primary key' => array('cred_id'),
     'indexes' => array(
-      'service' => array(
-        'service'
-      ),
-      'cred_id' => array(
-        'cred_id'
-      ),
-      'user_id' => array(
-        'user_id'
-      )
+      'service' => array('service'),
+      'user_id' => array('user_id'),
     )
   );
   return $schema;
