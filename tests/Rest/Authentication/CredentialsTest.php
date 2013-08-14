@@ -39,4 +39,29 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
     /** @noinspection PhpUndefinedFieldInspection */
     $this->assertTrue(!isset($credentials->dummy));
   }
+
+  public function testSerialize() {
+    $credentials = new Credentials('johntheuser', 'mypassword');
+    $this->assertSame('{"token":"johntheuser","secret":"mypassword"}', $credentials->serialize());
+  }
+
+  public function testUnserialize() {
+    $credentials = Credentials::unserialize('{"token":"johntheuser","secret":"mypassword"}');
+    $this->assertSame('johntheuser', $credentials->token);
+    $this->assertSame('mypassword', $credentials->secret);
+  }
+
+  /**
+   * @expectedException \InvalidArgumentException
+   */
+  public function testUnserializeFailsOnEmtpyString() {
+    Credentials::unserialize('');
+  }
+
+  /**
+   * @expectedException \InvalidArgumentException
+   */
+  public function testUnserializeFailsOnNull() {
+    Credentials::unserialize(NULL);
+  }
 }
