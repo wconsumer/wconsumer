@@ -16,7 +16,7 @@ abstract class ServiceBase {
    * @var string
    * @access protected
    */
-  protected $_service;
+  protected $name;
 
   /**
    * Service Registry Table
@@ -40,18 +40,18 @@ abstract class ServiceBase {
 
 
   public function __construct() {
-    if (!isset($this->_service)) {
-      $this->_service = str_replace('\\', '__', get_called_class());
+    if (!isset($this->name)) {
+      $this->name = str_replace('\\', '__', get_called_class());
     }
 
-    $this->_service = strtolower($this->_service);
+    $this->name = strtolower($this->name);
   }
 
   public function setServiceCredentials(Credentials $credentials = null) {
     db_merge($this->serviceRegistry)
-      ->key(array('service' => $this->_service))
+      ->key(array('service' => $this->name))
       ->fields(array(
-        'service'     => $this->_service,
+        'service'     => $this->name,
         'credentials' => (isset($credentials) ? $credentials->serialize() : NULL),
       ))
     ->execute();
@@ -62,7 +62,7 @@ abstract class ServiceBase {
 
     $serializedCredentials = db_select($this->serviceRegistry)
       ->fields($this->serviceRegistry, array('credentials'))
-      ->condition('service', $this->_service)
+      ->condition('service', $this->name)
     ->execute()
     ->fetchField();
 
@@ -81,11 +81,11 @@ abstract class ServiceBase {
 
     db_merge($this->serviceCred)
       ->key(array(
-        'service' => $this->_service,
+        'service' => $this->name,
         'user_id' => $user_id,
       ))
       ->fields(array(
-        'service' => $this->_service,
+        'service' => $this->name,
         'user_id' => $user_id,
         'credentials' => (isset($credentials) ? $credentials->serialize() : NULL),
       ))
@@ -113,7 +113,7 @@ abstract class ServiceBase {
     $serializedCredentials =
       db_select($this->serviceCred)
         ->fields($this->serviceCred, array('credentials'))
-        ->condition('service', $this->_service)
+        ->condition('service', $this->name)
         ->condition('user_id', $user_id)
       ->execute()
       ->fetchField();
@@ -157,7 +157,7 @@ abstract class ServiceBase {
    */
   public function callback() {
     global $base_url;
-    return $base_url.'/wconsumer/callback/'.$this->_service;
+    return $base_url.'/wconsumer/callback/'.$this->name;
   }
 
   /**
@@ -166,7 +166,7 @@ abstract class ServiceBase {
    * @return string
    */
   public function getName() {
-    return $this->_service;
+    return $this->name;
   }
 
   /**

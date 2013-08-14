@@ -9,7 +9,7 @@ use Drupal\wconsumer\ServiceBase;
  * in this file from others. See ServiceBase::$_instance variable for details.
  */
 class TestService extends ServiceBase {
-  protected $_service = 'integration_tests_test_service';
+  protected $name = 'integration_tests_test_service';
 
   public static function getClass() {
     return get_called_class();

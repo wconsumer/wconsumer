@@ -52,5 +52,5 @@ class FooService extends ServiceBase {
  * @ignore
  */
 class FooServiceWithName extends ServiceBase {
-  protected $_service = 'specialservice';
+  protected $name = 'specialservice';
 }
