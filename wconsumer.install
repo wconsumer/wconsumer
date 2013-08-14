@@ -29,7 +29,6 @@ function wconsumer_schema() {
         'type' => 'varchar',
         'length' => 4000,
         'default' => '',
-        'serialize' => TRUE,
         'description' => 'The serialized credentials object for this service'
       ),
 
@@ -128,7 +127,6 @@ function wconsumer_schema() {
         'type' => 'varchar',
         'length' => 4000,
         'default' => '',
-        'serialize' => TRUE,
         'description' => 'The serialized credentials object for this user'
       )
     ),
