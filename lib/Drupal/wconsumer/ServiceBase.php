@@ -14,21 +14,22 @@ abstract class ServiceBase {
    * Optional -- will default to the class name
    *
    * @var string
-   * @access protected
    */
   protected $name;
 
   /**
-   * Service Registry Table
+   * Services table
+   *
    * @var string
    */
-  private $serviceRegistry = 'wc_service_registry';
+  private $servicesTable = 'wc_service';
 
   /**
-   * Service Credential Table
+   * Services' users' table
+   *
    * @var string
    */
-  private $serviceCred = 'wc_service_cred';
+  private $usersTable = 'wc_user';
 
   /**
    * Options Class
@@ -48,7 +49,7 @@ abstract class ServiceBase {
   }
 
   public function setServiceCredentials(Credentials $credentials = null) {
-    db_merge($this->serviceRegistry)
+    db_merge($this->servicesTable)
       ->key(array('service' => $this->name))
       ->fields(array(
         'service'     => $this->name,
@@ -60,8 +61,8 @@ abstract class ServiceBase {
   public function getServiceCredentials() {
     $credentials = null;
 
-    $serializedCredentials = db_select($this->serviceRegistry)
-      ->fields($this->serviceRegistry, array('credentials'))
+    $serializedCredentials = db_select($this->servicesTable)
+      ->fields($this->servicesTable, array('credentials'))
       ->condition('service', $this->name)
     ->execute()
     ->fetchField();
@@ -79,7 +80,7 @@ abstract class ServiceBase {
       $user_id = $user->uid;
     }
 
-    db_merge($this->serviceCred)
+    db_merge($this->usersTable)
       ->key(array(
         'service' => $this->name,
         'user_id' => $user_id,
@@ -111,8 +112,8 @@ abstract class ServiceBase {
     $credentials = null;
 
     $serializedCredentials =
-      db_select($this->serviceCred)
-        ->fields($this->serviceCred, array('credentials'))
+      db_select($this->usersTable)
+        ->fields($this->usersTable, array('credentials'))
         ->condition('service', $this->name)
         ->condition('user_id', $user_id)
       ->execute()
