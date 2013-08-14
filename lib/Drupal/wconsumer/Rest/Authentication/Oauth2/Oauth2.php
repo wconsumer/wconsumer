@@ -63,7 +63,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     $serviceCredentials = $this->_instance->getServiceCredentials();
 
     $url =
-      $this->authorizeURL .
+      $this->authorizeURL . '?' .
       http_build_query(array(
         'client_id'     => $serviceCredentials->token,
         'redirect_uri'  => $callback,

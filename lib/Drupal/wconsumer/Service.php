@@ -34,8 +34,9 @@ class Service {
    */
   public static function services($services = array())
   {
-    if (self::$_services == NULL)
+    if (self::$_services == NULL) {
       self::$_services = module_invoke_all('wconsumer_config', $services);
+    }
 
     return self::$_services;
   }
