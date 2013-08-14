@@ -40,7 +40,6 @@ abstract class ServiceBase {
 
 
   public function __construct() {
-    // Identity the name of the service
     if (!isset($this->_service)) {
       $this->_service = str_replace('\\', '__', get_called_class());
     }
@@ -52,25 +51,26 @@ abstract class ServiceBase {
     db_merge($this->serviceRegistry)
       ->key(array('service' => $this->_service))
       ->fields(array(
-        'service' => $this->_service,
-        'credentials' => serialize($credentials),
+        'service'     => $this->_service,
+        'credentials' => (isset($credentials) ? $credentials->serialize() : NULL),
       ))
     ->execute();
   }
 
-  /**
-   * @return Credentials|null
-   */
   public function getServiceCredentials() {
-    $data = db_select($this->serviceRegistry)
-      ->fields($this->serviceRegistry)
+    $credentials = null;
+
+    $serializedCredentials = db_select($this->serviceRegistry)
+      ->fields($this->serviceRegistry, array('credentials'))
       ->condition('service', $this->_service)
     ->execute()
-    ->fetchObject();
+    ->fetchField();
 
-    $this->unserializeCredentials($data);
+    if ($serializedCredentials) {
+      $credentials = Credentials::unserialize($serializedCredentials);
+    }
 
-    return (isset($data->credentials) ? $data->credentials : null);
+    return $credentials;
   }
 
   public function setCredentials(Credentials $credentials = null, $user_id = NULL) {
@@ -87,7 +87,7 @@ abstract class ServiceBase {
       ->fields(array(
         'service' => $this->_service,
         'user_id' => $user_id,
-        'credentials' => serialize($credentials),
+        'credentials' => (isset($credentials) ? $credentials->serialize() : NULL),
       ))
     ->execute();
   }
@@ -108,36 +108,21 @@ abstract class ServiceBase {
       $user_id = $user->uid;
     }
 
-    $data = db_select($this->serviceCred)
-      ->fields($this->serviceCred)
-      ->condition('service', $this->_service)
-      ->condition('user_id', $user_id)
-      ->execute()->fetchObject();
+    $credentials = null;
 
-    $this->unserializeCredentials($data);
+    $serializedCredentials =
+      db_select($this->serviceCred)
+        ->fields($this->serviceCred, array('credentials'))
+        ->condition('service', $this->_service)
+        ->condition('user_id', $user_id)
+      ->execute()
+      ->fetchField();
 
-    return (isset($data->credentials) ? $data->credentials : null);
-  }
-
-  /**
-   * Internal Function to unserialize the credentials for us
-   * Do not pass variables by reference
-   *
-   * @param object|array
-   * @return mixed
-   */
-  private function unserializeCredentials(&$data) {
-    if (is_object($data) AND isset($data->credentials) AND $data->credentials !== '') {
-      $data->credentials = unserialize($data->credentials);
-    }
-    elseif(is_array($data) AND isset($data['credentials']) AND $data['credentials'] !== '') {
-      $data['credentials'] = unserialize($data['credentials']);
-    }
-    elseif ($data === false) {
-      $data = null;
+    if ($serializedCredentials) {
+      $credentials = Credentials::unserialize($serializedCredentials);
     }
 
-    return $data;
+    return $credentials;
   }
 
   /**
