@@ -3,7 +3,6 @@ namespace Drupal\wconsumer\Common;
 
 use Drupal\wconsumer\Rest\Request as RestBase;
 use Drupal\wconsumer\Rest\Authentication\Oauth as Oauth;
-use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Queue\Item;
 
 /**
@@ -12,7 +11,7 @@ use Drupal\wconsumer\Queue\Item;
 class Tests {
   /**
    * Create a mock service
-   * 
+   *
    * @return Object
    */
   public static function mockService()
@@ -33,7 +32,7 @@ class Tests {
     // Service Specific Options
     $linkedin->options = new Drupal\wconsumer\Common\Options;
     $linkedin->options->enable('allow login');
-    
+
     $services['linkedin'] = $linkedin;
     return $services;
   }

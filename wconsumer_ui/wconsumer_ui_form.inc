@@ -1,5 +1,5 @@
 <?php
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 
 /**
  * Callback Form for the Web Consumer Form
@@ -10,10 +10,10 @@ use Drupal\wconsumer\Service;
  * @param array The specific service (null means it's the default)
  * @return array
  */
-function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
+function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   $form = array();
 
-  if ($service == NULL) :
+  if ($serviceName == NULL) :
     $service_login = (int) variable_get('wconsumer:service_login');
 
     $form['settings'] = array(
@@ -45,18 +45,13 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
     return $form;
   endif;
 
-  try {
-    $object = Service::getObject($service);
-  } catch (Drupal\wconsumer\Exception $e) {
-    drupal_set_message(t($e->getMessage()), 'error');
-    return;
-  }
+  $service = Service::getObject($serviceName);
 
   $tokenLabel = 'Username';
   $secretLabel = 'Password';
   $tokenPredefined = false;
 
-  $authencation = $object->request->authencation;
+  $authencation = $service->request->authencation;
 
   if ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth\Oauth ||
       $authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2) {
@@ -64,21 +59,21 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
     $secretLabel = 'Consumer Secret';
   }
   elseif ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\QueryString\QueryString) {
-    $tokenLabel = $object->request->authencation->keyLabel;
-    $secretLabel = $object->request->authencation->valueLabel;
+    $tokenLabel = $service->request->authencation->keyLabel;
+    $secretLabel = $service->request->authencation->valueLabel;
 
     if (isset($authencation->queryKey)) {
       $tokenPredefined = true;
     }
   }
 
-  $credentials = $object->getServiceCredentials();
+  $credentials = $service->getServiceCredentials();
   $token = (isset($credentials) ? $credentials->token : null);
   $secret = (isset($credentials) ? $credentials->secret : null);
 
   $form['creds'] = array(
       '#type' => 'fieldset',
-      '#title' => t($service.' Application Credentials'),
+      '#title' => t($serviceName.' Application Credentials'),
       '#collapsible' => false,
       '#collapsed' => FALSE,
     );
@@ -113,7 +108,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   $form['service-name'] = array(
     '#type' => 'hidden',
-    '#value' => $service,
+    '#value' => $serviceName,
   );
 
   return $form;
@@ -141,11 +136,8 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
     return;
   endif;
 
-  try {
-    $object = Service::getObject($service);
-  }
-  catch (\Drupal\wconsumer\Exception $e)
-  {
+  $object = Wconsumer::instance()->getService($service);
+  if (!isset($object)) {
     drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
     watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
     return;
@@ -168,21 +160,18 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
 /**
  * Callback for the Service
  */
-function _wconsumer_ui_callback($service = NULL) {
+function _wconsumer_ui_callback($serviceName = NULL) {
   global $user;
 
-  try {
-    $object = Service::getObject($service);
-    $object->request->authencation->onCallback($user, array($_REQUEST));
-  }
-  catch (\Drupal\wconsumer\Exception $e)
-  {
-    drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
-    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
-
+  $service = Wconsumer::instance()->getService($serviceName);
+  if (!isset($service)) {
+    drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
+    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);
     return;
   }
 
+  $service->request->authencation->onCallback($user, array($_REQUEST));
+
   drupal_set_message('Credentials saved.', 'status');
-  return drupal_goto('user/'.$user->uid.'/wconsumer');
+  drupal_goto('user/'.$user->uid.'/wconsumer');
 }

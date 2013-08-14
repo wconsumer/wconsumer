@@ -1,9 +1,9 @@
 <?php
 namespace Drupal\wconsumer\Queue;
 
-use Drupal\wconsumer\Service,
-  Drupal\wconsumer\Queue\QueueException,
-  Drupal\wconsumer\Queue\Manager;
+use Drupal\wconsumer\Queue\QueueException;
+use Drupal\wconsumer\Queue\Manager;
+use Drupal\wconsumer\Wconsumer;
 
 /**
  * ORM Style Management of Items in the Queue
@@ -263,11 +263,9 @@ class Item {
       return true;
 
     // Fire it off
-    try {
-      $object = Service::getObject($this->service);
-    }
-    catch (Drupal\wconsumer\Exception $e) {
-      return;
+    $object = Wconsumer::instance()->getService($this->service);
+    if (!isset($object)) {
+      return false;
     }
 
     // Determine some things about the request
@@ -287,7 +285,7 @@ class Item {
       $request['headers'],
       $request['body']
     ));
-    
+
     // See HTTP header
     $this->status = ($this->response->isError()) ? self::STATUS_ERROR : self::STATUS_COMPLETE;
 

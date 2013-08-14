@@ -2,8 +2,8 @@
 namespace Drupal\wconsumer\Rest;
 
 use Drupal\wconsumer\Rest\Authentication\AuthInterface;
-use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Common\RequestInterface;
+use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 
 
@@ -49,7 +49,7 @@ class Request implements RequestInterface
   {
     if (!isset($client))
     {
-      $client = Service::createHttpClient();
+      $client = Wconsumer::instance()->container['httpClient'];
     }
 
     $this->client = $client;

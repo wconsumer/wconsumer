@@ -1,12 +1,12 @@
 <?php
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 
 /**
  * Frontend form user/1/wconsumer
  */
 function _wconsumer_frontend_form($form, &$form_state)
 {
-  $services = Service::services();
+  $services = Wconsumer::instance()->services;
 
   // If they don't have any services active
   if (count($services) == 0) :
@@ -66,7 +66,7 @@ function _wconsumer_frontend_form($form, &$form_state)
 
 /**
  * POST user/%/wconsumer
- * 
+ *
  * Callback for submitting the authentication form
  *
  * This is where we handle authenticating or authenticating a user
@@ -76,21 +76,16 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
 {
   global $user;
 
-  $service = (isset($form_state['clicked_button']['#name'])) ? $form_state['clicked_button']['#name'] : die('Unknown service.');
-  
-  $services = Service::services();
-
-  if (! isset($services[$service]))
-    return drupal_set_message('Unregistered service passed: '.$service, 'error', false);
+  $serviceName = $form_state['clicked_button']['#name'];
+  $service = Wconsumer::instance()->services[$serviceName];
 
   // Either authenticate them or log them out
-  if ($services[$service]->checkAuthentication('user', $user->uid)) :
+  if ($service->checkAuthentication('user', $user->uid)) {
     // Log them out
-    $services[$service]->request->authencation->logout($user);
-
-    return drupal_set_message(t('Your '.$service.' service has been revoked.'));
-  else :
-    // Authenticate them
-    return $services[$service]->request->authencation->authenticate($user);
-  endif;
+    $service->request->authencation->logout($user);
+    drupal_set_message(t('Your '.$serviceName.' service has been revoked.'));
+  }
+  else {
+    $service->request->authencation->authenticate($user);
+  }
 }

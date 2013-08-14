@@ -4,7 +4,7 @@ namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\AuthInterface;
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
@@ -67,7 +67,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
     }
 
-    $client = Service::createHttpClient();
+    $client = Wconsumer::instance()->container['httpClient'];
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,
@@ -96,7 +96,8 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     $requestToken = $this->useRequestToken();
 
-    $client = Service::createHttpClient();
+    /** @var $client \Guzzle\Http\Client */
+    $client = Wconsumer::instance()->container['httpClient'];
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,

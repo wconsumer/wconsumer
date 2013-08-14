@@ -7,14 +7,14 @@
  * @package   wconsumer
  */
 
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 
 /**
  * Register the menus
  */
 function wconsumer_ui_menu()
 {
-  $services = Service::services();
+  $services = Wconsumer::instance()->services;
 
   $items['user/%/wconsumer'] = array(
     'title' => 'Web Services',
@@ -25,7 +25,7 @@ function wconsumer_ui_menu()
     'page arguments' => array('_wconsumer_frontend_form'),
     'file' => 'wconsumer_frontend_form.inc',
     'file path' => drupal_get_path('module', 'wconsumer_ui'),
-    
+
     'access callback' => 'user_access',
     'access arguments' => array(
       'manage web consumer'

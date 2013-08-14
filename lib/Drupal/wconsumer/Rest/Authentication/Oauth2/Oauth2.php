@@ -3,10 +3,10 @@ namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
 use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WconsumerException;
-use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
+use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 
 /**
@@ -105,7 +105,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {
-      $this->client = Service::createHttpClient();
+      $this->client = Wconsumer::instance()->container['httpClient'];
     }
     // @codeCoverageIgnoreEnd
 
