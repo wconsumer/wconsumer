@@ -12,20 +12,20 @@ class Base {
    *
    * @var ServiceBase
    */
-  protected $_instance;
+  protected $service;
 
 
 
   public function __construct(ServiceBase $instance) {
-    $this->_instance = $instance;
+    $this->service = $instance;
   }
 
   public function getService() {
-    return $this->_instance;
+    return $this->service;
   }
 
   public function isInitialized($type, $user = NULL) {
-    return $this->_instance->checkAuthentication($type, (isset($user) ? $user->uid : NULL));
+    return $this->service->checkAuthentication($type, (isset($user) ? $user->uid : NULL));
   }
 
   protected function requireKeys(array $keys, array $data, $errorMessage) {

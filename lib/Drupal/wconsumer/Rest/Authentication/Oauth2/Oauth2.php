@@ -45,7 +45,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   public function signRequest($client, $user = NULL)
   {
     $userId = (isset($user) ? $user->uid : NULL);
-    $accessToken = $this->_instance->getCredentials($userId)->secret;
+    $accessToken = $this->service->getCredentials($userId)->secret;
 
     /** @var $client Client */
     $client->addSubscriber(new Oauth2Plugin($accessToken));
@@ -59,8 +59,8 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   public function authenticate($user)
   {
     // Retrieve the OAuth request token
-    $callback = $this->_instance->callback();
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $callback = $this->service->callback();
+    $serviceCredentials = $this->service->getServiceCredentials();
 
     $url =
       $this->authorizeURL . '?' .
@@ -80,7 +80,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    * @uses ServiceBase Removes their credentials
    */
   public function logout($user) {
-    $this->_instance->setCredentials(null, $user->uid);
+    $this->service->setCredentials(null, $user->uid);
   }
 
   /**
@@ -101,7 +101,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->service->getServiceCredentials();
 
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {
@@ -137,6 +137,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
     $credentials = new Credentials('dummy', $response['access_token']);
 
-    $this->_instance->setCredentials($credentials, $user->uid);
+    $this->service->setCredentials($credentials, $user->uid);
   }
 }

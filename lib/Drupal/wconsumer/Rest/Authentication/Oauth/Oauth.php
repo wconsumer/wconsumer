@@ -40,12 +40,12 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
   public function signRequest($client, $user = NULL) {
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->service->getServiceCredentials();
     if (!isset($serviceCredentials)) {
       throw new \BadMethodCallException("Service credentials not set");
     }
 
-    $userCredentials = $this->_instance->getCredentials(isset($user) ? $user->uid : null);
+    $userCredentials = $this->service->getCredentials(isset($user) ? $user->uid : null);
     if (!isset($userCredentials)) {
       throw new \BadMethodCallException("No stored user credentials found");
     }
@@ -60,9 +60,9 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   public function authenticate($user) {
-    $callback = $this->_instance->callback();
+    $callback = $this->service->callback();
 
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->service->getServiceCredentials();
     if (!$serviceCredentials) {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
     }
@@ -85,11 +85,11 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   public function logout($user) {
-    $this->_instance->setCredentials(null, $user->uid);
+    $this->service->setCredentials(null, $user->uid);
   }
 
   public function onCallback($user, $values) {
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->service->getServiceCredentials();
     if (!$serviceCredentials) {
       throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
     }
@@ -109,11 +109,11 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $response = $client->post($this->accessTokenURL)->send()->getBody(true);
 
     $accessToken = static::parseParameters($response);
-    $this->_instance->setCredentials($accessToken, $user->uid);
+    $this->service->setCredentials($accessToken, $user->uid);
   }
 
   private function useRequestToken($value = null) {
-    $key = "{$this->_instance->getName()}:oauth_request_token";
+    $key = "{$this->service->getName()}:oauth_request_token";
 
     if (func_num_args() > 0) {
       $_SESSION[$key] = $value;

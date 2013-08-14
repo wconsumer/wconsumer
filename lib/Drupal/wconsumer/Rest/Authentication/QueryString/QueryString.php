@@ -59,7 +59,7 @@ class QueryString extends AuthencationBase implements AuthInterface {
   }
 
   public function signRequest($client, $user = NULL) {
-    $credentials = $this->_instance->getServiceCredentials();
+    $credentials = $this->service->getServiceCredentials();
 
     /** @var $client Client */
     $client->addSubscriber(new GuzzlePlugin(array(
