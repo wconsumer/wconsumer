@@ -9,7 +9,7 @@
 /**
  * Implements hook_wconsumer_config()
  */
-function hook_wconsumer_config($services) {
+function hook_wconsumer_config() {
   // Instantiate a new service object for this service module
   $service_object = new service_object();
 
