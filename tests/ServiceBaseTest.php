@@ -1,7 +1,6 @@
 <?php
 namespace Drupal\wconsumer\Tests;
 
-use Drupal\wconsumer\Service;
 use Drupal\wconsumer\ServiceBase;
 
 
@@ -52,5 +51,5 @@ class FooService extends ServiceBase {
  * @ignore
  */
 class FooServiceWithName extends ServiceBase {
-  protected $_service = 'specialservice';
+  protected $name = 'specialservice';
 }

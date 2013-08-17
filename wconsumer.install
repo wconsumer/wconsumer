@@ -9,7 +9,7 @@
 function wconsumer_schema() {
   $schema = array();
 
-  $schema['wc_service_registry'] = array(
+  $schema['wc_service'] = array(
     'description' => 'Stores Services',
 
     'fields' => array(
@@ -28,9 +28,7 @@ function wconsumer_schema() {
       'credentials' => array(
         'type' => 'varchar',
         'length' => 4000,
-        'not null' => TRUE,
-        'default' => '',
-        'serialize' => TRUE,
+        'default' => NULL,
         'description' => 'The serialized credentials object for this service'
       ),
 
@@ -106,7 +104,7 @@ function wconsumer_schema() {
     )
   );
 
-  $schema['wc_service_cred'] = array(
+  $schema['wc_user'] = array(
     'description' => 'Stores a User\'s Service Credentials',
     'fields' => array(
       'cred_id' => array(
@@ -128,9 +126,7 @@ function wconsumer_schema() {
       'credentials' => array(
         'type' => 'varchar',
         'length' => 4000,
-        'not null' => TRUE,
-        'default' => '',
-        'serialize' => TRUE,
+        'default' => NULL,
         'description' => 'The serialized credentials object for this user'
       )
     ),

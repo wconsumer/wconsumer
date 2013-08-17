@@ -24,17 +24,3 @@ spl_autoload_register(function($class)
   if (file_exists(WC_LIB_BASE.'/'.$fileName.'.php'))
     require_once (WC_LIB_BASE.'/'.$fileName.'.php');
 });
-
-/**
- * @ignore
- */
-function module_invoke_all($hook, $default = NULL) {
-  return $default;
-}
-
-/**
- * @ignore
- */
-function url($path, $options = array()) {
-  return $path;
-}

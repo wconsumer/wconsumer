@@ -4,7 +4,7 @@ namespace Drupal\wconsumer\Rest\Authentication\Oauth;
 use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\AuthInterface;
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
@@ -39,18 +39,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function signRequest($client, $user = NULL) {
-    $serviceCredentials = $this->_instance->getServiceCredentials();
-    if (!isset($serviceCredentials)) {
-      throw new \BadMethodCallException("Service credentials not set");
-    }
+  public function signRequest(Client $client, $user = NULL) {
+    $serviceCredentials = $this->service->requireServiceCredentials();
+    $userCredentials = $this->service->requireCredentials(isset($user) ? $user->uid : null);
 
-    $userCredentials = $this->_instance->getCredentials(isset($user) ? $user->uid : null);
-    if (!isset($userCredentials)) {
-      throw new \BadMethodCallException("No stored user credentials found");
-    }
-
-    /** @var $client Client */
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,
@@ -60,14 +52,11 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   public function authenticate($user) {
-    $callback = $this->_instance->callback();
+    $callback = $this->service->callback();
 
-    $serviceCredentials = $this->_instance->getServiceCredentials();
-    if (!$serviceCredentials) {
-      throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
-    }
+    $serviceCredentials = $this->service->requireServiceCredentials();
 
-    $client = Service::createHttpClient();
+    $client = Wconsumer::instance()->container['httpClient'];
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,
@@ -85,18 +74,15 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   public function logout($user) {
-    $this->_instance->setCredentials(null, $user->uid);
+    $this->service->setCredentials(null, $user->uid);
   }
 
   public function onCallback($user, $values) {
-    $serviceCredentials = $this->_instance->getServiceCredentials();
-    if (!$serviceCredentials) {
-      throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
-    }
-
+    $serviceCredentials = $this->service->requireServiceCredentials();
     $requestToken = $this->useRequestToken();
 
-    $client = Service::createHttpClient();
+    /** @var $client \Guzzle\Http\Client */
+    $client = Wconsumer::instance()->container['httpClient'];
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,
@@ -108,11 +94,11 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $response = $client->post($this->accessTokenURL)->send()->getBody(true);
 
     $accessToken = static::parseParameters($response);
-    $this->_instance->setCredentials($accessToken, $user->uid);
+    $this->service->setCredentials($accessToken, $user->uid);
   }
 
   private function useRequestToken($value = null) {
-    $key = "{$this->_instance->getName()}:oauth_request_token";
+    $key = "{$this->service->getName()}:oauth_request_token";
 
     if (func_num_args() > 0) {
       $_SESSION[$key] = $value;

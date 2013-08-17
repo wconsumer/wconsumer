@@ -31,10 +31,8 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
     return parent::isInitialized($type, $user);
   }
 
-  public function signRequest($client, $user = NULL) {
-    $credentials = $this->_instance->getServiceCredentials();
-
-    /** @var $client Client */
+  public function signRequest(Client $client, $user = NULL) {
+    $credentials = $this->service->requireServiceCredentials();
     $client->addSubscriber(new GuzzleHttpAuth($credentials->token, $credentials->secret));
   }
 

@@ -3,10 +3,10 @@ namespace Drupal\wconsumer\Rest\Authentication\Oauth2;
 
 use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WconsumerException;
-use Drupal\wconsumer\Service;
 use Drupal\wconsumer\Rest\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Plugin as Oauth2Plugin;
+use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 
 /**
@@ -42,12 +42,10 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
 
 
-  public function signRequest($client, $user = NULL)
+  public function signRequest(Client $client, $user = NULL)
   {
     $userId = (isset($user) ? $user->uid : NULL);
-    $accessToken = $this->_instance->getCredentials($userId)->secret;
-
-    /** @var $client Client */
+    $accessToken = $this->service->requireCredentials($userId)->secret;
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
@@ -58,12 +56,11 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    */
   public function authenticate($user)
   {
-    // Retrieve the OAuth request token
-    $callback = $this->_instance->callback();
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $callback = $this->service->callback();
+    $serviceCredentials = $this->service->requireServiceCredentials();
 
     $url =
-      $this->authorizeURL .
+      $this->authorizeURL . '?' .
       http_build_query(array(
         'client_id'     => $serviceCredentials->token,
         'redirect_uri'  => $callback,
@@ -80,7 +77,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    * @uses ServiceBase Removes their credentials
    */
   public function logout($user) {
-    $this->_instance->setCredentials(null, $user->uid);
+    $this->service->setCredentials(null, $user->uid);
   }
 
   /**
@@ -92,7 +89,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    * @throws WconsumerException
    */
   public function onCallback($user, $values) {
-    // Check the state
     if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
       throw new WconsumerException('State for OAuth2 Interface not matching');
     }
@@ -101,11 +97,11 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
-    $serviceCredentials = $this->_instance->getServiceCredentials();
+    $serviceCredentials = $this->service->requireServiceCredentials();
 
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {
-      $this->client = Service::createHttpClient();
+      $this->client = Wconsumer::instance()->container['httpClient'];
     }
     // @codeCoverageIgnoreEnd
 
@@ -136,7 +132,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     }
 
     $credentials = new Credentials('dummy', $response['access_token']);
-
-    $this->_instance->setCredentials($credentials, $user->uid);
+    $this->service->setCredentials($credentials, $user->uid);
   }
 }
