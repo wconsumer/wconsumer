@@ -59,9 +59,9 @@ class QueryString extends AuthencationBase implements AuthInterface {
   }
 
   public function signRequest($client, $user = NULL) {
-    $credentials = $this->service->getServiceCredentials();
-
     /** @var $client Client */
+
+    $credentials = $this->service->requireServiceCredentials();
     $client->addSubscriber(new GuzzlePlugin(array(
       'query_key' => $this->getQueryKey($credentials),
       'query_value' => $credentials->secret,

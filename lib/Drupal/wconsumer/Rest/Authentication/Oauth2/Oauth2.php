@@ -44,10 +44,10 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
   public function signRequest($client, $user = NULL)
   {
-    $userId = (isset($user) ? $user->uid : NULL);
-    $accessToken = $this->service->getCredentials($userId)->secret;
-
     /** @var $client Client */
+
+    $userId = (isset($user) ? $user->uid : NULL);
+    $accessToken = $this->service->requireCredentials($userId)->secret;
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
@@ -58,9 +58,8 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    */
   public function authenticate($user)
   {
-    // Retrieve the OAuth request token
     $callback = $this->service->callback();
-    $serviceCredentials = $this->service->getServiceCredentials();
+    $serviceCredentials = $this->service->requireServiceCredentials();
 
     $url =
       $this->authorizeURL . '?' .
@@ -92,7 +91,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    * @throws WconsumerException
    */
   public function onCallback($user, $values) {
-    // Check the state
     if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
       throw new WconsumerException('State for OAuth2 Interface not matching');
     }
@@ -101,7 +99,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
-    $serviceCredentials = $this->service->getServiceCredentials();
+    $serviceCredentials = $this->service->requireServiceCredentials();
 
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {
@@ -136,7 +134,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     }
 
     $credentials = new Credentials('dummy', $response['access_token']);
-
     $this->service->setCredentials($credentials, $user->uid);
   }
 }

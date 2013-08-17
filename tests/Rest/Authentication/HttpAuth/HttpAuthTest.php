@@ -15,7 +15,7 @@
       $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
       $service
         ->expects($this->once())
-        ->method('getServiceCredentials')
+        ->method('requireServiceCredentials')
         ->will($this->returnValue(Credentials::fromArray(array(
           'token' => 'johndoe',
           'secret' => 'der parol'

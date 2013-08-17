@@ -25,7 +25,7 @@
       $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
       $service
         ->expects($this->any())
-        ->method('getServiceCredentials')
+        ->method('requireServiceCredentials')
         ->will($this->returnValue(new Credentials($storedQueryKey, 'parole')));
 
       $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();

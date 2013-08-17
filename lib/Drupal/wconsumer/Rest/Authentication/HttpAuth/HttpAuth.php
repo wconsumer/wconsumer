@@ -32,9 +32,9 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
   }
 
   public function signRequest($client, $user = NULL) {
-    $credentials = $this->service->getServiceCredentials();
-
     /** @var $client Client */
+
+    $credentials = $this->service->requireServiceCredentials();
     $client->addSubscriber(new GuzzleHttpAuth($credentials->token, $credentials->secret));
   }
 

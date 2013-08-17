@@ -40,15 +40,8 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
   public function signRequest($client, $user = NULL) {
-    $serviceCredentials = $this->service->getServiceCredentials();
-    if (!isset($serviceCredentials)) {
-      throw new \BadMethodCallException("Service credentials not set");
-    }
-
-    $userCredentials = $this->service->getCredentials(isset($user) ? $user->uid : null);
-    if (!isset($userCredentials)) {
-      throw new \BadMethodCallException("No stored user credentials found");
-    }
+    $serviceCredentials = $this->service->requireServiceCredentials();
+    $userCredentials = $this->service->requireCredentials(isset($user) ? $user->uid : null);
 
     /** @var $client Client */
     $client->addSubscriber(new GuzzleOAuth(array(
@@ -62,10 +55,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   public function authenticate($user) {
     $callback = $this->service->callback();
 
-    $serviceCredentials = $this->service->getServiceCredentials();
-    if (!$serviceCredentials) {
-      throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
-    }
+    $serviceCredentials = $this->service->requireServiceCredentials();
 
     $client = Wconsumer::instance()->container['httpClient'];
     $client->addSubscriber(new GuzzleOAuth(array(
@@ -89,11 +79,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
   }
 
   public function onCallback($user, $values) {
-    $serviceCredentials = $this->service->getServiceCredentials();
-    if (!$serviceCredentials) {
-      throw new \BadMethodCallException("Service credentials should be set prior to calling authenticate()");
-    }
-
+    $serviceCredentials = $this->service->requireServiceCredentials();
     $requestToken = $this->useRequestToken();
 
     /** @var $client \Guzzle\Http\Client */

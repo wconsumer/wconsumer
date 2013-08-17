@@ -15,7 +15,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
     $service
       ->expects($this->once())
-      ->method('getCredentials')
+      ->method('requireCredentials')
       ->will($this->returnValue(new Credentials('dummy', 'oauth2 access token')));
 
     $client = $this->getMockBuilder('Guzzle\Http\Client')->setMethods(array('send'))->getMock();
@@ -131,7 +131,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
       $service
         ->expects($onceOrAny())
-        ->method('getServiceCredentials')
+        ->method('requireServiceCredentials')
         ->will($this->returnValue(new Credentials('key', 'secret')));
 
       $service
@@ -220,7 +220,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
     $service
       ->expects($this->once())
-      ->method('getServiceCredentials')
+      ->method('requireServiceCredentials')
       ->will($this->returnValue(new Credentials($consumerKey, $consumerSecret)));
 
 

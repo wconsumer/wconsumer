@@ -42,6 +42,14 @@ class ServiceBaseTest extends DrupalTestBase {
     $this->assertNull($exception);
   }
 
+  /**
+   * @expectedException \BadMethodCallException
+   */
+  public function testRequireCredentialsFailsIfNoCredentialsSet() {
+    $service = new TestService();
+    $service->requireCredentials();
+  }
+
   public function testServiceCredentialsGettingSetting() {
     $service = new TestService();
 
@@ -61,6 +69,14 @@ class ServiceBaseTest extends DrupalTestBase {
     // Remove credentials
     $service->setServiceCredentials(null);
     $this->assertNull($service->getServiceCredentials());
+  }
+
+  /**
+   * @expectedException \BadMethodCallException
+   */
+  public function testRequireServiceCredentialsFailsIfNoCredentialsSet() {
+    $service = new TestService();
+    $service->requireServiceCredentials();
   }
 
   /**

@@ -74,6 +74,16 @@ abstract class ServiceBase {
     return $credentials;
   }
 
+  public function requireServiceCredentials() {
+    $credentials = $this->getServiceCredentials();
+
+    if (!isset($credentials)) {
+      throw new \BadMethodCallException("Please set up service credentials before using it");
+    }
+
+    return $credentials;
+  }
+
   public function setCredentials(Credentials $credentials = null, $user_id = NULL) {
     if ($user_id == NULL) {
       global $user;
@@ -124,6 +134,16 @@ abstract class ServiceBase {
     }
 
     return $credentials;
+  }
+
+  public function requireCredentials($userId = NULL) {
+      $credentials = $this->getCredentials($userId);
+
+      if (!isset($credentials)) {
+          throw new \BadMethodCallException("Please connect your account with service before using it");
+      }
+
+      return $credentials;
   }
 
   /**
