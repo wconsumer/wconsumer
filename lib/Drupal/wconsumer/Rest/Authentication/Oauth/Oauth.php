@@ -39,11 +39,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
 
 
-  public function signRequest($client, $user = NULL) {
+  public function signRequest(Client $client, $user = NULL) {
     $serviceCredentials = $this->service->requireServiceCredentials();
     $userCredentials = $this->service->requireCredentials(isset($user) ? $user->uid : null);
 
-    /** @var $client Client */
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,

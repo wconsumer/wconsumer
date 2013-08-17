@@ -42,10 +42,8 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
 
 
-  public function signRequest($client, $user = NULL)
+  public function signRequest(Client $client, $user = NULL)
   {
-    /** @var $client Client */
-
     $userId = (isset($user) ? $user->uid : NULL);
     $accessToken = $this->service->requireCredentials($userId)->secret;
     $client->addSubscriber(new Oauth2Plugin($accessToken));
