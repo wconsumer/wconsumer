@@ -3,7 +3,7 @@
 
   use Drupal\wconsumer\Rest\Authentication\Credentials;
   use Drupal\wconsumer\Rest\Authentication\QueryString\QueryString;
-  use Drupal\wconsumer\ServiceBase;
+  use Drupal\wconsumer\Service\Base;
   use Drupal\wconsumer\Tests\TestService;
 
 
@@ -22,7 +22,7 @@
 
     private function signRequestTest($predefinedQueryKey = null, $storedQueryKey = null)
     {
-      $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
+      $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
       $service
         ->expects($this->any())
         ->method('requireServiceCredentials')
@@ -45,7 +45,7 @@
       $this->assertSame('pass=parole', $query);
     }
 
-    private function auth(ServiceBase $service = null)
+    private function auth(Base $service = null)
     {
       if (!isset($service)) {
         $service = new TestService();

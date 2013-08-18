@@ -53,7 +53,6 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
   public function authenticate($user) {
     $callback = $this->service->callback();
-
     $serviceCredentials = $this->service->requireServiceCredentials();
 
     $client = Wconsumer::instance()->container['httpClient'];

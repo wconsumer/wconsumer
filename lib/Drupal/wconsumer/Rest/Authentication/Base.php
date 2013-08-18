@@ -1,8 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Rest\Authentication;
 
-use Drupal\wconsumer\ServiceBase;
-use Drupal\wconsumer\Exception as WconsumerException;
+use Drupal\wconsumer\Service\Base as ServiceBase;
 
 
 

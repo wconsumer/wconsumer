@@ -52,6 +52,6 @@ function hook_wconsumer_config() {
 /**
  * The Dummy Service Object
  */
-class service_object extends Drupal\wconsumer\ServiceBase {
+class service_object extends \Drupal\wconsumer\Service\Base {
 
 }

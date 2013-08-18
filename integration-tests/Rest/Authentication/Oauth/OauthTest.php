@@ -5,7 +5,7 @@ use Drupal\wconsumer\IntegrationTests\Rest\Authentication\AuthenticationTest;
 use Drupal\wconsumer\IntegrationTests\TestService;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Rest\Authentication\Oauth\Oauth;
-use Drupal\wconsumer\ServiceBase;
+use Drupal\wconsumer\Service\Base;
 use Guzzle\Http\Client;
 
 
@@ -206,7 +206,7 @@ class OauthTest extends AuthenticationTest {
     $auth->onCallback($GLOBALS['user'], array());
   }
 
-  protected function auth(ServiceBase $service = null) {
+  protected function auth(Base $service = null) {
     if (!isset($service)) {
       $service = $this->service();
     }

@@ -1,13 +1,16 @@
 <?php
 namespace Drupal\wconsumer;
 
+use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Services\Github;
 use Guzzle\Http\Client;
 use Pimple;
 
 
 /**
- * @property-read ServiceBase[] $services
+ * @property-read Base[] $services
  * @property-read Pimple $container
+ * @property-read Github $github
  */
 class Wconsumer {
   private $services;
@@ -25,10 +28,14 @@ class Wconsumer {
     return static::$instance;
   }
 
+  public static function api($service, $method, $url, array $parameters = array()) {
+
+  }
+
   /**
    * @param string $name
    * @param bool $silent
-   * @return ServiceBase|null
+   * @return Base|null
    */
   public function getService($name, $silent = true) {
     $services = $this->__get('services');

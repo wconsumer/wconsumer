@@ -1,6 +1,9 @@
 <?php
-namespace Drupal\wconsumer;
+namespace Drupal\wconsumer\Service;
+
+use Drupal\wconsumer\Queue;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
+
 
 /**
  * Base Class for Services
@@ -8,7 +11,7 @@ use Drupal\wconsumer\Rest\Authentication\Credentials;
  * @package wconsumer
  * @subpackage services
  */
-abstract class ServiceBase {
+abstract class Base {
   /**
    * Define a way to specify the internal name of the service
    * Optional -- will default to the class name

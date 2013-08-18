@@ -3,7 +3,7 @@
 
   use Drupal\wconsumer\Rest\Authentication\Credentials;
   use Drupal\wconsumer\Rest\Authentication\HttpAuth\HttpAuth;
-  use Drupal\wconsumer\ServiceBase;
+  use Drupal\wconsumer\Service\Base;
   use Drupal\wconsumer\Tests\TestService;
 
 
@@ -12,7 +12,7 @@
   {
     public function testSignRequest()
     {
-      $service = $this->getMockBuilder('Drupal\wconsumer\ServiceBase')->disableOriginalConstructor()->getMock();
+      $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
       $service
         ->expects($this->once())
         ->method('requireServiceCredentials')
@@ -34,7 +34,7 @@
       $auth->signRequest($client);
     }
 
-    private function auth(ServiceBase $service = null) {
+    private function auth(Base $service = null) {
       if (!isset($service)) {
         $service = new TestService();
       }
