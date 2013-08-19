@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests\Service;
 
-use Drupal\wconsumer\Rest\Authentication\Oauth\Oauth;
+use Drupal\wconsumer\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\Service\Meetup;
 
 

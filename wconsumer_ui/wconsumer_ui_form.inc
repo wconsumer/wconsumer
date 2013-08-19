@@ -46,12 +46,12 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
 
   $authencation = $service->authentication;
 
-  if ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth\Oauth ||
-      $authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2) {
+  if ($authencation instanceof \Drupal\wconsumer\Authentication\Oauth\Oauth ||
+      $authencation instanceof \Drupal\wconsumer\Authentication\Oauth2\Oauth2) {
     $tokenLabel = 'Consumer Key';
     $secretLabel = 'Consumer Secret';
   }
-  elseif ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\QueryString\QueryString) {
+  elseif ($authencation instanceof \Drupal\wconsumer\Authentication\QueryString\QueryString) {
     $tokenLabel = $authencation->keyLabel;
     $secretLabel = $authencation->valueLabel;
 
@@ -138,7 +138,7 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
 
   // Validate
   try {
-    $credentials = \Drupal\wconsumer\Rest\Authentication\Credentials::fromArray($values);
+    $credentials = \Drupal\wconsumer\Authentication\Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
     return;

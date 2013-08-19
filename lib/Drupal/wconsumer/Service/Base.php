@@ -2,8 +2,8 @@
 namespace Drupal\wconsumer\Service;
 
 use Drupal\wconsumer\Queue;
-use Drupal\wconsumer\Rest\Authentication\AuthInterface;
-use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\Authentication\AuthInterface;
+use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
 use Drupal\wconsumer\Service\Exception\NotLoggedInUser;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;

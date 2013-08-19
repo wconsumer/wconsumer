@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests\Service;
 
-use Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2;
+use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 use Drupal\wconsumer\Service\Github;
 
 

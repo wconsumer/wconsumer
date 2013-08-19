@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\IntegrationTests\Service;
 
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
-use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Service\Twitter;
 
 

@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests;
 
-use Drupal\wconsumer\Rest\Authentication\HttpAuth\HttpAuth;
+use Drupal\wconsumer\Authentication\HttpAuth\HttpAuth;
 use Drupal\wconsumer\Service\Base;
 
 
