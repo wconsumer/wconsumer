@@ -3,6 +3,7 @@ namespace Drupal\wconsumer;
 
 use Drupal\wconsumer\Service\Collection;
 use Drupal\wconsumer\Service\Github;
+use Drupal\wconsumer\Service\Twitter;
 use Guzzle\Http\Client;
 use Pimple;
 
@@ -48,6 +49,7 @@ class Wconsumer {
     if ($property == 'services' && !isset($this->services)) {
       $services = array(); {
         $services['github'] = new Github();
+        $services['twitter'] = new Twitter();
       }
 
       $this->services = new Collection($services);
