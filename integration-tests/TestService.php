@@ -1,7 +1,9 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests;
 
+use Drupal\wconsumer\Rest\Authentication\HttpAuth\HttpAuth;
 use Drupal\wconsumer\Service\Base;
+
 
 
 /**
@@ -11,7 +13,13 @@ use Drupal\wconsumer\Service\Base;
 class TestService extends Base {
   protected $name = 'integration_tests_test_service';
 
+
+
   public static function getClass() {
     return get_called_class();
+  }
+
+  protected function initAuthentication() {
+    return new HttpAuth($this);
   }
 }

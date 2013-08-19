@@ -9,6 +9,41 @@ use Drupal\wconsumer\IntegrationTests\TestService;
 
 class BaseTest extends DrupalTestBase {
 
+  public function testApi() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')));
+    $api = $service->api(NULL, array('user'));
+    $this->assertInstanceOf('Guzzle\Http\Client', $api);
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\ServiceInactive
+   */
+  public function testApiFailsIfServiceIsNotConfigured() {
+    $service = new TestService();
+    $service->api();
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\NoUserCredentials
+   */
+  public function testApiFailsIfNoUserCredentialsStored() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->api();
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\AdditionalScopesRequired
+   */
+  public function testApiFailsIfAdditionalScopesRequired() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')));
+    $service->api(NULL, array('user', 'friends'));
+  }
+
   public function testCredentialsGettingSetting() {
     $service = new TestService();
 

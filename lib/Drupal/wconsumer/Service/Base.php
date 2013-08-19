@@ -2,7 +2,12 @@
 namespace Drupal\wconsumer\Service;
 
 use Drupal\wconsumer\Queue;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
+use Drupal\wconsumer\Service\Exception\NoUserCredentials;
+use Drupal\wconsumer\Service\Exception\ServiceInactive;
+use Drupal\wconsumer\Wconsumer;
 
 
 /**
@@ -41,14 +46,38 @@ abstract class Base {
    */
   public $options  = NULL;
 
+  /**
+   * @var AuthInterface
+   */
+  public $authentication = NULL;
+
 
 
   public function __construct() {
-    if (!isset($this->name)) {
-      $this->name = str_replace('\\', '__', get_called_class());
+    $this->name = $this->initName();
+    $this->authentication = $this->initAuthentication();
+  }
+
+  public function api($userId = NULL, array $scopes = array()) {
+    $user = new \stdClass();
+    $user->uid = (isset($userId) ? $userId : $GLOBALS['user']->uid);
+
+    if (!$this->getServiceCredentials()) {
+      throw new ServiceInactive("'{$this->name}' service is currently inactive");
     }
 
-    $this->name = strtolower($this->name);
+    $credentials = $this->getCredentials($userId);
+    if (!$credentials) {
+      throw new NoUserCredentials("User not yet authorized access to his '{$this->name}' service profile");
+    }
+
+    if (count(array_diff($scopes, $credentials->scopes)) > 0) {
+      throw new AdditionalScopesRequired("Additional scopes/permissions required. Need to re-authorize user with '{$this->name}' service.");
+    }
+
+    $client = Wconsumer::instance()->container['httpClient'];
+    $this->authentication->signRequest($client, $user);
+    return $client;
   }
 
   public function setServiceCredentials(Credentials $credentials = null) {
@@ -203,5 +232,24 @@ abstract class Base {
     $i->service = $this->getName();
 
     return $i;
+  }
+
+  /**
+   * @return AuthInterface
+   */
+  protected function initAuthentication() {
+    return NULL;
+  }
+
+  protected function initName() {
+    $name = $this->name;
+
+    if (!isset($name)) {
+      $name = str_replace('\\', '__', get_called_class());
+    }
+
+    $name = strtolower($name);
+
+    return $name;
   }
 }

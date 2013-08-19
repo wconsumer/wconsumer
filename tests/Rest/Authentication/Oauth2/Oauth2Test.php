@@ -106,6 +106,10 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       if (!isset($state)) {
         $state = 'wconsumer';
       }
+      $_SESSION['wconsumer:test_web_service:oauth2_state'] = array(
+        'key' => 'wconsumer',
+        'scopes' => array(),
+      );
 
       if (!isset($response)) {
         $response = new Response(200, null, json_encode(array(
@@ -138,18 +142,16 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
         ->expects($onceOrAny())
         ->method('setCredentials')
         ->with(new Credentials('dummy', '__access_token__'), $user->uid);
-    }
 
-    $request = null; {
-      $request = $this->getMockBuilder('Guzzle\Http\Message\Request')->disableOriginalConstructor()->getMock();
-
-      $request
-        ->expects($onceOrAny())
-        ->method('send')
-        ->will($this->returnValue($response));
+      $service
+        ->expects($this->any())
+        ->method('getName')
+        ->will($this->returnValue('test_web_service'));
     }
 
     $client = null; {
+      $request = $test->getMockBuilder('Guzzle\Http\Message\Request')->disableOriginalConstructor()->getMock();
+
       $client = $this->getMockBuilder('Guzzle\Http\Client')->disableOriginalConstructor()->getMock();
 
       $client
@@ -166,6 +168,12 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
           return $request;
         }));
+
+      $client
+        ->expects($onceOrAny())
+        ->method('send')
+        ->with($request)
+        ->will($this->returnValue($response));
     }
 
     /** @noinspection PhpParamsInspection */
