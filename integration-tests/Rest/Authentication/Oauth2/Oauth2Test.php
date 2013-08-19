@@ -89,12 +89,12 @@ class Oauth2Test extends AuthenticationTest {
     $auth = $this->auth();
     $auth->client = $client;
 
-    $auth->onCallback(NULL, array(array(
+    $auth->onCallback((object)array('uid' => 534), array(array(
       'state' => 'xyz',
-      'code' => '123'
+      'code' => 'abc'
     )));
 
-    $this->assertSame(array('friends'), $this->auth()->getService()->getCredentials()->scopes);
+    $this->assertSame(array('friends'), $this->auth()->getService()->getCredentials(534)->scopes);
   }
 
   protected function auth(ServiceBase $service = NULL) {

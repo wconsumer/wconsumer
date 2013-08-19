@@ -5,6 +5,7 @@ use Drupal\wconsumer\Queue;
 use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
+use Drupal\wconsumer\Service\Exception\NotLoggedInUser;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Exception\ServiceInactive;
 use Drupal\wconsumer\Wconsumer;
@@ -70,6 +71,10 @@ abstract class Base {
     $user = new \stdClass();
     $user->uid = (isset($userId) ? $userId : $GLOBALS['user']->uid);
 
+    if (empty($user->uid)) {
+      throw new NotLoggedInUser("User is not logged in");
+    }
+
     if (!$this->getServiceCredentials()) {
       throw new ServiceInactive("'{$this->name}' service is currently inactive");
     }
@@ -130,6 +135,10 @@ abstract class Base {
     if ($user_id == NULL) {
       global $user;
       $user_id = $user->uid;
+    }
+
+    if (!$user_id) {
+      throw new \InvalidArgumentException("Can't set credentials for guest visitor");
     }
 
     db_merge($this->usersTable)

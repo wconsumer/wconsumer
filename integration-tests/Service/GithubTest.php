@@ -9,6 +9,8 @@ use Drupal\wconsumer\Service\Github;
 class GithubTest extends DrupalTestBase {
 
   public function testApi() {
+    $GLOBALS['user'] = (object)array('uid' => 56);
+
     $github = new Github();
 
     $github->setServiceCredentials(Credentials::fromArray($this->sensitiveData['github']['app']));

@@ -36,9 +36,9 @@ abstract class AuthenticationTest extends DrupalTestBase {
     $service = $auth->getService();
 
     $service->setServiceCredentials($serviceCredentials);
-    $service->setCredentials($userCredentials);
+    $service->setCredentials($userCredentials, 100);
 
-    $this->assertSame($expectedResult, $auth->isInitialized($domain));
+    $this->assertSame($expectedResult, $auth->isInitialized($domain, (object)array('uid' => 100)));
   }
 
   /**
