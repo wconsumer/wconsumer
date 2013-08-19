@@ -2,7 +2,6 @@
 namespace Drupal\wconsumer\Service;
 
 use Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2;
-use Drupal\wconsumer\Service\Base;
 
 
 

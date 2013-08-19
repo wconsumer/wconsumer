@@ -7,7 +7,8 @@ use Drupal\wconsumer\Service\Github;
 
 
 class GithubTest extends \PHPUnit_Framework_TestCase {
-  public function testConstruction() {
+
+  public function testAuthentication() {
     $github = new Github();
     $this->assertInstanceOf(Oauth2::getClass(), $github->authentication);
   }
