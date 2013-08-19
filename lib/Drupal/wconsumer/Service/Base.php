@@ -1,6 +1,16 @@
 <?php
-namespace Drupal\wconsumer;
+namespace Drupal\wconsumer\Service;
+
+use Drupal\wconsumer\Queue;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
+use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
+use Drupal\wconsumer\Service\Exception\NotLoggedInUser;
+use Drupal\wconsumer\Service\Exception\NoUserCredentials;
+use Drupal\wconsumer\Service\Exception\ServiceInactive;
+use Drupal\wconsumer\Wconsumer;
+use Guzzle\Http\Client;
+
 
 /**
  * Base Class for Services
@@ -8,7 +18,7 @@ use Drupal\wconsumer\Rest\Authentication\Credentials;
  * @package wconsumer
  * @subpackage services
  */
-abstract class ServiceBase {
+abstract class Base {
   /**
    * Define a way to specify the internal name of the service
    * Optional -- will default to the class name
@@ -16,6 +26,25 @@ abstract class ServiceBase {
    * @var string
    */
   protected $name;
+
+  /**
+   * Options Class
+   *
+   * @var object|void
+   */
+  public $options  = NULL;
+
+  /**
+   * @var AuthInterface
+   */
+  public $authentication = NULL;
+
+  /**
+   * Base API url
+   *
+   * @var string
+   */
+  protected $apiUrl;
 
   /**
    * Services table
@@ -31,21 +60,39 @@ abstract class ServiceBase {
    */
   private $usersTable = 'wc_user';
 
-  /**
-   * Options Class
-   *
-   * @var object|void
-   */
-  public $options  = NULL;
-
 
 
   public function __construct() {
-    if (!isset($this->name)) {
-      $this->name = str_replace('\\', '__', get_called_class());
+    $this->name = $this->initName();
+    $this->authentication = $this->initAuthentication();
+  }
+
+  public function api($userId = NULL, array $scopes = array()) {
+    $user = new \stdClass();
+    $user->uid = (isset($userId) ? $userId : $GLOBALS['user']->uid);
+
+    if (empty($user->uid)) {
+      throw new NotLoggedInUser("User is not logged in");
     }
 
-    $this->name = strtolower($this->name);
+    if (!$this->getServiceCredentials()) {
+      throw new ServiceInactive("'{$this->name}' service is currently inactive");
+    }
+
+    $credentials = $this->getCredentials($userId);
+    if (!$credentials) {
+      throw new NoUserCredentials("User not yet authorized access to his '{$this->name}' service profile");
+    }
+
+    if (count(array_diff($scopes, $credentials->scopes)) > 0) {
+      throw new AdditionalScopesRequired("Additional scopes/permissions required. Need to re-authorize user with '{$this->name}' service.");
+    }
+
+    /** @var Client $client */
+    $client = Wconsumer::instance()->container['httpClient'];
+    $client->setBaseUrl($this->apiUrl);
+    $this->authentication->signRequest($client, $user);
+    return $client;
   }
 
   public function setServiceCredentials(Credentials $credentials = null) {
@@ -84,10 +131,14 @@ abstract class ServiceBase {
     return $credentials;
   }
 
-  public function setCredentials(Credentials $credentials = null, $user_id = NULL) {
+  public function setCredentials(Credentials $credentials = NULL, $user_id = NULL) {
     if ($user_id == NULL) {
       global $user;
       $user_id = $user->uid;
+    }
+
+    if (!$user_id) {
+      throw new \InvalidArgumentException("Can't set credentials for guest visitor");
     }
 
     db_merge($this->usersTable)
@@ -200,5 +251,28 @@ abstract class ServiceBase {
     $i->service = $this->getName();
 
     return $i;
+  }
+
+  public static function getClass() {
+    return get_called_class();
+  }
+
+  /**
+   * @return AuthInterface
+   */
+  protected function initAuthentication() {
+    return NULL;
+  }
+
+  protected function initName() {
+    $name = $this->name;
+
+    if (!isset($name)) {
+      $name = str_replace('\\', '__', get_called_class());
+    }
+
+    $name = strtolower($name);
+
+    return $name;
   }
 }

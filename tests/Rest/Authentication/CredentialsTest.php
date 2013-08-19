@@ -7,9 +7,10 @@ use Drupal\wconsumer\Rest\Authentication\Credentials;
 
 class CredentialsTest extends \PHPUnit_Framework_TestCase {
   public function testConstruction() {
-    $credentials = new Credentials(123, 'abc');
+    $credentials = new Credentials(123, 'abc', array('friends', 'messages'));
     $this->assertSame('123', $credentials->token);
     $this->assertSame('abc', $credentials->secret);
+    $this->assertSame(array('friends', 'messages'), $credentials->scopes);
   }
 
   /**
@@ -30,11 +31,13 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
     $credentials = Credentials::fromArray(array(
       'token' => 'token',
       'secret' => 'secret',
+      'scopes' => NULL,
       'dummy' => 'skip'
     ));
 
     $this->assertSame('token', $credentials->token);
     $this->assertSame('secret', $credentials->secret);
+    $this->assertSame(array(), $credentials->scopes);
 
     /** @noinspection PhpUndefinedFieldInspection */
     $this->assertTrue(!isset($credentials->dummy));
@@ -42,13 +45,14 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
 
   public function testSerialize() {
     $credentials = new Credentials('johntheuser', 'mypassword');
-    $this->assertSame('{"token":"johntheuser","secret":"mypassword"}', $credentials->serialize());
+    $this->assertSame('{"token":"johntheuser","secret":"mypassword","scopes":[]}', $credentials->serialize());
   }
 
   public function testUnserialize() {
-    $credentials = Credentials::unserialize('{"token":"johntheuser","secret":"mypassword"}');
+    $credentials = Credentials::unserialize('{"token":"johntheuser","secret":"mypassword","scopes":["scope1", "scope2"]}');
     $this->assertSame('johntheuser', $credentials->token);
     $this->assertSame('mypassword', $credentials->secret);
+    $this->assertSame(array("scope1", "scope2"), $credentials->scopes);
   }
 
   /**

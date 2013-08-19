@@ -15,7 +15,7 @@ use Guzzle\Http\Client;
 interface AuthInterface {
   public function isInitialized($type, $user = NULL);
   public function signRequest(Client $client, $user = NULL);
-  public function authenticate($user);
+  public function authenticate($user, array $scopes = array());
   public function logout($user);
   public function onCallback($user, $values);
 }

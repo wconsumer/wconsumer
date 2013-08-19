@@ -1,14 +1,15 @@
 <?php
-namespace Drupal\wconsumer\Tests;
+namespace Drupal\wconsumer\Tests\Service;
 
-use Drupal\wconsumer\ServiceBase;
+use Drupal\wconsumer\Service\Base;
 
 
-class ServiceBaseTest extends \PHPUnit_Framework_TestCase {
+
+class BaseTest extends \PHPUnit_Framework_TestCase {
 
   public function testServiceName() {
     $object = new FooService();
-    $this->assertEquals('drupal__wconsumer__tests__fooservice', $object->getName());
+    $this->assertEquals('drupal__wconsumer__tests__service__fooservice', $object->getName());
   }
 
   public function testSpecificServiceName() {
@@ -17,7 +18,7 @@ class ServiceBaseTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testNewQueueItem() {
-    $object = new FooService();
+    $object    = new FooService();
     $queueItem = $object->newQueueItem();
 
     $this->assertEquals('Drupal\wconsumer\Queue\Item', get_class($queueItem));
@@ -44,12 +45,12 @@ class ServiceBaseTest extends \PHPUnit_Framework_TestCase {
 /**
  * @ignore
  */
-class FooService extends ServiceBase {
+class FooService extends Base {
 }
 
 /**
  * @ignore
  */
-class FooServiceWithName extends ServiceBase {
+class FooServiceWithName extends Base {
   protected $name = 'specialservice';
 }

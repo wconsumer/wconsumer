@@ -8,22 +8,27 @@ use Drupal\wconsumer\Exception as WconsumerException;
 /**
  * @property-read string $token
  * @property-read string $secret
+ * @property-read array  $scopes
  */
 class Credentials {
   private $token;
   private $secret;
+  private $scopes;
+
+
 
   public static function fromArray(array $data) {
-    return new static(@$data['token'], @$data['secret']);
+    return new static(@$data['token'], @$data['secret'], @$data['scopes']);
   }
 
   public static function getClass() {
     return get_called_class();
   }
 
-  public function __construct($token, $secret) {
+  public function __construct($token, $secret, array $scopes = NULL) {
     $this->token = $this->input($token, 'Token');
     $this->secret = $this->input($secret, 'Token secret');
+    $this->scopes = (array)$scopes;
   }
 
   public function __get($property) {

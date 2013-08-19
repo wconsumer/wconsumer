@@ -16,8 +16,7 @@
 define('WCONSUMER_VERSION', '0.3');
 
 // Load Composer
-if (! file_exists(__DIR__.'/vendor/autoload.php'))
-{
+if (!file_exists(__DIR__.'/vendor/autoload.php')) {
   drupal_set_message(t('Composer not initialized for wconsumer.'), 'error');
   return;
 }
@@ -29,25 +28,14 @@ function wconsumer_init() {
   require (__DIR__.'/vendor/autoload.php');
 }
 
-
-/**
- * Unit Testing on Web Consumer
- */
-function wconsumer_simpletest() {
-  $dir = drupal_get_path('module', 'wconsumer'). '/tests';
-  $tests = file_scan_directory($dir, '\.test$');
-  return array_keys($tests);
-}
-
 /**
  * Register the Namespace for this project
- * 
+ *
  * @param object
  * @return void
  * @access private
  */
-function wconsumer_xautoload($api)
-{
+function wconsumer_xautoload($api) {
   $api->namespaceRoot('Guzzle');
   $api->namespaceRoot('Symfony');
 }

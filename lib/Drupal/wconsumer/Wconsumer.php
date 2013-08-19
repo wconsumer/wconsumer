@@ -1,12 +1,18 @@
 <?php
 namespace Drupal\wconsumer;
 
+use Drupal\wconsumer\Service\Collection;
+use Drupal\wconsumer\Service\Github;
+use Drupal\wconsumer\Service\Linkedin;
+use Drupal\wconsumer\Service\Meetup;
+use Drupal\wconsumer\Service\Twitter;
 use Guzzle\Http\Client;
 use Pimple;
 
 
+
 /**
- * @property-read ServiceBase[] $services
+ * @property-read Collection $services
  * @property-read Pimple $container
  */
 class Wconsumer {
@@ -23,21 +29,6 @@ class Wconsumer {
       static::$instance = new static();
     }
     return static::$instance;
-  }
-
-  /**
-   * @param string $name
-   * @param bool $silent
-   * @return ServiceBase|null
-   */
-  public function getService($name, $silent = true) {
-    $services = $this->__get('services');
-
-    if ($silent && !isset($services[$name])) {
-      return null;
-    }
-
-    return $services[$name];
   }
 
   protected function __construct() {
@@ -58,8 +49,14 @@ class Wconsumer {
 
   public function __get($property) {
     if ($property == 'services' && !isset($this->services)) {
-      $services = module_invoke_all('wconsumer_config');
-      $this->services = new Pimple($services);
+      $services = array(); {
+        $services['github']   = new Github();
+        $services['twitter']  = new Twitter();
+        $services['linkedin'] = new Linkedin();
+        $services['meetup']   = new Meetup();
+      }
+
+      $this->services = new Collection($services);
     }
 
     return $this->{$property};

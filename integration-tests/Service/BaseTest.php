@@ -1,14 +1,64 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests;
+namespace Drupal\wconsumer\IntegrationTests\Service;
 
+use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\IntegrationTests\TestService;
 
 
-class ServiceBaseTest extends DrupalTestBase {
+
+class BaseTest extends DrupalTestBase {
+
+  public function testApi() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')), 91);
+    $api = $service->api(91, array('user'));
+    $this->assertInstanceOf('Guzzle\Http\Client', $api);
+    $this->assertSame('http://url.example', $api->getBaseUrl());
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\ServiceInactive
+   */
+  public function testApiFailsIfServiceIsNotConfigured() {
+    $service = new TestService();
+    $service->api(91);
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\NoUserCredentials
+   */
+  public function testApiFailsIfNoUserCredentialsStored() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->api(91);
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\AdditionalScopesRequired
+   */
+  public function testApiFailsIfAdditionalScopesRequired() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')), 91);
+    $service->api(91, array('user', 'friends'));
+  }
+
+  /**
+   * @expectedException \Drupal\wconsumer\Service\Exception\NotLoggedInUser
+   */
+  public function testApiFailsOnNotLoggedInUser() {
+    $service = new TestService();
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')), 91);
+    $service->api(0, array('user', 'profile'));
+  }
 
   public function testCredentialsGettingSetting() {
     $service = new TestService();
+
+    $GLOBALS['user'] = (object)array('uid' => 5);
 
     // Initial state
     $this->assertNull($service->getCredentials());
@@ -40,6 +90,22 @@ class ServiceBaseTest extends DrupalTestBase {
     }
 
     $this->assertNull($exception);
+  }
+
+  /**
+   * @expectedException \InvalidArgumentException
+   */
+  public function testSetCredentialsFailsIfSpecifiedUserIsNotLoggedIn() {
+    $service = new TestService();
+    $service->setCredentials(new Credentials('mynickname', 'mypassword'), 0);
+  }
+
+  /**
+   * @expectedException \InvalidArgumentException
+   */
+  public function testSetCredentialsFailsOnGlobalUserIsNotLoggedIn() {
+    $service = new TestService();
+    $service->setCredentials(new Credentials('mynickname', 'mypassword'));
   }
 
   /**
@@ -85,6 +151,8 @@ class ServiceBaseTest extends DrupalTestBase {
   public function testCheckAuthentication($serviceCredentials, $userCredentials, $domain, $expectedResult) {
     $service = new TestService();
 
+    $GLOBALS['user'] = (object)array('uid' => 100);
+
     $service->setServiceCredentials($serviceCredentials);
     $service->setCredentials($userCredentials);
 
@@ -93,6 +161,8 @@ class ServiceBaseTest extends DrupalTestBase {
 
   public function testCheckAuthenticationForSpecifiedUser() {
     $credentials = new Credentials('usernmae', 'password');
+
+    $GLOBALS['user'] = (object)array('uid' => 66);
 
     $service = new TestService();
     $this->assertFalse($service->checkAuthentication('user'));
