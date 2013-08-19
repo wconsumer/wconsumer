@@ -244,6 +244,10 @@ abstract class Base {
     return $i;
   }
 
+  public static function getClass() {
+    return get_called_class();
+  }
+
   /**
    * @return AuthInterface
    */

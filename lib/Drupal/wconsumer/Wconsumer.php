@@ -2,6 +2,7 @@
 namespace Drupal\wconsumer;
 
 use Drupal\wconsumer\Service\Collection;
+use Drupal\wconsumer\Service\Github;
 use Guzzle\Http\Client;
 use Pimple;
 
@@ -45,7 +46,10 @@ class Wconsumer {
 
   public function __get($property) {
     if ($property == 'services' && !isset($this->services)) {
-      $services = module_invoke_all('wconsumer_config');
+      $services = array(); {
+        $services['github'] = new Github();
+      }
+
       $this->services = new Collection($services);
     }
 

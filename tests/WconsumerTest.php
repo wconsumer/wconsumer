@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests;
 
+use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Wconsumer;
 
 
@@ -14,10 +15,8 @@ class WconsumerTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testServicesLoading() {
-    $fakeService = new \stdClass();
-    $this->mockModuleInvokeAllDrupalFunction($fakeService);
-
-    $this->assertSame($fakeService, $this->wconsumer()->services->get('fake test service'));
+    $services = $this->wconsumer()->services;
+    $this->assertInstanceOf(Github::getClass(), $services->github);
   }
 
   public function testInstance() {
@@ -27,21 +26,6 @@ class WconsumerTest extends \PHPUnit_Framework_TestCase {
 
   private function wconsumer() {
     return new WconsumerTestChild();
-  }
-
-  private function mockModuleInvokeAllDrupalFunction($fakeService = null) {
-    if (!isset($fakeService)) {
-      $fakeService = new \stdClass();
-    }
-
-    $php = \PHPUnit_Extension_FunctionMocker::start($this, '\Drupal\wconsumer')
-      ->mockFunction('module_invoke_all')
-      ->getMock();
-
-    $php
-      ->expects($this->once())
-      ->method('module_invoke_all')
-      ->will($this->returnValue(array('fake test service' => $fakeService)));
   }
 }
 

@@ -46,4 +46,30 @@ class CollectionTest extends \PHPUnit_Framework_TestCase {
     $this->assertSame($vimeo, $collection->get('vimeo'));
     $this->assertNull($collection->get('unknown'));
   }
+
+  public function testIteration() {
+    $vimeo = new \stdClass();
+    $github = new \stdClass();
+
+    $collection = new Collection(array(
+      'vimeo'  => $vimeo,
+      'github' => $github,
+    ));
+
+    // First check if it supports Traversable interface required for foreach
+    $this->assertInstanceOf('\Traversable', $collection);
+
+    // Then perform a real foreach traversal
+    $services = array();
+    foreach ($collection as $service) {
+      $services[] = $service;
+    }
+    $this->assertSame(array($vimeo, $github), $services);
+  }
+
+  public function testCount() {
+    $this->assertCount(0, new Collection(array()));
+    $this->assertCount(1, new Collection(array(1)));
+    $this->assertCount(2, new Collection(array(1, 2)));
+  }
 }

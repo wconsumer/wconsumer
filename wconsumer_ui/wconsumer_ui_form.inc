@@ -127,19 +127,19 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
     drupal_exit();
   }
 
-  $service = $values['service-name'];
+  $serviceName = $values['service-name'];
 
-  if ($service == '_internal') :
+  if ($serviceName == '_internal') :
     // Settings for the system
     variable_set('wconsumer:service_login', $form_state['values']['service-login']);
     drupal_set_message(t('Settings updated.'));
     return;
   endif;
 
-  $object = Wconsumer::instance()->services->get($service);
-  if (!isset($object)) {
-    drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
-    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
+  $service = Wconsumer::instance()->services->get($serviceName);
+  if (!isset($service)) {
+    drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
+    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);
     return;
   }
 
@@ -152,7 +152,7 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
   }
 
   // CRUD
-  $object->setServiceCredentials($credentials);
+  $service->setServiceCredentials($credentials);
 
   drupal_set_message(t('Service Configuration Saved.'));
 }
@@ -170,7 +170,7 @@ function _wconsumer_ui_callback($serviceName = NULL) {
     return;
   }
 
-  $service->request->authencation->onCallback($user, array($_REQUEST));
+  $service->authentication->onCallback($user, array($_REQUEST));
 
   drupal_set_message('Credentials saved.', 'status');
   drupal_goto('user/'.$user->uid.'/wconsumer');
