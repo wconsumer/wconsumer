@@ -11,30 +11,6 @@ use Guzzle\Http\Client;
 
 
 class OauthTest extends AuthenticationTest {
-  /**
-   * @var \PHPUnit_Framework_MockObject_MockObject
-   */
-  private $php;
-
-
-
-  public function setUp() {
-    parent::setUp();
-
-    $this->php =
-      \PHPUnit_Extension_FunctionMocker::start($this, 'Drupal\wconsumer\Rest\Authentication\Oauth')
-        ->mockFunction('drupal_goto')
-      ->getMock();
-
-    // There are two reasons to disable drupal_goto() by default:
-    //  1. It just terminates current process with an empty phpunit output.
-    //  2. By default we don't expected redirects, b/c it's a control flow violation.
-    $annotations = $this->getAnnotations();
-    $neverOrAny = !isset($annotations['method']['allowDrupalGoto']) ? $this->never() : $this->any();
-    $this->php
-      ->expects($neverOrAny)
-      ->method('drupal_goto');
-  }
 
   public function testSignRequest($user = null) {
     $service = $this->service(TRUE, TRUE);
@@ -207,11 +183,9 @@ class OauthTest extends AuthenticationTest {
   }
 
   protected function auth(Base $service = null) {
-    if (!isset($service)) {
-      $service = $this->service();
-    }
+    /** @var Oauth $auth */
+    $auth = parent::auth($service);
 
-    $auth = new Oauth($service);
     $auth->requestTokenURL = 'https://api.twitter.com/oauth/request_token';
     $auth->authorizeURL = 'https://api.twitter.com/oauth/authorize';
     $auth->accessTokenURL = 'https://api.twitter.com/oauth/access_token';

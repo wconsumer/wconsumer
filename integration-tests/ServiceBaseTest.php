@@ -5,6 +5,7 @@ use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\IntegrationTests\TestService;
 
 
+
 class ServiceBaseTest extends DrupalTestBase {
 
   public function testCredentialsGettingSetting() {
