@@ -28,10 +28,6 @@ class Wconsumer {
     return static::$instance;
   }
 
-  public static function api($service, $method, $url, array $parameters = array()) {
-
-  }
-
   /**
    * @param string $name
    * @param bool $silent

@@ -15,6 +15,7 @@ class BaseTest extends DrupalTestBase {
     $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')));
     $api = $service->api(NULL, array('user'));
     $this->assertInstanceOf('Guzzle\Http\Client', $api);
+    $this->assertSame('http://url.example', $api->getBaseUrl());
   }
 
   /**

@@ -12,6 +12,7 @@ use Drupal\wconsumer\Service\Base;
  */
 class TestService extends Base {
   protected $name = 'integration_tests_test_service';
+  protected $apiUrl = 'http://url.example';
 
 
 

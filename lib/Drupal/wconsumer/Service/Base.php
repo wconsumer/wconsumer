@@ -8,6 +8,7 @@ use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Exception\ServiceInactive;
 use Drupal\wconsumer\Wconsumer;
+use Guzzle\Http\Client;
 
 
 /**
@@ -26,6 +27,25 @@ abstract class Base {
   protected $name;
 
   /**
+   * Options Class
+   *
+   * @var object|void
+   */
+  public $options  = NULL;
+
+  /**
+   * @var AuthInterface
+   */
+  public $authentication = NULL;
+
+  /**
+   * Base API url
+   *
+   * @var string
+   */
+  protected $apiUrl;
+
+  /**
    * Services table
    *
    * @var string
@@ -38,18 +58,6 @@ abstract class Base {
    * @var string
    */
   private $usersTable = 'wc_user';
-
-  /**
-   * Options Class
-   *
-   * @var object|void
-   */
-  public $options  = NULL;
-
-  /**
-   * @var AuthInterface
-   */
-  public $authentication = NULL;
 
 
 
@@ -75,7 +83,9 @@ abstract class Base {
       throw new AdditionalScopesRequired("Additional scopes/permissions required. Need to re-authorize user with '{$this->name}' service.");
     }
 
+    /** @var Client $client */
     $client = Wconsumer::instance()->container['httpClient'];
+    $client->setBaseUrl($this->apiUrl);
     $this->authentication->signRequest($client, $user);
     return $client;
   }
@@ -116,7 +126,7 @@ abstract class Base {
     return $credentials;
   }
 
-  public function setCredentials(Credentials $credentials = null, $user_id = NULL) {
+  public function setCredentials(Credentials $credentials = NULL, $user_id = NULL) {
     if ($user_id == NULL) {
       global $user;
       $user_id = $user->uid;
