@@ -1,15 +1,8 @@
 <?php
 use Drupal\wconsumer\Wconsumer;
 
-/**
- * Callback Form for the Web Consumer Form
- * Managing a service
- *
- * @access private
- * @param array
- * @param array The specific service (null means it's the default)
- * @return array
- */
+
+
 function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   $form = array();
 
@@ -45,13 +38,13 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
     return $form;
   endif;
 
-  $service = Service::getObject($serviceName);
+  $service = Wconsumer::instance()->services->{$serviceName};
 
   $tokenLabel = 'Username';
   $secretLabel = 'Password';
   $tokenPredefined = false;
 
-  $authencation = $service->request->authencation;
+  $authencation = $service->authentication;
 
   if ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth\Oauth ||
       $authencation instanceof \Drupal\wconsumer\Rest\Authentication\Oauth2\Oauth2) {
@@ -59,8 +52,8 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
     $secretLabel = 'Consumer Secret';
   }
   elseif ($authencation instanceof \Drupal\wconsumer\Rest\Authentication\QueryString\QueryString) {
-    $tokenLabel = $service->request->authencation->keyLabel;
-    $secretLabel = $service->request->authencation->valueLabel;
+    $tokenLabel = $authencation->keyLabel;
+    $secretLabel = $authencation->valueLabel;
 
     if (isset($authencation->queryKey)) {
       $tokenPredefined = true;
