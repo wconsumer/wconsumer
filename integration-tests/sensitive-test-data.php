@@ -17,7 +17,7 @@ return array(
     ),
     'user' => array(
       'token' => 'dummy',
-      'secret' => '7e69ef6ca785e9621ff142e6237f261b1ef00849',
+      'secret' => '4ca9947d59993eaae3b232dcdec2716d922df2c5',
       'scopes' => array('gist'),
     )
   ),
