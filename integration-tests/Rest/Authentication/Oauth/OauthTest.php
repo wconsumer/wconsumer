@@ -54,7 +54,7 @@ class OauthTest extends AuthenticationTest {
   }
 
   /**
-   * @allowDrupalGoto
+   * @bypassDrupalGoto
    */
   public function testAuthenticateFetchesRequestTokenAndRedirectsUserToAuthorizeUrl() {
     $self = $this;
@@ -79,7 +79,7 @@ class OauthTest extends AuthenticationTest {
   }
 
   /**
-   * @allowDrupalGoto
+   * @bypassDrupalGoto
    */
   public function testAuthenticateSavesRequestTokenInSession() {
 

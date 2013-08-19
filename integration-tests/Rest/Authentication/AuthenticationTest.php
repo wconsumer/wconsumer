@@ -69,7 +69,7 @@ abstract class AuthenticationTest extends DrupalTestBase {
       ->getMock();
 
     $annotations = $this->getAnnotations();
-    $neverOrAny = !isset($annotations['method']['allowDrupalGoto']) ? $this->never() : $this->any();
+    $neverOrAny = !isset($annotations['method']['bypassDrupalGoto']) ? $this->never() : $this->any();
     $this->php
       ->expects($neverOrAny)
       ->method('drupal_goto');
