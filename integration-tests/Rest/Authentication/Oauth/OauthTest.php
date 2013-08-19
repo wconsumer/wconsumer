@@ -75,7 +75,7 @@ class OauthTest extends AuthenticationTest {
         $self->assertSame(array('external' => TRUE), $options);
       }));
 
-    $auth->authenticate($user);
+    $auth->authenticate($GLOBALS['user']);
   }
 
   /**
@@ -90,7 +90,7 @@ class OauthTest extends AuthenticationTest {
     $auth = $this->auth();
     $auth->authenticate($GLOBALS['user']);
 
-    $credentials = $_SESSION['integration_tests_test_service:oauth_request_token'];
+    $credentials = $_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'];
     $this->assertNotNull($credentials);
     $this->assertInstanceOf(Credentials::getClass(), $credentials);
   }
@@ -168,7 +168,7 @@ class OauthTest extends AuthenticationTest {
    * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
   public function testCallbackHandlerFailsOnInvalidRequestToken() {
-    $_SESSION['integration_tests_test_service:oauth_request_token'] = new Credentials('abc', '123');
+    $_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'] = new Credentials('abc', '123');
 
     $auth = $this->auth();
     $auth->onCallback($GLOBALS['user'], array());
@@ -210,7 +210,7 @@ class OauthTest extends AuthenticationTest {
 
     if ($setupServiceCredentials) {
       $service->setServiceCredentials(new Credentials(
-        $this->sensitiveData['twitter']['app']['key'],
+        $this->sensitiveData['twitter']['app']['token'],
         $this->sensitiveData['twitter']['app']['secret']
       ));
     }

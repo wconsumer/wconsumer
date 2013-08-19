@@ -66,7 +66,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     $requestToken = static::parseParameters($response);
 
-    $this->useRequestToken($requestToken);
+    $this->requestToken($requestToken);
 
     $authorizeUrl = $this->createAuthorizeURL($requestToken->token);
     drupal_goto($authorizeUrl, array('external' => TRUE));
@@ -78,7 +78,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
   public function onCallback($user, $values) {
     $serviceCredentials = $this->service->requireServiceCredentials();
-    $requestToken = $this->useRequestToken();
+    $requestToken = $this->requestToken();
 
     /** @var $client \Guzzle\Http\Client */
     $client = Wconsumer::instance()->container['httpClient'];
@@ -96,19 +96,13 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $this->service->setCredentials($accessToken, $user->uid);
   }
 
-  private function useRequestToken($value = null) {
-    $key = "{$this->service->getName()}:oauth_request_token";
-
+  private function requestToken($value = null) {
     if (func_num_args() > 0) {
-      $_SESSION[$key] = $value;
+      return $this->session('oauth_request_token', $value);
     }
     else {
-      if (!isset($_SESSION[$key])) {
-        throw new \BadMethodCallException('Request token data not found in current session');
-      }
+      return $this->session('oauth_request_token');
     }
-
-    return $_SESSION[$key];
   }
 
   private function createAuthorizeURL($token) {

@@ -53,13 +53,20 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     $callback = $this->service->callback();
     $serviceCredentials = $this->service->requireServiceCredentials();
 
+    $state = array(
+      'key' => uniqid('state_', true),
+      'scopes' => $scopes,
+    );
+
+    $this->state($state);
+
     $url =
       $this->authorizeURL . '?' .
       http_build_query(array(
         'client_id'     => $serviceCredentials->token,
         'redirect_uri'  => $callback,
         'scope'         => join(',', $scopes),
-        'state'         => 'wconsumer',
+        'state'         => $state['key'],
       ), null, '&');
 
     drupal_goto($url, array('external' => TRUE));
@@ -83,11 +90,15 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    * @throws WconsumerException
    */
   public function onCallback($user, $values) {
-    if (!isset($values[0]['state']) || $values[0]['state'] !== 'wconsumer') {
+    $values = $values[0];
+
+    $state = $this->state();
+
+    if (!isset($values['state']) || $values['state'] !== $state['key']) {
       throw new WconsumerException('State for OAuth2 Interface not matching');
     }
 
-    if (empty($values[0]['code'])) {
+    if (empty($values['code'])) {
       throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
@@ -107,11 +118,11 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       array(
         'client_id'     => $serviceCredentials->token,
         'client_secret' => $serviceCredentials->secret,
-        'code'          => $values[0]['code'],
+        'code'          => $values['code'],
       )
     );
 
-    $response = $request->send();
+    $response = $this->client->send($request);
     if ($response->isError()) {
       throw new WconsumerException('Unknown error on OAuth 2 callback: '.print_r($response, true));
     }
@@ -125,7 +136,16 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException("Invalid access token response: '".var_export($response, true)."'");
     }
 
-    $credentials = new Credentials('dummy', $response['access_token']);
+    $credentials = new Credentials('dummy', $response['access_token'], $state['scopes']);
     $this->service->setCredentials($credentials, $user->uid);
+  }
+
+  private function state($value = NULL) {
+    if (func_num_args() > 0) {
+      return $this->session('oauth2_state', $value);
+    }
+    else {
+      return $this->session('oauth2_state');
+    }
   }
 }

@@ -26,4 +26,22 @@ class Base {
   public function isInitialized($type, $user = NULL) {
     return $this->service->checkAuthentication($type, (isset($user) ? $user->uid : NULL));
   }
+
+  protected function session($key, $value = null) {
+    $key = "wconsumer:{$this->service->getName()}:{$key}";
+
+    if (func_num_args() > 1) {
+      $_SESSION[$key] = $value;
+    }
+    else {
+      if (!isset($_SESSION[$key])) {
+        throw new \BadMethodCallException('
+          Auth data not found in the current session.
+          Please make sure you call auth methods in a correct order.
+        ');
+      }
+    }
+
+    return $_SESSION[$key];
+  }
 }
