@@ -51,7 +51,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  public function authenticate($user) {
+  public function authenticate($user, array $scopes = array()) {
     $callback = $this->service->callback();
     $serviceCredentials = $this->service->requireServiceCredentials();
 

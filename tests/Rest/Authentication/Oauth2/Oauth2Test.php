@@ -226,7 +226,6 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
     /** @noinspection PhpParamsInspection */
     $auth = $this->auth($service);
-    $auth->scopes = $scopes;
 
     $php =
       \PHPUnit_Extension_FunctionMocker::start($this, $this->getObjectNamespace($auth))
@@ -241,7 +240,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       }));
 
     $null = NULL;
-    $auth->authenticate($null);
+    $auth->authenticate($null, $scopes);
   }
 
   private function getObjectNamespace($object) {

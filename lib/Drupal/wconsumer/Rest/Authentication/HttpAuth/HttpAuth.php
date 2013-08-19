@@ -38,8 +38,11 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
 
   /**
    * @codeCoverageIgnore
+   *
+   * @param       $user
+   * @param array $scopes
    */
-  public function authenticate($user) {
+  public function authenticate($user, array $scopes = array()) {
   }
 
   /**

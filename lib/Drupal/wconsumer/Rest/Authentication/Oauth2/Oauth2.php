@@ -27,13 +27,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   public $accessTokenURL;
 
   /**
-   * Scopes to be requested access to
-   *
-   * @var array
-   */
-  public $scopes = array();
-
-  /**
    * Guzzle client to make HTTP requests to oauth provider
    *
    * @var \Guzzle\Http\Client
@@ -53,8 +46,9 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    * Authenticate the user and set them up for OAuth Authentication
    *
    * @param object $user The user object
+   * @param array  $scopes
    */
-  public function authenticate($user)
+  public function authenticate($user, array $scopes = array())
   {
     $callback = $this->service->callback();
     $serviceCredentials = $this->service->requireServiceCredentials();
@@ -64,7 +58,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       http_build_query(array(
         'client_id'     => $serviceCredentials->token,
         'redirect_uri'  => $callback,
-        'scope'         => join(',', $this->scopes),
+        'scope'         => join(',', $scopes),
         'state'         => 'wconsumer',
       ), null, '&');
 
