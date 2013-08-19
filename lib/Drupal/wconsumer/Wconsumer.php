@@ -4,6 +4,7 @@ namespace Drupal\wconsumer;
 use Drupal\wconsumer\Service\Collection;
 use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Service\Linkedin;
+use Drupal\wconsumer\Service\Meetup;
 use Drupal\wconsumer\Service\Twitter;
 use Guzzle\Http\Client;
 use Pimple;
@@ -49,9 +50,10 @@ class Wconsumer {
   public function __get($property) {
     if ($property == 'services' && !isset($this->services)) {
       $services = array(); {
-        $services['github'] = new Github();
-        $services['twitter'] = new Twitter();
+        $services['github']   = new Github();
+        $services['twitter']  = new Twitter();
         $services['linkedin'] = new Linkedin();
+        $services['meetup']   = new Meetup();
       }
 
       $this->services = new Collection($services);
