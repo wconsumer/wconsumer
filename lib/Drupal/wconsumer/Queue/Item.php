@@ -263,7 +263,7 @@ class Item {
       return true;
 
     // Fire it off
-    $object = Wconsumer::instance()->getService($this->service);
+    $object = Wconsumer::instance()->services->get($this->service);
     if (!isset($object)) {
       return false;
     }

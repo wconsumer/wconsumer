@@ -136,7 +136,7 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
     return;
   endif;
 
-  $object = Wconsumer::instance()->getService($service);
+  $object = Wconsumer::instance()->services->get($service);
   if (!isset($object)) {
     drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
     watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
@@ -163,7 +163,7 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
 function _wconsumer_ui_callback($serviceName = NULL) {
   global $user;
 
-  $service = Wconsumer::instance()->getService($serviceName);
+  $service = Wconsumer::instance()->services->get($serviceName);
   if (!isset($service)) {
     drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
     watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);

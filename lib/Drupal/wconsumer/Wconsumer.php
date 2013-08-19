@@ -1,16 +1,15 @@
 <?php
 namespace Drupal\wconsumer;
 
-use Drupal\wconsumer\Service\Base;
-use Drupal\wconsumer\Services\Github;
+use Drupal\wconsumer\Service\Collection;
 use Guzzle\Http\Client;
 use Pimple;
 
 
+
 /**
- * @property-read Base[] $services
+ * @property-read Collection $services
  * @property-read Pimple $container
- * @property-read Github $github
  */
 class Wconsumer {
   private $services;
@@ -26,21 +25,6 @@ class Wconsumer {
       static::$instance = new static();
     }
     return static::$instance;
-  }
-
-  /**
-   * @param string $name
-   * @param bool $silent
-   * @return Base|null
-   */
-  public function getService($name, $silent = true) {
-    $services = $this->__get('services');
-
-    if ($silent && !isset($services[$name])) {
-      return null;
-    }
-
-    return $services[$name];
   }
 
   protected function __construct() {
@@ -62,7 +46,7 @@ class Wconsumer {
   public function __get($property) {
     if ($property == 'services' && !isset($this->services)) {
       $services = module_invoke_all('wconsumer_config');
-      $this->services = new Pimple($services);
+      $this->services = new Collection($services);
     }
 
     return $this->{$property};

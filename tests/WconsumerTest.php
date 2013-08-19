@@ -17,31 +17,7 @@ class WconsumerTest extends \PHPUnit_Framework_TestCase {
     $fakeService = new \stdClass();
     $this->mockModuleInvokeAllDrupalFunction($fakeService);
 
-    $services = $this->wconsumer()->services;
-
-    $this->assertSame($fakeService, $services['fake test service']);
-  }
-
-  /**
-   * @expectedException \InvalidArgumentException
-   */
-  public function testFailsOnNotExistingService() {
-    $this->mockModuleInvokeAllDrupalFunction();
-    $this->wconsumer()->services['no'];
-  }
-
-  /**
-   * @expectedException \InvalidArgumentException
-   */
-  public function testGetServiceFailsOnNotExistingService() {
-    $this->mockModuleInvokeAllDrupalFunction();
-    $this->wconsumer()->getService('no', false);
-  }
-
-  public function testGetServicesDoesNotFailOnNotExistingServiceIfAsked() {
-    $this->mockModuleInvokeAllDrupalFunction();
-    $result = $this->wconsumer()->getService('no', true);
-    $this->assertNull($result);
+    $this->assertSame($fakeService, $this->wconsumer()->services->get('fake test service'));
   }
 
   public function testInstance() {
