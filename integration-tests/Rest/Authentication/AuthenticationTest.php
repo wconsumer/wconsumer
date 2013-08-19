@@ -3,6 +3,7 @@ namespace Drupal\wconsumer\IntegrationTests\Rest\Authentication;
 
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
 use Drupal\wconsumer\IntegrationTests\TestService;
+use Drupal\wconsumer\Rest\Authentication\AuthInterface;
 use Drupal\wconsumer\Rest\Authentication\Base as AuthenticationBase;
 use Drupal\wconsumer\Service\Base as ServiceBase;
 
@@ -42,7 +43,7 @@ abstract class AuthenticationTest extends DrupalTestBase {
 
   /**
    * @param ServiceBase $service
-   * @return AuthenticationBase
+   * @return AuthenticationBase|AuthInterface
    */
   protected function auth(ServiceBase $service = null) {
     if (!isset($service)) {
