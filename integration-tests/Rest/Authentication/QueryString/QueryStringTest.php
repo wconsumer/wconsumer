@@ -8,7 +8,7 @@ use Drupal\wconsumer\IntegrationTests\Rest\Authentication\AuthenticationTest;
 class QueryStringTest extends AuthenticationTest {
 
   /**
-   * @dataProvider Drupal\wconsumer\IntegrationTests\ServiceBaseTest::isInitializedDataProvider
+   * @dataProvider Drupal\wconsumer\IntegrationTests\Service\BaseTest::isInitializedDataProvider
    */
   public function testIsInitialized($serviceCredentials, $userCredentials, $domain, $expectedResult) {
 

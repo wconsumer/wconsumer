@@ -28,7 +28,7 @@ abstract class AuthenticationTest extends DrupalTestBase {
   }
 
   /**
-   * @dataProvider Drupal\wconsumer\IntegrationTests\ServiceBaseTest::isInitializedDataProvider
+   * @dataProvider Drupal\wconsumer\IntegrationTests\Service\BaseTest::isInitializedDataProvider
    */
   public function testIsInitialized($serviceCredentials, $userCredentials, $domain, $expectedResult) {
     $auth = $this->auth(new TestService());

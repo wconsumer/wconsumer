@@ -1,12 +1,13 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests;
+namespace Drupal\wconsumer\IntegrationTests\Service;
 
+use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
 use Drupal\wconsumer\Rest\Authentication\Credentials;
 use Drupal\wconsumer\IntegrationTests\TestService;
 
 
 
-class ServiceBaseTest extends DrupalTestBase {
+class BaseTest extends DrupalTestBase {
 
   public function testCredentialsGettingSetting() {
     $service = new TestService();
