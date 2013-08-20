@@ -25,11 +25,11 @@ before_script:
   - drush dl drupal --drupal-project-rename=drupal
   - cd drupal
   - drush site-install --db-url=mysql://root:@127.0.0.1/drupal --yes
-  - cp -r ../wconsumer/ ./sites/all/modules/
+  - mv ../wconsumer ./sites/all/modules/
   - drush en --yes wconsumer
-  - cd ../wconsumer/
-  - openssl aes-256-cbc -k "$TEST_KEYS_SECRET" -in ./integration-tests/keys.php.enc -d -a -out ./integration-tests/keys.php
+  - cd sites/all/modules/wconsumer/
+  - openssl aes-256-cbc -k "$TEST_KEYS_SECRET" -in integration-tests/keys.php.enc -d -a -out integration-tests/keys.php
 
 script:
   - phpunit
-  - cd ../drupal/sites/all/modules/wconsumer/integration-tests && phpunit
+  - cd integration-tests && phpunit
