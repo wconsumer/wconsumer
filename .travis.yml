@@ -2,7 +2,7 @@ language: php
 
 env:
   global:
-    secure: "KaTSTFEFffNAZB6+JFgYhbyzMgUfKaJ+Ko611yQYLrdtjyrnzgYh5iiL26FStgeBgl7kHtRrOgLgp6aDrWX1vKxObJ+GURntDtYTJoliy6BeaiMpFHGH5jZbtZLYlp8yOgYct5c4cwm2zaBnfbF4x9QxGdXPAnL8qRikQyHl4iM="
+    secure: glFtKHq4OFD0MYgWw0Ctgmgq8IitQQZcFARteSyciD6m2d4gOaItTX2i/+MDbpuBZcfxh7F+CIsFRe0IVdw9E9RpPpUOrASQqheVl8PwEPID/UKJ28wSU5LzgzL1fzRu1VAHioczQzvWuA/sxd91TxZoj1mF2jyumqiHcWyLCZU=
 
 php:
   - 5.3
@@ -28,7 +28,14 @@ before_script:
   - cp -r ../wconsumer/ ./sites/all/modules/
   - drush en --yes wconsumer
   - cd ../wconsumer/
-  - printenv
+
+  # Decrypt keys.php for integration tests
+  - cd ./integration-tests
+  - echo "$ENCRYPTED_SECRET" > keys-secret
+  - secret=`openssl rsautl -decrypt -inkey ~/.ssh/id_rsa -in keys-secret`
+  - rm keys-secret
+  - openssl aes-256-cbc -k "$secret" -in keys.php.enc -d -a -out keys.php
+  - cd -
 
 script:
   - phpunit

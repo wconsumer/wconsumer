@@ -22,7 +22,7 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
   public function setUp() {
     parent::setUp();
 
-    $this->sensitiveData = require(__DIR__.'/sensitive-test-data.php');
+    $this->sensitiveData = require(__DIR__.'/keys.php');
     $this->transaction = db_transaction();
   }
 
