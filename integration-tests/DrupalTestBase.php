@@ -1,6 +1,8 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests;
 
+use Guzzle\Http\Exception\ClientErrorResponseException;
+
 
 
 abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
@@ -22,6 +24,20 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
     }
 
     parent::tearDown();
+  }
+
+  protected function runTest() {
+    try {
+      return parent::runTest();
+    }
+    catch (ClientErrorResponseException $e) {
+      if ($e->getResponse()->getStatusCode() == 429) {
+        $this->markTestSkipped("Request to '{$e->getRequest()->getUrl()}' rejected due to rate limiting policy");
+      }
+      else {
+        throw $e;
+      }
+    }
   }
 
   /**
