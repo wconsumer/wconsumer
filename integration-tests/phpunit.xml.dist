@@ -16,6 +16,7 @@
 
   <logging>
     <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+    <log type="coverage-php" target="../build/coverage/integration-tests-coverage.serialized"/>
   </logging>
 
   <filter>
