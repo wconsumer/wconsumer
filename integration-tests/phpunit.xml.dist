@@ -14,19 +14,14 @@
     </testsuite>
   </testsuites>
 
+  <logging>
+    <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+    <log type="coverage-php" target="../build/coverage/integration-tests-coverage.serialized"/>
+  </logging>
+
   <filter>
     <whitelist addUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">./</directory>
-      <directory suffix=".module">./</directory>
-      <directory suffix=".install">./</directory>
-      <directory suffix=".inc">./</directory>
-
-      <exclude>
-        <directory>../vendor</directory>
-        <directory>../tests</directory>
-        <directory>../integration-tests</directory>
-        <directory>../build</directory>
-      </exclude>
+      <directory suffix=".php">../lib</directory>
     </whitelist>
   </filter>
 
