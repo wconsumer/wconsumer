@@ -9,20 +9,10 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
    */
   private $transaction;
 
-  /**
-   * An array of senstivie data required for testing like passwords, keys, secrets etc.
-   * See sensitive-test-data.dist.php for details.
-   *
-   * @var array
-   */
-  protected $sensitiveData;
-
 
 
   public function setUp() {
     parent::setUp();
-
-    $this->sensitiveData = require(__DIR__.'/keys.php');
     $this->transaction = db_transaction();
   }
 
@@ -32,5 +22,37 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
     }
 
     parent::tearDown();
+  }
+
+  /**
+   * Returns senstivie data required for testing like passwords, keys, secrets etc.
+   * See keys.dist.php for details.
+   */
+  protected function keys($section = NULL, $subsection = NULL, $subsubsection = NULL) {
+    static $keys;
+
+    if (!isset($keys)) {
+      $keysFile = __DIR__.'/keys.php';
+      if (file_exists($keysFile)) {
+        $keys = include($keysFile);
+      }
+      if (empty($keys)) {
+        $keys = array();
+      }
+    }
+
+    $result = $keys;
+    foreach (func_get_args() as $section) {
+      $result = @$result[$section];
+    }
+
+    if (empty($result)) {
+      $this->markTestSkipped(
+        'Test requires sensitive test data under ['.join('][', func_get_args()).'] '.
+        'section of keys.php which is not set'
+      );
+    }
+
+    return $result;
   }
 }

@@ -110,7 +110,7 @@ class Oauth2Test extends AuthenticationTest {
   protected function service() {
     $service = parent::service();
 
-    $service->setServiceCredentials(Credentials::fromArray($this->sensitiveData['github']['app']));
+    $service->setServiceCredentials(Credentials::fromArray($this->keys('github', 'app')));
 
     return $service;
   }

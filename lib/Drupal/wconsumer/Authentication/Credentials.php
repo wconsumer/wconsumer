@@ -18,7 +18,9 @@ class Credentials {
 
 
   public static function fromArray(array $data) {
-    return new static(@$data['token'], @$data['secret'], @$data['scopes']);
+    /** @var self $self */
+    $self = new static(@$data['token'], @$data['secret'], @$data['scopes']);
+    return $self;
   }
 
   public static function getClass() {
