@@ -18,4 +18,5 @@ password=`cat /dev/urandom | head -c 10000 | openssl sha1`
 openssl aes-256-cbc -k "$password" -in keys.php -out keys.php.enc -a
 
 # Encrypt password with asymmetric encryption and update it in .travis.yml
-travis encrypt TEST_KEYS_SECRET="$password" --add env.global --override
+# Paste it in .travis.yml under env.global.secure section
+travis encrypt TEST_KEYS_SECRET="$password" | tee /dev/clipboard
