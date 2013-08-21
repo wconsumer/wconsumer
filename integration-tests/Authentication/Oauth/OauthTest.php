@@ -209,18 +209,12 @@ class OauthTest extends AuthenticationTest {
                                     $setupUserCredentials = false) {
 
     if ($setupServiceCredentials) {
-      $service->setServiceCredentials(new Credentials(
-        $this->sensitiveData['twitter']['app']['token'],
-        $this->sensitiveData['twitter']['app']['secret']
-      ));
+      $service->setServiceCredentials(Credentials::fromArray($this->keys('twitter', 'app')));
     }
 
     if ($setupUserCredentials) {
       $this->setupUser();
-      $service->setCredentials(new Credentials(
-        $this->sensitiveData['twitter']['user']['token'],
-        $this->sensitiveData['twitter']['user']['secret']
-      ));
+      $service->setCredentials(Credentials::fromArray($this->keys('twitter', 'user')));
     }
 
     return $service;

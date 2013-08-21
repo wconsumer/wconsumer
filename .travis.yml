@@ -1,5 +1,9 @@
 language: php
 
+env:
+  global:
+    secure: P50pn3v74nuZfvgiKtjtgKesB6HbCguBOIvttRZ1THnNfyQlou7lEo/+Nna7s0s1jSr+Fkw9M4HfNJRaiSvSzJCRHj1BSAfD6Xy1ohe1xB8f2g9LT6zujIcGGIZgCAvD4hC39uwHfisUEPfjFR9McQ0W+GvPRCYig5Iv86xJfFg=
+
 php:
   - 5.3
   - 5.4
@@ -13,7 +17,7 @@ mysql:
 before_script:
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction --dev
-  - "mysql -e 'create database drupal;'"
+  - mysql -e 'create database drupal;'
   - pear channel-discover pear.drush.org
   - pear install drush/drush
   - phpenv rehash
@@ -21,10 +25,11 @@ before_script:
   - drush dl drupal --drupal-project-rename=drupal
   - cd drupal
   - drush site-install --db-url=mysql://root:@127.0.0.1/drupal --yes
-  - cp -r ../wconsumer/ ./sites/all/modules/
+  - mv ../wconsumer ./sites/all/modules/
   - drush en --yes wconsumer
-  - cd ../wconsumer/
+  - cd sites/all/modules/wconsumer/
+  - openssl aes-256-cbc -k "$TEST_KEYS_SECRET" -in integration-tests/keys.php.enc -d -a -out integration-tests/keys.php
 
 script:
   - phpunit
-  - cd ../drupal/sites/all/modules/wconsumer/integration-tests && phpunit
+  - cd integration-tests && phpunit

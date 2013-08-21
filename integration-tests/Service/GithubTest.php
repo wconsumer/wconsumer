@@ -13,8 +13,8 @@ class GithubTest extends DrupalTestBase {
 
     $github = new Github();
 
-    $github->setServiceCredentials(Credentials::fromArray($this->sensitiveData['github']['app']));
-    $github->setCredentials(Credentials::fromArray($this->sensitiveData['github']['user']));
+    $github->setServiceCredentials(Credentials::fromArray($this->keys('github', 'app')));
+    $github->setCredentials(Credentials::fromArray($this->keys('github', 'user')));
 
     $api = $github->api();
 

@@ -13,8 +13,8 @@ class TwitterTest extends DrupalTestBase {
 
     $twitter = new Twitter();
 
-    $twitter->setServiceCredentials(Credentials::fromArray($this->sensitiveData['twitter']['app']));
-    $twitter->setCredentials(Credentials::fromArray($this->sensitiveData['twitter']['user']));
+    $twitter->setServiceCredentials(Credentials::fromArray($this->keys('twitter', 'app')));
+    $twitter->setCredentials(Credentials::fromArray($this->keys('twitter', 'user')));
 
     $api = $twitter->api();
 
