@@ -213,5 +213,5 @@ function entity_example_schema() {
  * Implements hook_enable()
  */
 function wconsumer_enable() {
-  drupal_set_message(t('Welcome to Web Consumer Manager! For information on how to build out service modules, check out <a href="https://github.com/mywebclass/wconsumer/wiki">our wiki</a>.'));
+  drupal_set_message(t('Welcome to Web Consumer Manager! For information on how to build out service modules, check out <a href="https://github.com/wconsumer/wconsumer/wiki">our wiki</a>.'));
 }

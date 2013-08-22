@@ -1,9 +1,9 @@
 {
-  "name": "mywebclass/wconsumer",
+  "name": "wconsumer/wconsumer",
   "description": "Drupal Module for interfacing with web services with greater ease.",
   "type": "drupal-module",
   "keywords": ["drupal", "web services", "database", "apis", "twitter", "social connect", "authentication"],
-  "homepage": "http://github.com/mywebclass/wconsumer",
+  "homepage": "http://github.com/wconsumer/wconsumer",
   "license": "GPL-2.0+",
 
   "authors": [
@@ -15,8 +15,8 @@
   ],
 
   "support": {
-    "issues": "https://github.com/mywebclass/wconsumer/issues",
-    "wiki": "https://github.com/mywebclass/wconsumer/wiki"
+    "issues": "https://github.com/wconsumer/wconsumer/issues",
+    "wiki": "https://github.com/wconsumer/wconsumer/wiki"
   },
 
   "require": {
