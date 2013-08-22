@@ -241,18 +241,6 @@ abstract class Base {
     return $this->name;
   }
 
-  /**
-   * Instanstiate a new Item Object
-   *
-   * @return object Item Object
-   */
-  public function newQueueItem() {
-    $i = new Queue\Item();
-    $i->service = $this->getName();
-
-    return $i;
-  }
-
   public static function getClass() {
     return get_called_class();
   }

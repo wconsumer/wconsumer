@@ -39,12 +39,3 @@ function wconsumer_xautoload($api) {
   $api->namespaceRoot('Guzzle');
   $api->namespaceRoot('Symfony');
 }
-
-/**
- * Cron for Scheduled Queue Actions
- *
- * @access private
- */
-function wconsumer_cron() {
-  return Drupal\wconsumer\Queue\Manager::checkScheduled();
-}
