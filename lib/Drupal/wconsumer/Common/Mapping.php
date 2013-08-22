@@ -79,7 +79,9 @@ class Mapping {
     $item = $this->instance->newQueueItem();
     $item->request = array(
       'base' => $endpoint,
-      'params' => (isset($fieldData['params'])) ? $fieldData['params'] : array()
+      'params' => (isset($fieldData['params'])) ? $fieldData['params'] : array(),
+      'response format' => (isset($fieldData['response format'])) ? $fieldData['response format'] : NULL,
+      'response interperter' => (isset($fieldData['response interperter'])) ? $fieldData['response interperter'] : NULL,
     );
     $item->time = 0;
     $item->save();

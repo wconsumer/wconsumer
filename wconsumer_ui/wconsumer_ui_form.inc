@@ -1,19 +1,12 @@
 <?php
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 
-/**
- * Callback Form for the Web Consumer Form
- * Managing a service
- *
- * @access private
- * @param array
- * @param array The specific service (null means it's the default)
- * @return array
- */
-function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
+
+
+function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   $form = array();
 
-  if ($service == NULL) :
+  if ($serviceName == NULL) :
     $service_login = (int) variable_get('wconsumer:service_login');
 
     $form['settings'] = array(
@@ -45,64 +38,61 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
     return $form;
   endif;
 
-  try {
-    $object = Service::getObject($service);
-  } catch (Drupal\wconsumer\Exception $e) {
-    drupal_set_message(t($e->getMessage()), 'error');
-    return;
+  $service = Wconsumer::instance()->services->{$serviceName};
+
+  $tokenLabel = 'Username';
+  $secretLabel = 'Password';
+  $tokenPredefined = false;
+
+  $authencation = $service->authentication;
+
+  if ($authencation instanceof \Drupal\wconsumer\Authentication\Oauth\Oauth ||
+      $authencation instanceof \Drupal\wconsumer\Authentication\Oauth2\Oauth2) {
+    $tokenLabel = 'Consumer Key';
+    $secretLabel = 'Consumer Secret';
+  }
+  elseif ($authencation instanceof \Drupal\wconsumer\Authentication\QueryString\QueryString) {
+    $tokenLabel = $authencation->keyLabel;
+    $secretLabel = $authencation->valueLabel;
+
+    if (isset($authencation->queryKey)) {
+      $tokenPredefined = true;
+    }
   }
 
-  // Registry Settings
-  $registry = $object->getRegistry();
-  $credentials = (! $registry) ? FALSE : $registry->credentials;
+  $credentials = $service->getServiceCredentials();
+  $token = (isset($credentials) ? $credentials->token : null);
+  $secret = (isset($credentials) ? $credentials->secret : null);
 
   $form['creds'] = array(
       '#type' => 'fieldset',
-      '#title' => t($service.' Application Credentials'),
+      '#title' => t($serviceName.' Application Credentials'),
       '#collapsible' => false,
       '#collapsed' => FALSE,
     );
 
-  switch(get_class($object->request->authencation)) :
-    case 'Drupal\wconsumer\Rest\Authentication\Oauth' :
-    case 'Drupal\wconsumer\Rest\Authentication\Oauth2\Manager' :
-      $form['creds']['consumer_key'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Consumer Key'),
-        '#required' => TRUE,
-        '#default_value' => (isset($credentials['consumer_key'])) ? $credentials['consumer_key'] : '',
-      );
+  if (!$tokenPredefined) {
+    $form['creds']['token'] = array(
+      '#type' => 'textfield',
+      '#title' => t($tokenLabel),
+      '#required' => TRUE,
+      '#default_value' => $token,
+    );
+  }
+  else {
+    $form['creds']['token'] = array(
+      '#type' => 'hidden',
+      '#required' => TRUE,
+      '#default_value' => (isset($token) ? $token : 'dummy'),
+    );
+  }
 
-      $form['creds']['consumer_secret'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Consumer Secret'),
-        '#required' => TRUE,
-        '#default_value' => (isset($credentials['consumer_secret'])) ? $credentials['consumer_secret'] : '',
-      );
-
-      break;
-
-    case 'Drupal\wconsumer\Rest\Authentication\QueryString\QueryString' :
-      if ($object->request->authencation->queryKey == NULL) :
-        $form['creds']['query_key'] = array(
-          '#type' => 'textfield',
-          '#title' => $object->request->authencation->keyLabel,
-          '#required' => TRUE,
-          '#default_value' => (isset($credentials['query_key'])) ? $credentials['query_key'] : '',
-        );
-      endif;
-
-      $form['creds']['query_value'] = array(
-        '#type' => 'textfield',
-        '#title' => $object->request->authencation->valueLabel,
-        '#required' => TRUE,
-        '#default_value' => (isset($credentials['query_value'])) ? $credentials['query_value'] : '',
-      );
-      break;
-
-    default :
-      die('Unknown');
-  endswitch;
+  $form['creds']['secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t($secretLabel),
+    '#required' => TRUE,
+    '#default_value' => $secret,
+  );
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -111,7 +101,7 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
 
   $form['service-name'] = array(
     '#type' => 'hidden',
-    '#value' => $service,
+    '#value' => $serviceName,
   );
 
   return $form;
@@ -124,38 +114,38 @@ function _wconsumer_ui_form($form, &$form_state, $service = NULL) {
  * @param object
  * @access private
  */
-function _wconsumer_ui_form_submit($form, &$form_state)
-{
+function _wconsumer_ui_form_submit($form, &$form_state) {
   $values = $form_state['input'];
-  $service = (isset($values['service-name'])) ? $values['service-name'] : drupal_exit();
+  if (!isset($values['service-name'])) {
+    drupal_exit();
+  }
 
-  if ($service == '_internal') :
+  $serviceName = $values['service-name'];
+
+  if ($serviceName == '_internal') :
     // Settings for the system
     variable_set('wconsumer:service_login', $form_state['values']['service-login']);
-    return drupal_set_message(t('Settings updated.'));
+    drupal_set_message(t('Settings updated.'));
+    return;
   endif;
 
-  try {
-    $object = Service::getObject($service);
-  }
-  catch (\Drupal\wconsumer\Exception $e)
-  {
-    drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
-    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
-
+  $service = Wconsumer::instance()->services->get($serviceName);
+  if (!isset($service)) {
+    drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
+    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);
     return;
   }
 
   // Validate
   try {
-    $credentials = $object->request->authencation->formatRegistry($values);
+    $credentials = \Drupal\wconsumer\Authentication\Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
     return;
   }
 
   // CRUD
-  $object->setRegistry($credentials);
+  $service->setServiceCredentials($credentials);
 
   drupal_set_message(t('Service Configuration Saved.'));
 }
@@ -163,21 +153,18 @@ function _wconsumer_ui_form_submit($form, &$form_state)
 /**
  * Callback for the Service
  */
-function _wconsumer_ui_callback($service = NULL) {
+function _wconsumer_ui_callback($serviceName = NULL) {
   global $user;
 
-  try {
-    $object = Service::getObject($service);
-    $object->request->authencation->onCallback($user, array($_REQUEST));
-  }
-  catch (\Drupal\wconsumer\Exception $e)
-  {
-    drupal_set_message(t('Unable to obtain service object: '.$service), 'error');
-    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$service, array($service), WATCHDOG_ERROR);
-
+  $service = Wconsumer::instance()->services->get($serviceName);
+  if (!isset($service)) {
+    drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
+    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);
     return;
   }
 
+  $service->authentication->onCallback($user, array($_REQUEST));
+
   drupal_set_message('Credentials saved.', 'status');
-  return drupal_goto('user/'.$user->uid.'/wconsumer');
+  drupal_goto('user/'.$user->uid.'/wconsumer');
 }

@@ -1,22 +1,24 @@
 <?php
-use Drupal\wconsumer\Service;
+use Drupal\wconsumer\Wconsumer;
 
 /**
  * Frontend form user/1/wconsumer
  */
-function _wconsumer_frontend_form($form, &$form_state)
-{
-  $services = Service::services();
+function _wconsumer_frontend_form($form, &$form_state) {
+  $services = Wconsumer::instance()->services;
 
   // If they don't have any services active
-  if (count($services) == 0) :
+  if (count($services) == 0) {
     $form['no-active-services'] = array(
-          '#markup' => 'There are no Web Consumer Services active to manage.'
-        );
+      '#markup' => 'There are no Web Consumer Services active to manage.'
+    );
+
     return $form;
-  endif;
+  }
 
   foreach ($services as $name => $service) {
+    /** @var \Drupal\wconsumer\Service\Base $service */
+
     $form[$name] = array(
       '#type' => 'fieldset',
       '#title' => t(ucwords($name)),
@@ -24,23 +26,7 @@ function _wconsumer_frontend_form($form, &$form_state)
       '#access' => $service->canAccess(),
     );
 
-    // If they are setup?
-    if ($service->checkAuthentication('system')) :
-      // Show who they are
-      /*
-      if (isset($service['userInfoItem'])) {
-        if (function_exists($service['userInfoItem'])):
-          $string = call_user_func_array($service['userInfoItem'], array(
-            wc_check_service_auth($name)
-          ));
-        else:
-        // Manually get their info
-        endif;
-        $form[$name]['account-info'] = array(
-          '#markup' => $string
-        );
-      }
-      */
+    if ($service->checkAuthentication('system')) {
       $form['service-name'] = array(
         '#type' => 'hidden',
         '#value' => $name
@@ -48,25 +34,28 @@ function _wconsumer_frontend_form($form, &$form_state)
       $form[$name]['action'] = array(
         '#type' => 'button',
         '#name' => $name,
-        '#value' => (!$service->checkAuthentication('user'))
-          ? t('Authenticate ' . ucfirst($name))
-          : t('Revoke ' . ucfirst($name)),
+        '#value' => (
+          !$service->checkAuthentication('user'))
+            ? t('Authenticate ' . ucfirst($name))
+            : t('Revoke ' . ucfirst($name)
+        ),
         '#executes_submit_callback' => TRUE
       );
-    else:
-    // Not setup yet
+    }
+    else {
+      // Not setup yet
       $form[$name]['markup'] = array(
-        '#markup' => 'You haven\'t setup this service yet so you may not authenticate with it.'
+        '#markup' => 'The site administrator hasn\'t setup this service yet so users may not authenticate with it.'
       );
-    endif;
-
+    }
   }
+
   return $form;
 }
 
 /**
  * POST user/%/wconsumer
- * 
+ *
  * Callback for submitting the authentication form
  *
  * This is where we handle authenticating or authenticating a user
@@ -76,21 +65,18 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
 {
   global $user;
 
-  $service = (isset($form_state['clicked_button']['#name'])) ? $form_state['clicked_button']['#name'] : die('Unknown service.');
-  
-  $services = Service::services();
+  $serviceName = $form_state['clicked_button']['#name'];
 
-  if (! isset($services[$service]))
-    return drupal_set_message('Unregistered service passed: '.$service, 'error', false);
+  /** @var \Drupal\wconsumer\Service\Base $service */
+  $service = Wconsumer::instance()->services->{$serviceName};
 
   // Either authenticate them or log them out
-  if ($services[$service]->checkAuthentication('user', $user->uid)) :
-    // Log them out
-    $services[$service]->request->authencation->logout($user);
-
-    return drupal_set_message(t('Your '.$service.' service has been revoked.'));
-  else :
-    // Authenticate them
-    return $services[$service]->request->authencation->authenticate($user);
-  endif;
+  if ($service->checkAuthentication('user', $user->uid)) {
+    $service->authentication->logout($user);
+    drupal_set_message(t('Your '.$serviceName.' service has been revoked.'));
+  }
+  else {
+    $scopes = array_filter(module_invoke_all('wconsumer_define_required_scopes', $service));
+    $service->authentication->authenticate($user, $scopes);
+  }
 }
