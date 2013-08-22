@@ -10,8 +10,8 @@ For development issues, [see the current issues](https://github.com/wconsumer/wc
 - [Full Wiki](https://github.com/wconsumer/wconsumer/wiki)
 
 #### Currently Supported Services
-- [LinkedIn](https://github.com/kaw393939/wconsumer_linkedIn)
-- [GitHub](https://github.com/wconsumer/wconsumer_github)
-- [Meetup](https://github.com/wconsumer/wconsumer_meetup)
-- [Vimeo](https://github.com/wconsumer/wconsumer_vimeo) (Work in progress)
-- [Twitter](https://github.com/wconsumer/wconsumer_twitter)
+- GitHub
+- Twitter
+- LinkedIn
+- Meetup
+- Vimeo
