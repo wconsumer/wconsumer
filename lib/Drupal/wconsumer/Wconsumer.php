@@ -6,6 +6,7 @@ use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Service\Twitter;
 use Drupal\wconsumer\Service\Linkedin;
 use Drupal\wconsumer\Service\Meetup;
+use Drupal\wconsumer\Service\Vimeo;
 use Guzzle\Http\Client;
 use Pimple;
 
@@ -39,6 +40,10 @@ class Wconsumer {
    */
   public static $meetup;
 
+  /**
+   * @var Vimeo
+   */
+  public static $vimeo;
 
   private $services;
   private $container;
@@ -69,6 +74,7 @@ class Wconsumer {
       'twitter'  => new Twitter(),
       'linkedin' => new Linkedin(),
       'meetup'   => new Meetup(),
+      'vimeo'    => new Vimeo(),
     ));
 
     $class = new \ReflectionClass(get_class($this));

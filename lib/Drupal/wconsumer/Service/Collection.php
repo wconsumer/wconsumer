@@ -10,6 +10,7 @@ use Drupal\wconsumer\Service\Base as Service;
  * @property-read Twitter   $twitter
  * @property-read Linkedin  $linkedin
  * @property-read Meetup    $meetup
+ * @property-read Vimeo     $vimeo
  */
 class Collection implements \IteratorAggregate, \Countable
 {
