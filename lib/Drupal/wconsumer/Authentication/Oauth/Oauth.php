@@ -4,6 +4,7 @@ namespace Drupal\wconsumer\Authentication\Oauth;
 use Drupal\wconsumer\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\AuthInterface;
+use Drupal\wconsumer\Util\Serialize;
 use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
@@ -98,10 +99,11 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
   private function requestToken($value = null) {
     if (func_num_args() > 0) {
-      return $this->session('oauth_request_token', $value);
+      $this->session('oauth_request_token', Serialize::serialize($value));
+      return $value;
     }
     else {
-      return $this->session('oauth_request_token');
+      return Serialize::unserialize($this->session('oauth_request_token'), Credentials::getClass());
     }
   }
 

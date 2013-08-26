@@ -1,10 +1,4 @@
 <?php
-/**
- * Query String Authentication
- *
- * @package wconsumer
- * @subpackage request
- */
 namespace Drupal\wconsumer\Authentication\QueryString;
 
 use Drupal\wconsumer\Authentication\AuthInterface;
@@ -19,9 +13,6 @@ use Guzzle\Http\Client;
  * Query String Authentication
  *
  * Used for services that require a query string parameter for requests
- *
- * @package wconsumer
- * @subpackage request
  */
 class QueryString extends AuthencationBase implements AuthInterface {
   /**
@@ -69,9 +60,6 @@ class QueryString extends AuthencationBase implements AuthInterface {
 
   /**
    * @codeCoverageIgnore
-   *
-   * @param       $user
-   * @param array $scopes
    */
   public function authenticate($user, array $scopes = array()) {
   }

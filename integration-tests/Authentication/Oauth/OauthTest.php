@@ -6,6 +6,7 @@ use Drupal\wconsumer\IntegrationTests\TestService;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Util\Serialize;
 use Guzzle\Http\Client;
 
 
@@ -90,9 +91,9 @@ class OauthTest extends AuthenticationTest {
     $auth = $this->auth();
     $auth->authenticate($GLOBALS['user']);
 
-    $credentials = $_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'];
+    $credentials = @$_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'];
+    $credentials = Serialize::unserialize($credentials, Credentials::getClass());
     $this->assertNotNull($credentials);
-    $this->assertInstanceOf(Credentials::getClass(), $credentials);
   }
 
   /**
@@ -168,7 +169,8 @@ class OauthTest extends AuthenticationTest {
    * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
   public function testCallbackHandlerFailsOnInvalidRequestToken() {
-    $_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'] = new Credentials('abc', '123');
+    $_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'] =
+        Serialize::serialize(new Credentials('abc', '123'));
 
     $auth = $this->auth();
     $auth->onCallback($GLOBALS['user'], array());

@@ -9,7 +9,7 @@ class BaseTest extends \PHPUnit_Framework_TestCase {
 
   public function testConstruction() {
     $service = new TestService();
-    $auth = new \Drupal\wconsumer\Authentication\Base($service);
+    $auth = new Base($service);
     $this->assertSame($service, $auth->getService());
   }
 }

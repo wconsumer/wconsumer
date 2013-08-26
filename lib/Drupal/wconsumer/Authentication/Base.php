@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\Authentication;
 
 use Drupal\wconsumer\Service\Base as ServiceBase;
-
+use Drupal\wconsumer\Util\Serialize;
 
 
 class Base {
@@ -31,7 +31,7 @@ class Base {
     return get_called_class();
   }
 
-  protected function session($key, $value = null) {
+  protected function session($key, $value = NULL) {
     $key = "wconsumer:{$this->service->getName()}:{$key}";
 
     if (func_num_args() > 1) {
