@@ -27,15 +27,3 @@ if (!file_exists(__DIR__.'/vendor/autoload.php')) {
 function wconsumer_init() {
   require (__DIR__.'/vendor/autoload.php');
 }
-
-/**
- * Register the Namespace for this project
- *
- * @param object
- * @return void
- * @access private
- */
-function wconsumer_xautoload($api) {
-  $api->namespaceRoot('Guzzle');
-  $api->namespaceRoot('Symfony');
-}

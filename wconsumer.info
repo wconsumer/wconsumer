@@ -3,5 +3,3 @@ description = Web Consumer Manager
 package = "wconsumer"
 core = 7.x
 php = 5.3
-
-dependencies[] = xautoload
