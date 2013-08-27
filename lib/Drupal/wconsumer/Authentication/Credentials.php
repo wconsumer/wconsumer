@@ -60,10 +60,6 @@ class Credentials {
     return json_encode(get_object_vars($this));
   }
 
-  /**
-   * @param string $string
-   * @return Credentials
-   */
   public static function unserialize($string) {
     $data = @json_decode($string, true);
     if (!is_array($data)) {

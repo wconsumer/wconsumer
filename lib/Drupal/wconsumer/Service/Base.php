@@ -61,11 +61,20 @@ abstract class Base {
     $this->authentication = $this->initAuthentication();
   }
 
+  /**
+   * @param string|null  $userId
+   * @param array        $scopes
+   * @return Client
+   *
+   * @throws Exception\ServiceInactive
+   * @throws Exception\NoUserCredentials
+   * @throws Exception\AdditionalScopesRequired
+   */
   public function api($userId = NULL, array $scopes = array()) {
     $user = new \stdClass();
     $user->uid = (isset($userId) ? $userId : $GLOBALS['user']->uid);
 
-    if (!$this->getServiceCredentials()) {
+    if (!$this->isActive()) {
       throw new ServiceInactive("'{$this->name}' service is currently inactive");
     }
 
