@@ -141,18 +141,19 @@ abstract class Base {
     if (!$user_id) {
       Wconsumer::instance()->session('userCredentials', $serializedCredentials);
     }
-
-    db_merge($this->usersTable)
-      ->key(array(
-        'service' => $this->name,
-        'user_id' => $user_id,
-      ))
-      ->fields(array(
-        'service' => $this->name,
-        'user_id' => $user_id,
-        'credentials' => $serializedCredentials,
-      ))
-    ->execute();
+    else {
+      db_merge($this->usersTable)
+        ->key(array(
+          'service' => $this->name,
+          'user_id' => $user_id,
+        ))
+        ->fields(array(
+          'service' => $this->name,
+          'user_id' => $user_id,
+          'credentials' => $serializedCredentials,
+        ))
+      ->execute();
+    }
   }
 
   public function getCredentials($user_id = NULL) {
