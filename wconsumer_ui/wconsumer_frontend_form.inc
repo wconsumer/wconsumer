@@ -53,6 +53,24 @@ function _wconsumer_frontend_form($form, &$form_state) {
   return $form;
 }
 
+function _wconsumer_frontend_auth($service_name) {
+  $service = Wconsumer::instance()->services->get($service_name);
+  if (!isset($service)) {
+    drupal_set_message(t("{$service_name} service is not currently available"));
+    drupal_goto('<front>');
+  }
+
+  if (!$service->isActive()) {
+    drupal_set_message(t("'{$service->getName()}' service is not currently active"));
+    drupal_goto('<front>');
+  }
+
+  global $user;
+
+  $scopes = array_filter(module_invoke_all('wconsumer_define_required_scopes', $service));
+  $service->authentication->authenticate($user, $scopes);
+}
+
 /**
  * POST user/%/wconsumer
  *
@@ -76,7 +94,6 @@ function _wconsumer_frontend_form_submit($form, &$form_state)
     drupal_set_message(t('Your '.$serviceName.' service has been revoked.'));
   }
   else {
-    $scopes = array_filter(module_invoke_all('wconsumer_define_required_scopes', $service));
-    $service->authentication->authenticate($user, $scopes);
+    _wconsumer_frontend_auth($serviceName);
   }
 }

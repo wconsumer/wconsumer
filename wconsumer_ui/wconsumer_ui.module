@@ -32,8 +32,7 @@ function wconsumer_ui_menu()
     )
   );
 
-  $items['admin/config/services/wconsumer_ui']        = array(
-    // The title - do NOT use t() as t() is called automatically.
+  $items['admin/config/services/wconsumer_ui'] = array(
     'title' => 'Web Consumer Manager',
     'description' => 'Manage Web Services',
     'type' => MENU_NORMAL_ITEM,
@@ -56,9 +55,9 @@ function wconsumer_ui_menu()
   );
 
   // Only one array item (not counting oauthCallback)
-  if (count($services) > 0):
+  if (count($services) > 0) {
     $i = 1;
-    foreach ($services as $name => $service):
+    foreach ($services as $name => $service) {
       $i++;
       $items['admin/config/services/wconsumer_ui/' . $name] = array(
         'title' => ucwords($name),
@@ -78,11 +77,25 @@ function wconsumer_ui_menu()
         'access arguments' => array('manage web ' . $name),
         'weight' => $i
       );
-    endforeach;
+    }
+
+    // Here you can redirect user to start service auth for him
+    $items['wconsumer/auth/%'] = array(
+      'title' => 'Authenticate user with web service',
+      'type' => MENU_CALLBACK,
+
+      'file path' => drupal_get_path('module', 'wconsumer_ui'),
+      'file' => 'wconsumer_frontend_form.inc',
+
+      'page callback' => '_wconsumer_frontend_auth',
+      'page arguments' => array(2),
+
+      'access callback' => TRUE,
+    );
 
     // Add the callback page
     $items['wconsumer/callback/%'] = array(
-      'title' => ucwords($name),
+      'title' => 'Web service return callback',
       'type' => MENU_LOCAL_TASK,
       'description' => 'Manage Service',
 
@@ -94,12 +107,12 @@ function wconsumer_ui_menu()
       'page arguments' => array(2),
       'page callback' => '_wconsumer_ui_callback',
 
-      // Permissions
-      'access callback' => 'user_access',
-      'access arguments' => array('manage web ' . $name),
+      'access callback' => TRUE,
+
       'weight' => $i
     );
-  endif;
+  }
+
   return $items;
 }
 
