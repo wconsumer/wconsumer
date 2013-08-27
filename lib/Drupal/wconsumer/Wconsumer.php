@@ -56,7 +56,10 @@ class Wconsumer {
       static::$instance = new static();
     }
 
-    return static::$instance;
+    /** @var static $wconsumer */
+    $wconsumer = static::$instance;
+
+    return $wconsumer;
   }
 
   protected function __construct() {

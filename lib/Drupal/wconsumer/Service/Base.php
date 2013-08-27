@@ -95,6 +95,10 @@ abstract class Base {
     return $client;
   }
 
+  public function isActive() {
+    return $this->checkAuthentication('system');
+  }
+
   public function setServiceCredentials(Credentials $credentials = null) {
     db_merge($this->servicesTable)
       ->key(array('service' => $this->name))

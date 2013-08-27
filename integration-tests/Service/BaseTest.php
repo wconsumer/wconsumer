@@ -55,6 +55,18 @@ class BaseTest extends DrupalTestBase {
     $service->api(0, array('user', 'profile'));
   }
 
+  public function testIsActive() {
+    $service = new TestService();
+
+    $this->assertFalse($service->isActive());
+
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $this->assertTrue($service->isActive());
+
+    $service->setServiceCredentials(NULL);
+    $this->assertFalse($service->isActive());
+  }
+
   public function testCredentialsGettingSetting() {
     $service = new TestService();
 
