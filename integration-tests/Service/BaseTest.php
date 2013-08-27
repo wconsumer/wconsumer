@@ -104,20 +104,26 @@ class BaseTest extends DrupalTestBase {
     $this->assertNull($exception);
   }
 
-  /**
-   * @expectedException \InvalidArgumentException
-   */
-  public function testSetCredentialsFailsIfSpecifiedUserIsNotLoggedIn() {
+  public function testSetCredentialsIsAbleToStoreCredentialsIfSpecifiedUserIsNotLoggedIn() {
     $service = new TestService();
+
     $service->setCredentials(new Credentials('mynickname', 'mypassword'), 0);
+    $credentials = $service->getCredentials(0);
+
+    $this->assertInstanceOf(Credentials::getClass(), $credentials);
+    $this->assertSame('mynickname', $credentials->token);
+    $this->assertSame('mypassword', $credentials->secret);
   }
 
-  /**
-   * @expectedException \InvalidArgumentException
-   */
-  public function testSetCredentialsFailsOnGlobalUserIsNotLoggedIn() {
+  public function testSetCredentialsIsAbleToStoreCredentialsIfGlobalUserIsNotLoggedIn() {
     $service = new TestService();
+
     $service->setCredentials(new Credentials('mynickname', 'mypassword'));
+    $credentials = $service->getCredentials();
+
+    $this->assertInstanceOf(Credentials::getClass(), $credentials);
+    $this->assertSame('mynickname', $credentials->token);
+    $this->assertSame('mypassword', $credentials->secret);
   }
 
   /**

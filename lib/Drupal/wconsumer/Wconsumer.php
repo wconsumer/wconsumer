@@ -62,13 +62,23 @@ class Wconsumer {
     return $wconsumer;
   }
 
+  public function __get($property) {
+    return $this->{$property};
+  }
+
+  public function session($key, $value = NULL) {
+    $key = "wconsumer:{$key}";
+
+    if (func_num_args() > 1) {
+      $_SESSION[$key] = $value;
+    }
+
+    return @$_SESSION[$key];
+  }
+
   protected function __construct() {
     $this->setupServices();
     $this->setupContainer();
-  }
-
-  public function __get($property) {
-    return $this->{$property};
   }
 
   private function setupServices() {

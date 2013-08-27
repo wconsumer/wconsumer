@@ -1,7 +1,6 @@
 <?php
 namespace Drupal\wconsumer\Service;
 
-use Drupal\wconsumer\Queue;
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
@@ -13,12 +12,7 @@ use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 
 
-/**
- * Base Class for Services
- *
- * @package wconsumer
- * @subpackage services
- */
+
 abstract class Base {
   /**
    * Define a way to specify the internal name of the service
@@ -142,8 +136,10 @@ abstract class Base {
       $user_id = $user->uid;
     }
 
+    $serializedCredentials = Serialize::serialize($credentials);
+
     if (!$user_id) {
-      throw new \InvalidArgumentException("Can't set credentials for guest visitor");
+      Wconsumer::instance()->session('userCredentials', $serializedCredentials);
     }
 
     db_merge($this->usersTable)
@@ -154,7 +150,7 @@ abstract class Base {
       ->fields(array(
         'service' => $this->name,
         'user_id' => $user_id,
-        'credentials' => Serialize::serialize($credentials),
+        'credentials' => $serializedCredentials,
       ))
     ->execute();
   }
@@ -165,16 +161,21 @@ abstract class Base {
       $user_id = $user->uid;
     }
 
+    $serializedCredentials = NULL;
+    if ($user_id) {
+      $serializedCredentials =
+        db_select($this->usersTable)
+          ->fields($this->usersTable, array('credentials'))
+          ->condition('service', $this->name)
+          ->condition('user_id', $user_id)
+        ->execute()
+        ->fetchField();
+    }
+    else {
+      $serializedCredentials = Wconsumer::instance()->session('userCredentials');
+    }
+
     $credentials = null;
-
-    $serializedCredentials =
-      db_select($this->usersTable)
-        ->fields($this->usersTable, array('credentials'))
-        ->condition('service', $this->name)
-        ->condition('user_id', $user_id)
-      ->execute()
-      ->fetchField();
-
     if ($serializedCredentials) {
       $credentials = Serialize::unserialize($serializedCredentials, Credentials::getClass());
     }

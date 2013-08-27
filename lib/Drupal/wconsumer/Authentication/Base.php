@@ -3,14 +3,10 @@ namespace Drupal\wconsumer\Authentication;
 
 use Drupal\wconsumer\Service\Base as ServiceBase;
 use Drupal\wconsumer\Util\Serialize;
+use Drupal\wconsumer\Wconsumer;
 
 
 class Base {
-  /**
-   * Instance of the Service Object
-   *
-   * @var ServiceBase
-   */
   protected $service;
 
 
@@ -28,20 +24,18 @@ class Base {
   }
 
   protected function session($key, $value = NULL) {
-    $key = "wconsumer:{$this->service->getName()}:{$key}";
+    $args = func_get_args();
+    $args[0] = "{$this->service->getName()}:{$key}";
 
-    if (func_num_args() > 1) {
-      $_SESSION[$key] = $value;
-    }
-    else {
-      if (!isset($_SESSION[$key])) {
-        throw new \BadMethodCallException('
-          Auth data not found in the current session.
-          Please make sure you call auth methods in a correct order.
-        ');
-      }
+    $result = call_user_func_array(array(Wconsumer::instance(), 'session'), $args);
+
+    if (func_num_args() < 2  && !isset($result)) {
+      throw new \BadMethodCallException('
+        Auth data not found in the current session.
+        Please make sure you call auth methods in a correct order.
+      ');
     }
 
-    return $_SESSION[$key];
+    return $result;
   }
 }
