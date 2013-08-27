@@ -32,6 +32,13 @@ class WconsumerTest extends \PHPUnit_Framework_TestCase {
     $this->assertInstanceOf(Linkedin::getClass(), Wconsumer::$linkedin);
   }
 
+  public function testSession() {
+    $wconsumer = $this->wconsumer();
+    $this->assertNull($wconsumer->session('key'));
+    $this->assertSame('123', $wconsumer->session('key', '123'));
+    $this->assertSame('123', $wconsumer->session('key'));
+  }
+
   private function wconsumer() {
     return new WconsumerTestChild();
   }
