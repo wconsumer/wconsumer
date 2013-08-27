@@ -158,7 +158,7 @@ class BaseTest extends DrupalTestBase {
   }
 
   /**
-   * @dataProvider isInitializedDataProvider
+   * @dataProvider checkAuthenticationDataProvider
    */
   public function testCheckAuthentication($serviceCredentials, $userCredentials, $domain, $expectedResult) {
     $service = new TestService();
@@ -197,7 +197,7 @@ class BaseTest extends DrupalTestBase {
     $this->assertFalse($service->checkAuthentication('user', 77));
   }
 
-  public static function isInitializedDataProvider() {
+  public static function checkAuthenticationDataProvider() {
     $credentials = new Credentials('123', 'abc');
 
     return array(

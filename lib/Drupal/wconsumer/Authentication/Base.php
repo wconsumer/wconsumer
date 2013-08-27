@@ -23,10 +23,6 @@ class Base {
     return $this->service;
   }
 
-  public function isInitialized($type, $user = NULL) {
-    return $this->service->checkAuthentication($type, (isset($user) ? $user->uid : NULL));
-  }
-
   public static function getClass() {
     return get_called_class();
   }
