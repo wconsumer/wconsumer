@@ -41,14 +41,6 @@ class QueryString extends AuthencationBase implements AuthInterface {
 
 
 
-  public function isInitialized($type, $user = NULL) {
-    if ($type == 'user') {
-      return true;
-    }
-
-    return parent::isInitialized($type, $user);
-  }
-
   public function signRequest(Client $client, $user = NULL) {
     $credentials = $this->service->requireServiceCredentials();
 

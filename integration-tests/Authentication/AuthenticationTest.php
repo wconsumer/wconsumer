@@ -29,19 +29,6 @@ abstract class AuthenticationTest extends DrupalTestBase {
   }
 
   /**
-   * @dataProvider Drupal\wconsumer\IntegrationTests\Service\BaseTest::isInitializedDataProvider
-   */
-  public function testIsInitialized($serviceCredentials, $userCredentials, $domain, $expectedResult) {
-    $auth = $this->auth(new TestService());
-    $service = $auth->getService();
-
-    $service->setServiceCredentials($serviceCredentials);
-    $service->setCredentials($userCredentials, 100);
-
-    $this->assertSame($expectedResult, $auth->isInitialized($domain, (object)array('uid' => 100)));
-  }
-
-  /**
    * @param ServiceBase $service
    * @return AuthenticationBase|AuthInterface
    */
