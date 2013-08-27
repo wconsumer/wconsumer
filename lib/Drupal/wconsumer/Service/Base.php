@@ -4,7 +4,6 @@ namespace Drupal\wconsumer\Service;
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
-use Drupal\wconsumer\Service\Exception\NotLoggedInUser;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Exception\ServiceInactive;
 use Drupal\wconsumer\Util\Serialize;
@@ -66,15 +65,11 @@ abstract class Base {
     $user = new \stdClass();
     $user->uid = (isset($userId) ? $userId : $GLOBALS['user']->uid);
 
-    if (empty($user->uid)) {
-      throw new NotLoggedInUser("User is not logged in");
-    }
-
     if (!$this->getServiceCredentials()) {
       throw new ServiceInactive("'{$this->name}' service is currently inactive");
     }
 
-    $credentials = $this->getCredentials($userId);
+    $credentials = $this->getCredentials($user->uid);
     if (!$credentials) {
       throw new NoUserCredentials("User not yet authorized access to his '{$this->name}' service profile");
     }

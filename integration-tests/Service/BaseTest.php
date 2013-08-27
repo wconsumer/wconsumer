@@ -45,14 +45,15 @@ class BaseTest extends DrupalTestBase {
     $service->api(91, array('user', 'friends'));
   }
 
-  /**
-   * @expectedException \Drupal\wconsumer\Service\Exception\NotLoggedInUser
-   */
-  public function testApiFailsOnNotLoggedInUser() {
+  public function testApiWithNotLoggedInUser() {
     $service = new TestService();
     $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
-    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')), 91);
-    $service->api(0, array('user', 'profile'));
+    $service->setCredentials(new Credentials('dummy', 'dummy', array('user', 'profile')), 0);
+
+    $api = $service->api(0, array('user', 'profile'));
+
+    $this->assertInstanceOf('Guzzle\Http\Client', $api);
+    $this->assertSame('http://url.example', $api->getBaseUrl());
   }
 
   public function testIsActive() {
