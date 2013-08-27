@@ -8,6 +8,7 @@ use Drupal\wconsumer\Service\Exception\AdditionalScopesRequired;
 use Drupal\wconsumer\Service\Exception\NotLoggedInUser;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Exception\ServiceInactive;
+use Drupal\wconsumer\Util\Serialize;
 use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
 
@@ -104,7 +105,7 @@ abstract class Base {
       ->key(array('service' => $this->name))
       ->fields(array(
         'service'     => $this->name,
-        'credentials' => (isset($credentials) ? $credentials->serialize() : NULL),
+        'credentials' => Serialize::serialize($credentials),
       ))
     ->execute();
   }
@@ -119,7 +120,7 @@ abstract class Base {
     ->fetchField();
 
     if ($serializedCredentials) {
-      $credentials = Credentials::unserialize($serializedCredentials);
+      $credentials = Serialize::unserialize($serializedCredentials, Credentials::getClass());
     }
 
     return $credentials;
@@ -153,21 +154,11 @@ abstract class Base {
       ->fields(array(
         'service' => $this->name,
         'user_id' => $user_id,
-        'credentials' => (isset($credentials) ? $credentials->serialize() : NULL),
+        'credentials' => Serialize::serialize($credentials),
       ))
     ->execute();
   }
 
-  /**
-   * Retrieve the Service Credential Object
-   *
-   * Checks the database to see if the credential row exists.
-   * If not, returns NULL.
-   *
-   * @param int|null
-   * @return Credentials|null
-   * @throws \Drupal\wconsumer\Exception
-   */
   public function getCredentials($user_id = NULL) {
     if (!isset($user_id)) {
       global $user;
@@ -185,7 +176,7 @@ abstract class Base {
       ->fetchField();
 
     if ($serializedCredentials) {
-      $credentials = Credentials::unserialize($serializedCredentials);
+      $credentials = Serialize::unserialize($serializedCredentials, Credentials::getClass());
     }
 
     return $credentials;
