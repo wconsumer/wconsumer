@@ -16,7 +16,7 @@ function wconsumer_ui_menu()
 {
   $services = Wconsumer::instance()->services;
 
-  $items['user/%/wconsumer'] = array(
+  $items['user/%user/wconsumer'] = array(
     'title' => 'Web Services',
     'description' => 'Manage Web Services',
     'type' => MENU_LOCAL_TASK,
@@ -25,11 +25,8 @@ function wconsumer_ui_menu()
     'page arguments' => array('_wconsumer_frontend_form'),
     'file' => 'wconsumer_frontend_form.inc',
     'file path' => drupal_get_path('module', 'wconsumer_ui'),
-
-    'access callback' => 'user_access',
-    'access arguments' => array(
-      'manage web consumer'
-    )
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
   );
 
   $items['admin/config/services/wconsumer_ui'] = array(

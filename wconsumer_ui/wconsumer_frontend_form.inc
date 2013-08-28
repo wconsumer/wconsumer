@@ -65,8 +65,13 @@ function _wconsumer_frontend_auth($service_name) {
     drupal_goto('<front>');
   }
 
-  global $user;
+  // Persist the url which we want back to in session
+  if (!empty($_GET['destination'])) {
+    drupal_set_message($_GET['destination'], 'wconsumer_back_to_url');
+  }
+  unset($_GET['destination']);
 
+  global $user;
   $scopes = array_filter(module_invoke_all('wconsumer_define_required_scopes', $service));
   $service->authentication->authenticate($user, $scopes);
 }
