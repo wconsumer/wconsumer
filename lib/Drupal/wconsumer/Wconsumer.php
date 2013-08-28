@@ -66,14 +66,14 @@ class Wconsumer {
     return $this->{$property};
   }
 
-  public function session($key, $value = NULL) {
-    $key = "wconsumer:{$key}";
+  public function session($client, $key, $value = NULL) {
+    $fullKey = "wconsumer:{$client}:{$key}";
 
-    if (func_num_args() > 1) {
-      $_SESSION[$key] = $value;
+    if (func_num_args() > 2) {
+      $_SESSION[$fullKey] = $value;
     }
 
-    return @$_SESSION[$key];
+    return @$_SESSION[$fullKey];
   }
 
   protected function __construct() {

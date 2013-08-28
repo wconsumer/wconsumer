@@ -25,7 +25,7 @@ class Base {
 
   protected function session($key, $value = NULL) {
     $args = func_get_args();
-    $args[0] = "{$this->service->getName()}:{$key}";
+    array_unshift($args, $this->service->getName());
 
     $result = call_user_func_array(array(Wconsumer::instance(), 'session'), $args);
 

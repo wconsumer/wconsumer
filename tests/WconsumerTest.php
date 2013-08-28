@@ -34,9 +34,10 @@ class WconsumerTest extends \PHPUnit_Framework_TestCase {
 
   public function testSession() {
     $wconsumer = $this->wconsumer();
-    $this->assertNull($wconsumer->session('key'));
-    $this->assertSame('123', $wconsumer->session('key', '123'));
-    $this->assertSame('123', $wconsumer->session('key'));
+    $this->assertNull($wconsumer->session('client', 'key'));
+    $this->assertSame('123', $wconsumer->session('client', 'key', '123'));
+    $this->assertSame('123', $wconsumer->session('client', 'key'));
+    $this->assertNull($wconsumer->session('another client', 'key'));
   }
 
   private function wconsumer() {

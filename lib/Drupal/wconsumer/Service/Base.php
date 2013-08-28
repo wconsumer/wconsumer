@@ -143,7 +143,7 @@ abstract class Base {
     $serializedCredentials = Serialize::serialize($credentials);
 
     if (!$user_id) {
-      Wconsumer::instance()->session('userCredentials', $serializedCredentials);
+      Wconsumer::instance()->session($this->getName(), 'user_credentials', $serializedCredentials);
     }
     else {
       db_merge($this->usersTable)
@@ -177,7 +177,7 @@ abstract class Base {
         ->fetchField();
     }
     else {
-      $serializedCredentials = Wconsumer::instance()->session('userCredentials');
+      $serializedCredentials = Wconsumer::instance()->session($this->getName(), 'user_credentials');
     }
 
     $credentials = null;
