@@ -22,6 +22,11 @@ abstract class Base {
   protected $name;
 
   /**
+   * @var bool
+   */
+  public $enabled = FALSE;
+
+  /**
    * Options Class
    *
    * @var object|void
@@ -102,7 +107,7 @@ abstract class Base {
   }
 
   public function isActive() {
-    return $this->checkAuthentication('system');
+    return $this->enabled && $this->checkAuthentication('system');
   }
 
   public function setServiceCredentials(Credentials $credentials = null) {

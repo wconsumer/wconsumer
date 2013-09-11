@@ -62,10 +62,20 @@ class BaseTest extends DrupalTestBase {
     $this->assertFalse($service->isActive());
 
     $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->enabled = TRUE;
     $this->assertTrue($service->isActive());
 
     $service->setServiceCredentials(NULL);
+    $service->enabled = TRUE;
     $this->assertFalse($service->isActive());
+
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->enabled = FALSE;
+    $this->assertFalse($service->isActive());
+
+    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
+    $service->enabled = TRUE;
+    $this->assertTrue($service->isActive());
   }
 
   public function testCredentialsGettingSetting() {
