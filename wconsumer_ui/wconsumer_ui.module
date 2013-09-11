@@ -10,24 +10,11 @@
 use Drupal\wconsumer\Wconsumer;
 
 /**
- * Register the menus
+ * Implements hook_menu().
  */
 function wconsumer_ui_menu()
 {
   $services = Wconsumer::instance()->services;
-
-  $items['user/%user/wconsumer'] = array(
-    'title' => 'Web Services',
-    'description' => 'Manage Web Services',
-    'type' => MENU_LOCAL_TASK,
-    'menu_name' => 'management',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_wconsumer_frontend_form'),
-    'file' => 'wconsumer_frontend_form.inc',
-    'file path' => drupal_get_path('module', 'wconsumer_ui'),
-    'access callback' => 'user_edit_access',
-    'access arguments' => array(1),
-  );
 
   $items['admin/config/services/wconsumer_ui'] = array(
     'title' => 'Web Consumer Manager',
@@ -44,14 +31,12 @@ function wconsumer_ui_menu()
     )
   );
 
-  // Module Management Menu Items
   $items['admin/config/services/wconsumer_ui/default'] = array(
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'title' => 'Settings Management',
     'weight' => 1
   );
 
-  // Only one array item (not counting oauthCallback)
   if (count($services) > 0) {
     $i = 1;
     foreach ($services as $name => $service) {
@@ -89,6 +74,18 @@ function wconsumer_ui_menu()
 
       'access callback' => TRUE,
     );
+    $items['wconsumer/revoke/%'] = array(
+      'title' => 'Revoke web service auth',
+      'type' => MENU_CALLBACK,
+
+      'file path' => drupal_get_path('module', 'wconsumer_ui'),
+      'file' => 'wconsumer_frontend_form.inc',
+
+      'page callback' => '_wconsumer_frontend_revoke',
+      'page arguments' => array(2),
+
+      'access callback' => TRUE,
+    );
 
     // Add the callback page
     $items['wconsumer/callback/%'] = array(
@@ -114,6 +111,14 @@ function wconsumer_ui_menu()
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wconsumer_ui_form_user_profile_form_alter(&$form, $form_state) {
+  $form['web_services'] = _wconsumer_ui_user_profile_form();
+  return $form;
+}
+
+/**
  * Implements hook_help().
  */
 function wconsumer_ui_help($path, $arg) {
@@ -133,4 +138,87 @@ function wconsumer_ui_help($path, $arg) {
       return $output;
       break;
   }
+}
+
+function _wconsumer_ui_user_profile_form() {
+  $form = array(
+    '#type' => 'fieldset',
+    '#title' => t('Web Services'),
+    '#collapsible' => TRUE,
+    '#weight' => 6,
+  );
+
+  $form['vtabs'] = array(
+    '#type' => 'vertical_tabs',
+  );
+
+  $services = Wconsumer::instance()->services;
+  $shownServicesCount = 0;
+  foreach ($services as $service) {
+    /** @var \Drupal\wconsumer\Service\Base $service */
+
+    if (!$service->isActive()) {
+      continue;
+    }
+
+    $serviceName = $service->getName();
+
+    $form[$serviceName] = array(
+      '#type' => 'fieldset',
+      '#title' => t(ucwords($serviceName)),
+      '#tree' => TRUE,
+      '#access' => $service->canAccess(),
+      '#group'  => 'vtabs',
+    );
+
+    $caption = NULL;
+    $url = NULL;
+    if (!$service->getCredentials()) {
+      $caption = 'Authenticate';
+      $url = 'wconsumer/auth/'.$serviceName;
+    }
+    else {
+      $caption = 'Revoke';
+      $url = 'wconsumer/revoke/'.$serviceName;
+    }
+
+    $form[$serviceName]['action'] = array(
+      '#markup' => l(
+        $caption.' '.ucfirst($serviceName),
+        $url,
+        array(
+          'attributes' => array('class' => 'button'),
+          'query'      => drupal_get_destination(),
+        )
+      ),
+    );
+
+    $shownServicesCount++;
+  }
+
+  if ($shownServicesCount == 0) {
+    $form['no-active-services'] = array('#markup' => t('There are no web services active to manage.'));
+  }
+
+  return $form;
+}
+
+
+/**
+ * Persist the url which we want to back to in session
+ */
+function _wconsumer_ui_save_return_url() {
+  if (!empty($_GET['destination'])) {
+    drupal_set_message($_GET['destination'], 'wconsumer_back_to_url');
+  }
+
+  unset($_GET['destination']);
+}
+
+function _wconsumer_ui_goto() {
+  if ($back_to_urls = drupal_get_messages('wconsumer_back_to_url')) {
+    $_GET['destination'] = end($back_to_urls['wconsumer_back_to_url']);
+  }
+
+  drupal_goto();
 }

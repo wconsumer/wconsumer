@@ -20,7 +20,7 @@ abstract class Base {
    * @var string
    */
   protected $name;
-  
+
   /**
    * @var AuthInterface
    */
