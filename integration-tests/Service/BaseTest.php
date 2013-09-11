@@ -81,7 +81,7 @@ class BaseTest extends DrupalTestBase {
   public function testEnabledGettingSetting() {
     $service = new TestService();
 
-    $this->assertFalse($service->isEnabled());
+    $this->assertTrue($service->isEnabled());
 
     $service->setEnabled(FALSE);
     $this->assertFalse($service->isEnabled());

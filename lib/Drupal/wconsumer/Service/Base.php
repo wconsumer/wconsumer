@@ -113,6 +113,10 @@ abstract class Base {
     ->execute()
     ->fetchField();
 
+    if ($result === false) {
+      $result = '1';
+    }
+
     return (bool)$result;
   }
 
