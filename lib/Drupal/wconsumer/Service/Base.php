@@ -20,14 +20,7 @@ abstract class Base {
    * @var string
    */
   protected $name;
-
-  /**
-   * Options Class
-   *
-   * @var object|void
-   */
-  public $options  = NULL;
-
+  
   /**
    * @var AuthInterface
    */
