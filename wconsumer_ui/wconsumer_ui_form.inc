@@ -197,10 +197,10 @@ function _wconsumer_ui_callback($serviceName = NULL) {
   }
 
   $service->authentication->onCallback($user, array($_REQUEST));
+  drupal_set_message(t(
+    "Your @service account is now linked with your local account.",
+    array('@service' => $serviceName))
+  );
 
-  if ($back_to_urls = drupal_get_messages('wconsumer_back_to_url')) {
-    $_GET['destination'] = end($back_to_urls['wconsumer_back_to_url']);
-  }
-
-  drupal_goto();
+  _wconsumer_ui_goto();
 }
