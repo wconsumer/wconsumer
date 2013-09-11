@@ -102,7 +102,32 @@ abstract class Base {
   }
 
   public function isActive() {
-    return $this->checkAuthentication('system');
+    return $this->isEnabled() && $this->checkAuthentication('system');
+  }
+
+
+  public function isEnabled() {
+    $result = db_select($this->servicesTable)
+      ->fields($this->servicesTable, array('enabled'))
+      ->condition('service', $this->name)
+    ->execute()
+    ->fetchField();
+
+    if ($result === false) {
+      $result = '1';
+    }
+
+    return (bool)$result;
+  }
+
+  public function setEnabled($value) {
+    db_merge($this->servicesTable)
+      ->key(array('service' => $this->name))
+      ->fields(array(
+        'service' => $this->name,
+        'enabled' => (int)(bool)$value,
+      ))
+    ->execute();
   }
 
   public function setServiceCredentials(Credentials $credentials = null) {
