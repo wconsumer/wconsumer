@@ -35,7 +35,7 @@ function _wconsumer_frontend_form($form, &$form_state) {
           ? t('Authenticate ' . ucfirst($serviceName))
           : t('Revoke ' . ucfirst($serviceName)
       ),
-      '#executes_submit_callback' => TRUE
+      '#executes_submit_callback' => TRUE,
     );
   }
 
