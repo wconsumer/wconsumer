@@ -19,6 +19,10 @@ function _wconsumer_frontend_form($form, &$form_state) {
   foreach ($services as $name => $service) {
     /** @var \Drupal\wconsumer\Service\Base $service */
 
+    if (!$service->isActive()) {
+      continue;
+    }
+
     $form[$name] = array(
       '#type' => 'fieldset',
       '#title' => t(ucwords($name)),
@@ -26,28 +30,16 @@ function _wconsumer_frontend_form($form, &$form_state) {
       '#access' => $service->canAccess(),
     );
 
-    if ($service->checkAuthentication('system')) {
-      $form['service-name'] = array(
-        '#type' => 'hidden',
-        '#value' => $name
-      );
-      $form[$name]['action'] = array(
-        '#type' => 'button',
-        '#name' => $name,
-        '#value' => (
-          !$service->checkAuthentication('user'))
-            ? t('Authenticate ' . ucfirst($name))
-            : t('Revoke ' . ucfirst($name)
-        ),
-        '#executes_submit_callback' => TRUE
-      );
-    }
-    else {
-      // Not setup yet
-      $form[$name]['markup'] = array(
-        '#markup' => 'The site administrator hasn\'t setup this service yet so users may not authenticate with it.'
-      );
-    }
+    $form[$name]['action'] = array(
+      '#type' => 'button',
+      '#name' => $name,
+      '#value' => (
+        !$service->checkAuthentication('user'))
+          ? t('Authenticate ' . ucfirst($name))
+          : t('Revoke ' . ucfirst($name)
+      ),
+      '#executes_submit_callback' => TRUE
+    );
   }
 
   return $form;
