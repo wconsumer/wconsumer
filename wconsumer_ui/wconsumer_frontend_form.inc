@@ -6,16 +6,6 @@ use Drupal\wconsumer\Wconsumer;
  */
 function _wconsumer_frontend_form($form, &$form_state) {
   $services = Wconsumer::instance()->services;
-
-  // If they don't have any services active
-  if (count($services) == 0) {
-    $form['no-active-services'] = array(
-      '#markup' => 'There are no Web Consumer Services active to manage.'
-    );
-
-    return $form;
-  }
-
   foreach ($services as $name => $service) {
     /** @var \Drupal\wconsumer\Service\Base $service */
 
@@ -39,6 +29,12 @@ function _wconsumer_frontend_form($form, &$form_state) {
           : t('Revoke ' . ucfirst($name)
       ),
       '#executes_submit_callback' => TRUE
+    );
+  }
+
+  if (count($form) == 0) {
+    $form['no-active-services'] = array(
+      '#markup' => 'There are no web services active to manage.'
     );
   }
 
