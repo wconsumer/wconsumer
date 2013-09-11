@@ -5,6 +5,10 @@ use Drupal\wconsumer\Wconsumer;
  * Frontend form user/1/wconsumer
  */
 function _wconsumer_frontend_form($form, &$form_state) {
+  $form['vertical_tabs_services'] = array(
+    '#type' => 'vertical_tabs',
+  );
+
   $services = Wconsumer::instance()->services;
   foreach ($services as $name => $service) {
     /** @var \Drupal\wconsumer\Service\Base $service */
@@ -18,6 +22,7 @@ function _wconsumer_frontend_form($form, &$form_state) {
       '#title' => t(ucwords($name)),
       '#tree' => TRUE,
       '#access' => $service->canAccess(),
+      '#group'  => 'vertical_tabs_services',
     );
 
     $form[$name]['action'] = array(
@@ -32,10 +37,9 @@ function _wconsumer_frontend_form($form, &$form_state) {
     );
   }
 
-  if (count($form) == 0) {
-    $form['no-active-services'] = array(
-      '#markup' => 'There are no web services active to manage.'
-    );
+  if (count($form) < 2) {
+    $form['no-active-services'] = array('#markup' => t('There are no web services active to manage.'));
+    unset($form['vertical_tabs_services']);
   }
 
   return $form;
