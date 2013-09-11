@@ -34,6 +34,13 @@ abstract class Base {
   public $authentication = NULL;
 
   /**
+   * A page where user can register his app and get app credentials to use the service
+   *
+   * @var string
+   */
+  public $registerAppUrl;
+
+  /**
    * Base API url
    *
    * @var string

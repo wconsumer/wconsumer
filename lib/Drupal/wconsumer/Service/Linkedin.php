@@ -8,7 +8,7 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 class Linkedin extends Base {
   protected $name = 'linkedin';
   protected $apiUrl = 'http://api.linkedin.com/v1/';
-
+  public $registerAppUrl = 'https://www.linkedin.com/secure/developer?newapp';
 
 
   protected function initAuthentication() {

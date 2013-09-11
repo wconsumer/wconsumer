@@ -1,5 +1,8 @@
 <?php
 use Drupal\wconsumer\Wconsumer;
+use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Authentication\Oauth\Oauth;
+use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
@@ -8,11 +11,17 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
 
   if (!isset($serviceName)) {
     $form['dummy'] = array(
-      '#markup' => t('Please click on a tab above to configure an individual service'),
+      '#markup' => t('Please click on a tab above to configure an individual service.'),
     );
 
     return $form;
   }
+
+  $usesOauth = function(Service $service) {
+    return
+      $service->authentication instanceof Oauth ||
+      $service->authentication instanceof Oauth2;
+  };
 
   $service = Wconsumer::instance()->services->{$serviceName};
 
@@ -22,8 +31,7 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
 
   $authencation = $service->authentication;
 
-  if ($authencation instanceof \Drupal\wconsumer\Authentication\Oauth\Oauth ||
-      $authencation instanceof \Drupal\wconsumer\Authentication\Oauth2\Oauth2) {
+  if ($usesOauth($service)) {
     $tokenLabel = 'Consumer Key';
     $secretLabel = 'Consumer Secret';
   }
@@ -45,7 +53,11 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
       '#title' => t($serviceName.' Application Credentials'),
       '#collapsible' => false,
       '#collapsed' => FALSE,
-    );
+   );
+
+  if ($usesOauth($service)) {
+    $form['creds']['note'] = _wconsumer_ui_form_note($service);
+  }
 
   if (!$tokenPredefined) {
     $form['creds']['token'] = array(
@@ -81,6 +93,52 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   );
 
   return $form;
+}
+
+function _wconsumer_ui_form_note(Service $service) {
+  $sentences = array();
+  $fields = array();
+  {
+    // register an application
+    if (isset($service->registerAppUrl)) {
+      $sentences[] =
+        'In order to use this service you have to
+         <a href="@registerUrl" target="_blank">register an application</a>';
+
+      $fields['@registerUrl'] = $service->registerAppUrl;
+    }
+    else {
+      $sentences[] = 'In order to use this service you have to register an application';
+    }
+
+    // use callback uri
+    global $base_url;
+    $sentences[] =
+      'Use "@callbackUrl" (without quotes) as the Callback URL when registering your app (this field might
+       also be called Redirect URL or Success Callback URL)';
+    $fields['@callbackUrl'] = $base_url;
+
+    // callback uri change note
+    if ($service->authentication instanceof Oauth) {
+      $sentences[] = 'Actually, you can change it to anything you want if you need it for some reason';
+    }
+    else {
+      $sentences[] =
+        'Please do not change it unless you know what you do because most likely it will
+        make the service inaccessible';
+    }
+
+    // fill in credentials
+    $sentences[] = 'Once you created your app come back here and fill in app credentials you\'ve got';
+  }
+
+  foreach ($sentences as &$sentence) {
+    $sentence = t($sentence, $fields).'. ';
+  }
+
+  return array(
+    '#markup' => join('', $sentences)
+  );
 }
 
 /**

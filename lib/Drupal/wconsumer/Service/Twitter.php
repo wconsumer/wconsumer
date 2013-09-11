@@ -8,6 +8,7 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 class Twitter extends Base {
   protected $name = 'twitter';
   protected $apiUrl = 'https://api.twitter.com/1.1/';
+  public $registerAppUrl = 'https://dev.twitter.com/apps/new';
 
 
   protected function initAuthentication() {
