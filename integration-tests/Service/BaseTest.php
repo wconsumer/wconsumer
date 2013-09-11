@@ -56,16 +56,43 @@ class BaseTest extends DrupalTestBase {
     $this->assertSame('http://url.example', $api->getBaseUrl());
   }
 
-  public function testIsActive() {
+  /**
+   * @dataProvider isActiveDataProvider
+   */
+  public function testIsActive($serviceCredentials, $enabled, $expectedResult) {
+    $service = new TestService();
+    $service->setServiceCredentials($serviceCredentials);
+    $service->setEnabled($enabled);
+
+    $this->assertSame($expectedResult, $service->isActive());
+  }
+
+  public static function isActiveDataProvider() {
+    $credentials = new Credentials('dummy', 'dummy');
+
+    return array(
+      array($credentials, TRUE, TRUE),
+      array(NULL, TRUE, FALSE),
+      array(NULL, FALSE, FALSE),
+      array($credentials, FALSE, FALSE),
+    );
+  }
+
+  public function testIsActiveIsFalseByDefault() {
+    $service = new TestService();
+    $this->assertFalse($service->isActive());
+  }
+
+  public function testEnabledGettingSetting() {
     $service = new TestService();
 
-    $this->assertFalse($service->isActive());
+    $this->assertTrue($service->isEnabled());
 
-    $service->setServiceCredentials(new Credentials('dummy', 'dummy'));
-    $this->assertTrue($service->isActive());
+    $service->setEnabled(FALSE);
+    $this->assertFalse($service->isEnabled());
 
-    $service->setServiceCredentials(NULL);
-    $this->assertFalse($service->isActive());
+    $service->setEnabled(TRUE);
+    $this->assertTrue($service->isEnabled());
   }
 
   public function testCredentialsGettingSetting() {

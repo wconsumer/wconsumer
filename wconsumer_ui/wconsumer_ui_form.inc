@@ -59,6 +59,12 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
     $form['creds']['note'] = _wconsumer_ui_form_note($service);
   }
 
+  $form['creds']['enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable service'),
+    '#default_value' => $service->isEnabled(),
+  );
+
   if (!$tokenPredefined) {
     $form['creds']['token'] = array(
       '#type' => 'textfield',
@@ -137,7 +143,7 @@ function _wconsumer_ui_form_note(Service $service) {
   }
 
   return array(
-    '#markup' => join('', $sentences)
+    '#markup' => join('', $sentences).'<br /><br />',
   );
 }
 
@@ -162,7 +168,8 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
     return;
   }
 
-  // Validate
+  $service->setEnabled((bool)$values['enabled']);
+
   try {
     $credentials = \Drupal\wconsumer\Authentication\Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
