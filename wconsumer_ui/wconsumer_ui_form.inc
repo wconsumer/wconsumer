@@ -6,36 +6,13 @@ use Drupal\wconsumer\Wconsumer;
 function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   $form = array();
 
-  if ($serviceName == NULL) :
-    $service_login = (int) variable_get('wconsumer:service_login');
-
-    $form['settings'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Web Consumer Settings'),
-      '#collapsible' => false,
-      '#collapsed' => FALSE,
+  if (!isset($serviceName)) {
+    $form['dummy'] = array(
+      '#markup' => t('Please click on a tab above to configure an individual service'),
     );
 
-    $form['settings']['service-login'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Enable users to sign in with services'),
-      '#default_value' => $service_login,
-      '#return_value' => 1,
-    );
-
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Save Configuration')
-    );
-
-    $form['service-name'] = array(
-      '#type' => 'hidden',
-      '#value' => '_internal',
-    );
-
-    // Add Web Manager Settings Here
     return $form;
-  endif;
+  }
 
   $service = Wconsumer::instance()->services->{$serviceName};
 
@@ -120,14 +97,6 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
   }
 
   $serviceName = $values['service-name'];
-
-  if ($serviceName == '_internal') :
-    // Settings for the system
-    variable_set('wconsumer:service_login', $form_state['values']['service-login']);
-    drupal_set_message(t('Settings updated.'));
-    return;
-  endif;
-
   $service = Wconsumer::instance()->services->get($serviceName);
   if (!isset($service)) {
     drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
