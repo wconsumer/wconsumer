@@ -10,28 +10,30 @@ function _wconsumer_frontend_form($form, &$form_state) {
   );
 
   $services = Wconsumer::instance()->services;
-  foreach ($services as $name => $service) {
+  foreach ($services as $service) {
     /** @var \Drupal\wconsumer\Service\Base $service */
 
     if (!$service->isActive()) {
       continue;
     }
 
-    $form[$name] = array(
+    $serviceName = $service->getName();
+
+    $form[$serviceName] = array(
       '#type' => 'fieldset',
-      '#title' => t(ucwords($name)),
+      '#title' => t(ucwords($serviceName)),
       '#tree' => TRUE,
       '#access' => $service->canAccess(),
       '#group'  => 'vertical_tabs_services',
     );
 
-    $form[$name]['action'] = array(
+    $form[$serviceName]['action'] = array(
       '#type' => 'button',
-      '#name' => $name,
+      '#name' => $serviceName,
       '#value' => (
         !$service->checkAuthentication('user'))
-          ? t('Authenticate ' . ucfirst($name))
-          : t('Revoke ' . ucfirst($name)
+          ? t('Authenticate ' . ucfirst($serviceName))
+          : t('Revoke ' . ucfirst($serviceName)
       ),
       '#executes_submit_callback' => TRUE
     );
