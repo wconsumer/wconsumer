@@ -5,49 +5,43 @@ use Drupal\wconsumer\Wconsumer;
  * Frontend form user/1/wconsumer
  */
 function _wconsumer_frontend_form($form, &$form_state) {
+  $form['vertical_tabs_services'] = array(
+    '#type' => 'vertical_tabs',
+  );
+
   $services = Wconsumer::instance()->services;
-
-  // If they don't have any services active
-  if (count($services) == 0) {
-    $form['no-active-services'] = array(
-      '#markup' => 'There are no Web Consumer Services active to manage.'
-    );
-
-    return $form;
-  }
-
-  foreach ($services as $name => $service) {
+  foreach ($services as $service) {
     /** @var \Drupal\wconsumer\Service\Base $service */
 
-    $form[$name] = array(
+    if (!$service->isActive()) {
+      continue;
+    }
+
+    $serviceName = $service->getName();
+
+    $form[$serviceName] = array(
       '#type' => 'fieldset',
-      '#title' => t(ucwords($name)),
+      '#title' => t(ucwords($serviceName)),
       '#tree' => TRUE,
       '#access' => $service->canAccess(),
+      '#group'  => 'vertical_tabs_services',
     );
 
-    if ($service->checkAuthentication('system')) {
-      $form['service-name'] = array(
-        '#type' => 'hidden',
-        '#value' => $name
-      );
-      $form[$name]['action'] = array(
-        '#type' => 'button',
-        '#name' => $name,
-        '#value' => (
-          !$service->checkAuthentication('user'))
-            ? t('Authenticate ' . ucfirst($name))
-            : t('Revoke ' . ucfirst($name)
-        ),
-        '#executes_submit_callback' => TRUE
-      );
-    }
-    else {
-      // Not setup yet
-      $form[$name]['markup'] = array(
-        '#markup' => 'The site administrator hasn\'t setup this service yet so users may not authenticate with it.'
-      );
-    }
+    $form[$serviceName]['action'] = array(
+      '#type' => 'button',
+      '#name' => $serviceName,
+      '#value' => (
+        !$service->checkAuthentication('user'))
+          ? t('Authenticate ' . ucfirst($serviceName))
+          : t('Revoke ' . ucfirst($serviceName)
+      ),
+      '#executes_submit_callback' => TRUE,
+    );
+  }
+
+  if (count($form) < 2) {
+    $form['no-active-services'] = array('#markup' => t('There are no web services active to manage.'));
+    unset($form['vertical_tabs_services']);
   }
 
   return $form;
