@@ -4,4 +4,3 @@ package = "wconsumer"
 core = 7.x
 dependencies[] = "wconsumer"
 configure = admin/config/services/wconsumer_ui
-stylesheets[all][] = wconsumer_ui.css
