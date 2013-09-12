@@ -115,28 +115,6 @@ function wconsumer_ui_form_user_profile_form_alter(&$form, $form_state) {
   return $form;
 }
 
-/**
- * Implements hook_help().
- */
-function wconsumer_ui_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#wconsumer_ui':
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('This module is an API for Drupal that provides useful functions to developers creating web service consuming modules and specializes in handling the OAUTH authentication method commonly used by many major websites like Twitter, LinkedIn, GitHub, etc....') . '</p>';
-      $output .= '<h3>' . t('Documentation') . '</h3>';
-      $output .= '<ul>';
-      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Installation">' . t('Installation') . '</a></li>';
-      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Create-a-Service-Module">' . t('Create a Service Module') . '</a></li>';
-      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Service-Configuration">' . t('Service Configuration') . '</a></li>';
-      $output .= '<li><a href="https://github.com/kaw393939/wconsumer/wiki/Making-Requests">' . t('Making Requests') . '</a></li>';
-
-      $output .= '</ul>';
-      return $output;
-      break;
-  }
-}
-
 function _wconsumer_ui_user_profile_form() {
   $form = array(
     '#type' => 'fieldset',
