@@ -25,5 +25,5 @@ if (!file_exists(__DIR__.'/vendor/autoload.php')) {
  * Implements hook_init()
  */
 function wconsumer_init() {
-  require (__DIR__.'/vendor/autoload.php');
+  require_once(__DIR__.'/vendor/autoload.php');
 }

@@ -1,19 +1,16 @@
 <?php
-/**
- * The Core Web Consumer Module
- *
- * Base to extend various services from, including support for OAuth, API Keys, etc.
- *
- * @package   wconsumer
- */
-
 use Drupal\wconsumer\Wconsumer;
 
 /**
  * Implements hook_menu().
  */
-function wconsumer_ui_menu()
-{
+function wconsumer_ui_menu() {
+  // Parent wconsumer module is not loaded if it's being updated by drupal/update.php. So
+  // we have to load autoloader here.
+  if (!class_exists('Wconsumer')) {
+    require_once(__DIR__.'/../vendor/autoload.php');
+  }
+
   $services = Wconsumer::instance()->services;
 
   $items['admin/config/services/wconsumer_ui'] = array(

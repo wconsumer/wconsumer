@@ -3,3 +3,4 @@ description = Web Consumer Manager
 package = "wconsumer"
 core = 7.x
 php = 5.3
+version = 7.x-1.1.0014

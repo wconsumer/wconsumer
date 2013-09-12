@@ -103,3 +103,17 @@ function wconsumer_enable() {
      check out <a href="https://github.com/wconsumer/wconsumer/wiki">our wiki</a>.'
   ));
 }
+
+/**
+ * Add wc_service.enabled column
+ */
+function wconsumer_update_7101(&$sandbox) {
+  db_add_field('wc_service', 'enabled', array(
+    'type' => 'int',
+    'size' => 'tiny',
+    'not null' => TRUE,
+    'default' => 1,
+  ));
+
+  return 'Successfully added wc_service.enabled column';
+}
