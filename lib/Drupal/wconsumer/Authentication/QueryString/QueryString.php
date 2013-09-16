@@ -25,20 +25,6 @@ class QueryString extends AuthencationBase implements AuthInterface {
    */
   public $queryKey;
 
-  /**
-   * Label for the query key
-   *
-   * @var string
-   */
-  public $keyLabel = 'Query Key';
-
-  /**
-   * Label for the query value
-   *
-   * @var string
-   */
-  public $valueLabel = 'Query Value';
-
 
 
   public function signRequest(Client $client, $user = NULL) {
