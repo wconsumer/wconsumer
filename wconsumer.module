@@ -1,21 +1,4 @@
 <?php
-/**
- * @file
- * Web Consumer Manager Base
- *
- * @package  wconsumer
- * @subpackage  wc_api
- * @link https://github.com/wconsumer/wconsumer/
- */
-
-/**
- * Core Global Version
- *
- * @global string
- */
-define('WCONSUMER_VERSION', '0.3');
-
-// Load Composer
 if (!file_exists(__DIR__.'/vendor/autoload.php')) {
   drupal_set_message(t('Composer not initialized for wconsumer.'), 'error');
   return;

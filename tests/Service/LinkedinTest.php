@@ -6,15 +6,19 @@ use Drupal\wconsumer\Service\Linkedin;
 
 
 
-class LinkedinTest extends \PHPUnit_Framework_TestCase {
+class LinkedinTest extends AbstractServiceTest {
 
   public function testAuthentication() {
-    $twitter = new Linkedin();
-    $this->assertInstanceOf(Oauth::getClass(), $twitter->authentication);
+    $linkedin = $this->service();
+    $this->assertInstanceOf(Oauth::getClass(), $linkedin->authentication);
   }
 
   public function testName() {
-    $twitter = new Linkedin();
-    $this->assertSame('linkedin', $twitter->getName());
+    $linkedin = $this->service();
+    $this->assertSame('linkedin', $linkedin->getName());
+  }
+
+  protected function service() {
+    return new Linkedin();
   }
 }

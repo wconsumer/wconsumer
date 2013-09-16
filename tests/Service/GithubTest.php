@@ -6,15 +6,19 @@ use Drupal\wconsumer\Service\Github;
 
 
 
-class GithubTest extends \PHPUnit_Framework_TestCase {
+class GithubTest extends AbstractServiceTest {
 
   public function testAuthentication() {
-    $github = new Github();
+    $github = $this->service();
     $this->assertInstanceOf(Oauth2::getClass(), $github->authentication);
   }
 
   public function testName() {
-    $github = new Github();
+    $github = $this->service();
     $this->assertSame('github', $github->getName());
+  }
+
+  protected function service() {
+    return new Github();
   }
 }

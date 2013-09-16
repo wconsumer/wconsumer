@@ -21,6 +21,14 @@ class BaseTest extends \PHPUnit_Framework_TestCase {
     $service = new FooService();
     $this->assertNotEmpty($service->callback());
   }
+
+  public function tetMeta() {
+    $service = new FooService();
+    $meta = $service->getMeta();
+    $this->assertNull($meta->registerAppUrl);
+    $this->assertNotEmpty($meta->consumerKeyLabel);
+    $this->assertNotEmpty($meta->consumerSecretLabel);
+  }
 }
 
 /**

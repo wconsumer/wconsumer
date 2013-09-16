@@ -25,34 +25,23 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
 
   $service = Wconsumer::instance()->services->{$serviceName};
 
-  $tokenLabel = 'Username';
-  $secretLabel = 'Password';
-  $tokenPredefined = false;
+  $meta = $service->getMeta();
+  $tokenLabel = $meta->consumerKeyLabel;
+  $secretLabel = $meta->consumerSecretLabel;
 
-  $authencation = $service->authentication;
-
-  if ($usesOauth($service)) {
-    $tokenLabel = 'Consumer Key';
-    $secretLabel = 'Consumer Secret';
-  }
-  elseif ($authencation instanceof \Drupal\wconsumer\Authentication\QueryString\QueryString) {
-    $tokenLabel = $authencation->keyLabel;
-    $secretLabel = $authencation->valueLabel;
-
-    if (isset($authencation->queryKey)) {
-      $tokenPredefined = true;
-    }
-  }
+  $tokenPredefined =
+      $service->authentication instanceof \Drupal\wconsumer\Authentication\QueryString\QueryString &&
+      isset($service->authentication->queryKey);
 
   $credentials = $service->getServiceCredentials();
-  $token = (isset($credentials) ? $credentials->token : null);
-  $secret = (isset($credentials) ? $credentials->secret : null);
+  $token =  (isset($credentials) ? $credentials->token : NULL);
+  $secret = (isset($credentials) ? $credentials->secret : NULL);
 
   $form['creds'] = array(
-      '#type' => 'fieldset',
-      '#title' => t($serviceName.' Application Credentials'),
-      '#collapsible' => false,
-      '#collapsed' => FALSE,
+    '#type' => 'fieldset',
+    '#title' => t($serviceName.' Application Credentials'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
    );
 
   if ($usesOauth($service)) {
@@ -106,12 +95,13 @@ function _wconsumer_ui_form_note(Service $service) {
   $fields = array();
   {
     // register an application
-    if (isset($service->registerAppUrl)) {
+    $registerAppUrl = $service->getMeta()->registerAppUrl;
+    if (isset($registerAppUrl)) {
       $sentences[] =
         'In order to use this service you have to
          <a href="@registerUrl" target="_blank">register an application</a>';
 
-      $fields['@registerUrl'] = $service->registerAppUrl;
+      $fields['@registerUrl'] = $registerAppUrl;
     }
     else {
       $sentences[] = 'In order to use this service you have to register an application';
