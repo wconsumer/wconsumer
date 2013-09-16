@@ -13,45 +13,13 @@ use Guzzle\Http\Client;
 
 
 abstract class Base {
-  /**
-   * Define a way to specify the internal name of the service
-   * Optional -- will default to the class name
-   *
-   * @var string
-   */
+
+  public $authentication;
+
   protected $name;
-
-  /**
-   * @var AuthInterface
-   */
-  public $authentication = NULL;
-
-  /**
-   * A page where user can register his app and get app credentials to use the service
-   *
-   * @var string
-   */
-  public $registerAppUrl;
-
-  /**
-   * Base API url
-   *
-   * @var string
-   */
   protected $apiUrl;
 
-  /**
-   * Services table
-   *
-   * @var string
-   */
   private $servicesTable = 'wc_service';
-
-  /**
-   * Services' users' table
-   *
-   * @var string
-   */
   private $usersTable = 'wc_user';
 
 
@@ -98,6 +66,9 @@ abstract class Base {
     return $this->isEnabled() && $this->checkAuthentication('system');
   }
 
+  public function getName() {
+    return $this->name;
+  }
 
   public function isEnabled() {
     $result = db_select($this->servicesTable)
@@ -223,6 +194,10 @@ abstract class Base {
       return $credentials;
   }
 
+  public function getMeta() {
+    return new Meta();
+  }
+
   /**
    * Can the current user access this service
    *
@@ -248,23 +223,9 @@ abstract class Base {
     }
   }
 
-  /**
-   * Retrieve a callback URL
-   *
-   * @return string
-   */
   public function callback() {
     global $base_url;
     return $base_url.'/wconsumer/callback/'.$this->name;
-  }
-
-  /**
-   * Get Service Name
-   *
-   * @return string
-   */
-  public function getName() {
-    return $this->name;
   }
 
   public static function getClass() {

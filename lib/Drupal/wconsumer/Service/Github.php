@@ -8,10 +8,18 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 class Github extends Base {
   protected $name = 'github';
   protected $apiUrl = 'https://api.github.com/';
-  public $registerAppUrl = 'https://github.com/settings/applications/new';
 
 
 
+  public function getMeta() {
+    $meta = parent::getMeta();
+
+    $meta->consumerKeyLabel     = 'Client ID';
+    $meta->consumerSecretLabel  = 'Client Secret';
+    $meta->registerAppUrl       = 'https://github.com/settings/applications/new';
+
+    return $meta;
+  }
 
   protected function initAuthentication() {
     $auth = new Oauth2($this);
