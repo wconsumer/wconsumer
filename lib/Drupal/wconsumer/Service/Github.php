@@ -12,6 +12,11 @@ class Github extends Base {
 
 
 
+  public function getMeta() {
+    $meta = parent::getMeta();
+    $meta->registerAppUrl = 'https://github.com/settings/applications/new';
+    return $meta;
+  }
 
   protected function initAuthentication() {
     $auth = new Oauth2($this);

@@ -6,15 +6,19 @@ use Drupal\wconsumer\Service\Meetup;
 
 
 
-class MeetupTest extends \PHPUnit_Framework_TestCase {
+class MeetupTest extends AbstractServiceTest {
 
   public function testAuthentication() {
-    $twitter = new Meetup();
-    $this->assertInstanceOf(Oauth::getClass(), $twitter->authentication);
+    $meetup = $this->service();
+    $this->assertInstanceOf(Oauth::getClass(), $meetup->authentication);
   }
 
   public function testName() {
-    $twitter = new Meetup();
-    $this->assertSame('meetup', $twitter->getName());
+    $meetup = $this->service();
+    $this->assertSame('meetup', $meetup->getName());
+  }
+
+  protected function service() {
+    return new Meetup();
   }
 }

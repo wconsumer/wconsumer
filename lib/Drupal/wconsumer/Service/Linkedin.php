@@ -11,6 +11,12 @@ class Linkedin extends Base {
   public $registerAppUrl = 'https://www.linkedin.com/secure/developer?newapp';
 
 
+  public function getMeta() {
+    $meta = parent::getMeta();
+    $meta->registerAppUrl = 'https://www.linkedin.com/secure/developer?newapp';
+    return $meta;
+  }
+
   protected function initAuthentication() {
     $auth = new Oauth($this);
 

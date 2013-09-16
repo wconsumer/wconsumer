@@ -11,6 +11,13 @@ class Twitter extends Base {
   public $registerAppUrl = 'https://dev.twitter.com/apps/new';
 
 
+
+  public function getMeta() {
+    $meta = parent::getMeta();
+    $meta->registerAppUrl = 'https://dev.twitter.com/apps/new';
+    return $meta;
+  }
+
   protected function initAuthentication() {
     $auth = new Oauth($this);
 
