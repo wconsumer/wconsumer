@@ -13,7 +13,11 @@ class Linkedin extends Base {
 
   public function getMeta() {
     $meta = parent::getMeta();
-    $meta->registerAppUrl = 'https://www.linkedin.com/secure/developer?newapp';
+
+    $meta->consumerKeyLabel    = 'API Key';
+    $meta->consumerSecretLabel = 'Secret Key';
+    $meta->registerAppUrl      = 'https://www.linkedin.com/secure/developer?newapp';
+
     return $meta;
   }
 

@@ -13,7 +13,11 @@ class Meetup extends Base {
 
   public function getMeta() {
     $meta = parent::getMeta();
-    $meta->registerAppUrl = 'http://www.meetup.com/meetup_api/oauth_consumers/create/';
+
+    $meta->consumerKeyLabel    = 'Key';
+    $meta->consumerSecretLabel = 'Secret';
+    $meta->registerAppUrl      = 'http://www.meetup.com/meetup_api/oauth_consumers/create/';
+
     return $meta;
   }
 

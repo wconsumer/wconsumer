@@ -13,7 +13,11 @@ class Github extends Base {
 
   public function getMeta() {
     $meta = parent::getMeta();
-    $meta->registerAppUrl = 'https://github.com/settings/applications/new';
+
+    $meta->consumerKeyLabel     = 'Client ID';
+    $meta->consumerSecretLabel  = 'Client Secret';
+    $meta->registerAppUrl       = 'https://github.com/settings/applications/new';
+
     return $meta;
   }
 

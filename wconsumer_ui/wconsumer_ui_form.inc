@@ -32,8 +32,9 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   $authencation = $service->authentication;
 
   if ($usesOauth($service)) {
-    $tokenLabel = 'Consumer Key';
-    $secretLabel = 'Consumer Secret';
+    $meta = $service->getMeta();
+    $tokenLabel = $meta->consumerKeyLabel;
+    $secretLabel = $meta->consumerSecretLabel;
   }
   elseif ($authencation instanceof \Drupal\wconsumer\Authentication\QueryString\QueryString) {
     $tokenLabel = $authencation->keyLabel;

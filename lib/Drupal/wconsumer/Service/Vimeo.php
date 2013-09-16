@@ -13,7 +13,11 @@ class Vimeo extends Base {
 
   public function getMeta() {
     $meta = parent::getMeta();
-    $meta->registerAppUrl = 'https://developer.vimeo.com/apps/new';
+
+    $meta->consumerKeyLabel    = 'Client ID';
+    $meta->consumerSecretLabel = 'Client Secret';
+    $meta->registerAppUrl      = 'https://developer.vimeo.com/apps/new';
+
     return $meta;
   }
 
