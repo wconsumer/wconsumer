@@ -13,17 +13,8 @@ use Guzzle\Http\Client;
 
 
 abstract class Base {
-  /**
-   * @var AuthInterface
-   */
-  public $authentication = NULL;
 
-  /**
-   * A page where user can register his app and get app credentials to use the service
-   *
-   * @var string
-   */
-  public $registerAppUrl;
+  public $authentication;
 
   protected $name;
   protected $apiUrl;

@@ -8,7 +8,6 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 class Vimeo extends Base {
   protected $name = 'vimeo';
   protected $apiUrl = 'http://vimeo.com/api/rest/v2/';
-  public $registerAppUrl = 'https://developer.vimeo.com/apps/new';
 
 
 

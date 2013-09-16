@@ -106,12 +106,13 @@ function _wconsumer_ui_form_note(Service $service) {
   $fields = array();
   {
     // register an application
-    if (isset($service->registerAppUrl)) {
+    $registerAppUrl = $service->getMeta()->registerAppUrl;
+    if (isset($registerAppUrl)) {
       $sentences[] =
         'In order to use this service you have to
          <a href="@registerUrl" target="_blank">register an application</a>';
 
-      $fields['@registerUrl'] = $service->registerAppUrl;
+      $fields['@registerUrl'] = $registerAppUrl;
     }
     else {
       $sentences[] = 'In order to use this service you have to register an application';

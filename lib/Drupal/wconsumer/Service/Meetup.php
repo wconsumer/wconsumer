@@ -8,7 +8,6 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 class Meetup extends Base {
   protected $name = 'meetup';
   protected $apiUrl = 'http://api.meetup.com/';
-  public $registerAppUrl = 'http://www.meetup.com/meetup_api/oauth_consumers/create/';
 
 
 
