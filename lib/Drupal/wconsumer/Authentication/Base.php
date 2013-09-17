@@ -11,12 +11,16 @@ class Base {
 
 
 
-  public function __construct(ServiceBase $instance) {
-    $this->service = $instance;
+  public function __construct(ServiceBase $service) {
+    $this->service = $service;
   }
 
   public function getService() {
     return $this->service;
+  }
+
+  public function validateServiceCredentials(Credentials $credentials) {
+    return TRUE;
   }
 
   public static function getClass() {

@@ -10,8 +10,7 @@
 
   class HttpAuthTest extends \PHPUnit_Framework_TestCase
   {
-    public function testSignRequest()
-    {
+    public function testSignRequest() {
       $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
       $service
         ->expects($this->once())

@@ -148,4 +148,8 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       return $this->session('oauth2_state');
     }
   }
+
+  public function validateServiceCredentials(Credentials $credentials) {
+    return TRUE;
+  }
 }

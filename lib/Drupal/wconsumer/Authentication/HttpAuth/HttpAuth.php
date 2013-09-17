@@ -1,10 +1,4 @@
 <?php
-/**
- * HTTP Authentication
- *
- * @package wconsumer
- * @subpackage request
- */
 namespace Drupal\wconsumer\Authentication\HttpAuth;
 
 use Drupal\wconsumer\Authentication\Base as AuthencationBase;
@@ -30,9 +24,6 @@ class HttpAuth extends AuthencationBase implements AuthInterface {
 
   /**
    * @codeCoverageIgnore
-   *
-   * @param       $user
-   * @param array $scopes
    */
   public function authenticate($user, array $scopes = array()) {
   }

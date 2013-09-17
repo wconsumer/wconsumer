@@ -34,7 +34,7 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
       isset($service->authentication->queryKey);
 
   $credentials = $service->getServiceCredentials();
-  $token =  (isset($credentials) ? $credentials->token : NULL);
+  $token =  (isset($credentials) ? $credentials->token  : NULL);
   $secret = (isset($credentials) ? $credentials->secret : NULL);
 
   $form['creds'] = array(
@@ -163,13 +163,16 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
   try {
     $credentials = \Drupal\wconsumer\Authentication\Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
-    drupal_set_message($e->getMessage(), 'error');
+    drupal_set_message(t($e->getMessage()), 'error');
     return;
   }
 
-  // CRUD
-  $service->setServiceCredentials($credentials);
+  if (!$service->validateServiceCredentials($credentials)) {
+    drupal_set_message(t('The new credentials are not valid. Please double-check them.'), 'error');
+    return;
+  }
 
+  $service->setServiceCredentials($credentials);
   drupal_set_message(t('Service Configuration Saved.'));
 }
 

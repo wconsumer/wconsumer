@@ -17,4 +17,5 @@ interface AuthInterface {
   public function authenticate($user, array $scopes = array());
   public function logout($user);
   public function onCallback($user, $values);
+  public function validateServiceCredentials(Credentials $credentials);
 }

@@ -130,6 +130,10 @@ abstract class Base {
     return $credentials;
   }
 
+  public function validateServiceCredentials(Credentials $credentials) {
+    return $this->authentication->validateServiceCredentials($credentials);
+  }
+
   public function setCredentials(Credentials $credentials = NULL, $user_id = NULL) {
     if ($user_id == NULL) {
       global $user;
