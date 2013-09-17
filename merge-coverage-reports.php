@@ -15,8 +15,8 @@ $coverage = new PHP_CodeCoverage();
 $coverage->merge(read('unit-tests-coverage.serialized'));
 $coverage->merge(read('integration-tests-coverage.serialized'));
 
-$writer = new PHP_CodeCoverage_Report_Text(new PHPUnit_TextUI_ResultPrinter(), 35, 70, FALSE);
-$writer->process($coverage, !defined('PHP_WINDOWS_VERSION_BUILD') || !PHP_WINDOWS_VERSION_BUILD);
+$writer = new PHP_CodeCoverage_Report_Text(new PHPUnit_TextUI_ResultPrinter(), 35, 70, TRUE);
+$writer->process($coverage);
 ?>
 <?php
 function read($name) {
