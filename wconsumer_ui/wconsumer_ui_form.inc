@@ -7,8 +7,6 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
-  $form = array();
-
   if (!isset($serviceName)) {
     $form['dummy'] = array(
       '#markup' => t('Please click on a tab above to configure an individual service.'),
@@ -137,13 +135,6 @@ function _wconsumer_ui_form_note(Service $service) {
   );
 }
 
-/**
- * POST Callback for the Service Update Form
- *
- * @param object
- * @param object
- * @access private
- */
 function _wconsumer_ui_form_submit($form, &$form_state) {
   $values = $form_state['input'];
   if (!isset($values['service-name'])) {
@@ -168,7 +159,7 @@ function _wconsumer_ui_form_submit($form, &$form_state) {
   }
 
   if (!$service->validateServiceCredentials($credentials)) {
-    drupal_set_message(t('The new credentials are not valid. Please double-check them.'), 'error');
+    drupal_set_message(t('The service reports that the new credentials are not valid. Please double-check them.'), 'error');
     return;
   }
 
