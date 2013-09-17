@@ -8,13 +8,9 @@ use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Plugin as Oauth2Plugin;
 use Drupal\wconsumer\Wconsumer;
 use Guzzle\Http\Client;
+use Guzzle\Http\Exception\ClientErrorResponseException;
 
-/**
- * OAuth2 Authentication Class
- *
- * @package wconsumer
- * @subpackage request
- */
+
 class Oauth2 extends AuthencationBase implements AuthInterface {
   /**
    * @var string
@@ -42,12 +38,6 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
-  /**
-   * Authenticate the user and set them up for OAuth Authentication
-   *
-   * @param object $user The user object
-   * @param array  $scopes
-   */
   public function authenticate($user, array $scopes = array())
   {
     $callback = $this->service->callback();
@@ -102,8 +92,21 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       throw new WconsumerException('No code passed to OAuth2 Interface');
     }
 
-    $serviceCredentials = $this->service->requireServiceCredentials();
+    $accessTokenResponse = $this->requestAccessToken($this->service->requireServiceCredentials(), $values['code']);
 
+    if (!empty($accessTokenResponse['error'])) {
+      throw new WconsumerException("Error while requesting access_token: '{$accessTokenResponse['error']}'");
+    }
+
+    if (empty($accessTokenResponse['access_token'])) {
+      throw new WconsumerException("Invalid access token response: '".var_export($accessTokenResponse, true)."'");
+    }
+
+    $credentials = new Credentials('dummy', $accessTokenResponse['access_token'], $state['scopes']);
+    $this->service->setCredentials($credentials, $user->uid);
+  }
+
+  private function requestAccessToken(Credentials $serviceCredentials, $code) {
     // @codeCoverageIgnoreStart
     if (!isset($this->client)) {
       $this->client = Wconsumer::instance()->container['httpClient'];
@@ -118,26 +121,13 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       array(
         'client_id'     => $serviceCredentials->token,
         'client_secret' => $serviceCredentials->secret,
-        'code'          => $values['code'],
+        'code'          => $code,
       )
     );
 
-    $response = $this->client->send($request);
-    if ($response->isError()) {
-      throw new WconsumerException('Unknown error on OAuth 2 callback: '.print_r($response, true));
-    }
+    $response = $this->client->send($request)->json();
 
-    $response = $response->json();
-    if (!empty($response['error'])) {
-      throw new WconsumerException("Error while requesting access_token: '{$response['error']}'");
-    }
-
-    if (empty($response['access_token'])) {
-      throw new WconsumerException("Invalid access token response: '".var_export($response, true)."'");
-    }
-
-    $credentials = new Credentials('dummy', $response['access_token'], $state['scopes']);
-    $this->service->setCredentials($credentials, $user->uid);
+    return $response;
   }
 
   private function state($value = NULL) {
@@ -147,5 +137,26 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     else {
       return $this->session('oauth2_state');
     }
+  }
+
+  public function validateServiceCredentials(Credentials $credentials) {
+    try {
+      $response = $this->requestAccessToken($credentials, 'dummy');
+    }
+    catch (ClientErrorResponseException $e) {
+      // Invalid/unknown $credentials->token
+      if ($e->getResponse()->getStatusCode() == 404) {
+        return FALSE;
+      }
+
+      throw $e;
+    }
+
+    // Invalid $credentials->secret
+    if (!empty($response['error']) && $response['error'] === 'incorrect_client_credentials') {
+      return FALSE;
+    }
+
+    return TRUE;
   }
 }

@@ -105,6 +105,7 @@ abstract class Base {
   }
 
   public function getServiceCredentials() {
+    /** @var Credentials $credentials */
     $credentials = null;
 
     $serializedCredentials = db_select($this->servicesTable)
@@ -128,6 +129,10 @@ abstract class Base {
     }
 
     return $credentials;
+  }
+
+  public function validateServiceCredentials(Credentials $credentials) {
+    return $this->authentication->validateServiceCredentials($credentials);
   }
 
   public function setCredentials(Credentials $credentials = NULL, $user_id = NULL) {

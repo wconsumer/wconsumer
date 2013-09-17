@@ -40,4 +40,22 @@ return array(
       */
     )
   ),
+  'linkedin' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
+  'meetup' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
+  'vimeo' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
 );

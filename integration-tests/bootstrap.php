@@ -1,30 +1,42 @@
 <?php
 
 define('WC_BASE', dirname(__DIR__));
-define('WC_LIB_BASE', WC_BASE.'/lib');
 
-// Let's see if they initialized Composer
-if (!file_exists(WC_BASE.'/vendor/autoload.php')) {
-  die('Composer not initialized.');
+// Setup autoloading
+{
+  if (!file_exists(WC_BASE.'/vendor/autoload.php')) {
+    die('Composer not initialized.');
+  }
+
+  require(WC_BASE.'/vendor/autoload.php');
+
+  spl_autoload_register(function($class) {
+    static $prefix = 'Drupal\\wconsumer\\IntegrationTests\\';
+
+    if (strpos($class, $prefix) === 0) {
+      $class = substr($class, strlen($prefix));
+
+      $filename = WC_BASE.'/integration-tests/'.str_replace('\\', "/", $class).'.php';
+      if (file_exists($filename)) {
+        require_once($filename);
+      }
+    }
+  });
 }
-require(WC_BASE.'/vendor/autoload.php');
 
-// Let's see if they installed PHPUnit
 if (!class_exists('PHPUnit_Framework_TestCase')) {
   die('PHPUnit is not installed from composer.');
 }
 
-require_once(__DIR__.'/DrupalTestBase.php');
-require_once(__DIR__.'/TestService.php');
-require_once(__DIR__.'/Service/BaseTest.php');
-require_once( __DIR__ . '/Authentication/AuthenticationTest.php' );
+// Setup Drupal
+{
+  define('DRUPAL_ROOT', __DIR__.'/../../../../..');
+  require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 
-define('DRUPAL_ROOT', __DIR__.'/../../../../..');
-require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
-$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
-drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-
-global $base_url;
-$base_url = 'http://example.invalid';
+  global $base_url;
+  $base_url = 'http://example.invalid';
+}
