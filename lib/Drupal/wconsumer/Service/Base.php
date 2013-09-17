@@ -105,6 +105,7 @@ abstract class Base {
   }
 
   public function getServiceCredentials() {
+    /** @var Credentials $credentials */
     $credentials = null;
 
     $serializedCredentials = db_select($this->servicesTable)
