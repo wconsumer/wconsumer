@@ -11,9 +11,6 @@ use Guzzle\Http\Client;
  * HTTP Authentication
  *
  * Used for services that require a specific HTTP username and password
- *
- * @package wconsumer
- * @subpackage request
  */
 class HttpAuth extends AuthencationBase implements AuthInterface {
 
