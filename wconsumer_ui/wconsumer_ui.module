@@ -149,23 +149,24 @@ function _wconsumer_ui_user_profile_form() {
     $caption = NULL;
     $url = NULL;
     if (!$service->getCredentials()) {
-      $caption = 'Authenticate';
+      $caption = t('Allow access to my @service account', array('@service' => ucfirst($serviceName)));
       $url = 'wconsumer/auth/'.$serviceName;
     }
     else {
-      $caption = 'Revoke';
+      $caption = t('Revoke access to my @service account', array('@service' => ucfirst($serviceName)));
       $url = 'wconsumer/revoke/'.$serviceName;
     }
 
     $form[$serviceName]['action'] = array(
-      '#markup' => l(
-        $caption.' '.ucfirst($serviceName),
-        $url,
-        array(
+      '#markup' =>
+        '<p>
+          Some of the website features may require access to your web service account.
+          Here you can grant or deny access to it.
+        </p>'.
+        l($caption, $url, array(
           'attributes' => array('class' => 'button'),
           'query'      => drupal_get_destination(),
-        )
-      ),
+        ))
     );
 
     $shownServicesCount++;
