@@ -22,12 +22,13 @@ class BaseTest extends \PHPUnit_Framework_TestCase {
     $this->assertNotEmpty($service->callback());
   }
 
-  public function tetMeta() {
-    $service = new FooService();
+  public function testMeta() {
+    $service = new FooServiceWithName();
     $meta = $service->getMeta();
-    $this->assertNull($meta->registerAppUrl);
+    $this->assertSame('Specialservice', $meta->niceName);
     $this->assertNotEmpty($meta->consumerKeyLabel);
     $this->assertNotEmpty($meta->consumerSecretLabel);
+    $this->assertNull($meta->registerAppUrl);
   }
 }
 

@@ -200,7 +200,9 @@ abstract class Base {
   }
 
   public function getMeta() {
-    return new Meta();
+    $meta = new Meta();
+    $meta->niceName = ucfirst($this->getName());
+    return $meta;
   }
 
   /**

@@ -14,6 +14,7 @@ class Github extends Base {
   public function getMeta() {
     $meta = parent::getMeta();
 
+    $meta->niceName             = 'GitHub';
     $meta->consumerKeyLabel     = 'Client ID';
     $meta->consumerSecretLabel  = 'Client Secret';
     $meta->registerAppUrl       = 'https://github.com/settings/applications/new';
