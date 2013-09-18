@@ -36,10 +36,11 @@ function wconsumer_ui_menu() {
 
   if (count($services) > 0) {
     $i = 1;
+
     foreach ($services as $name => $service) {
       $i++;
       $items['admin/config/services/wconsumer_ui/' . $name] = array(
-        'title' => ucwords($name),
+        'title' => $service->getMeta()->niceName,
         'type' => MENU_LOCAL_TASK,
         'description' => 'Manage Service',
 
@@ -137,10 +138,11 @@ function _wconsumer_ui_user_profile_form() {
     }
 
     $serviceName = $service->getName();
+    $serviceNiceName = $service->getMeta()->niceName;
 
     $form[$serviceName] = array(
       '#type' => 'fieldset',
-      '#title' => t(ucwords($serviceName)),
+      '#title' => $serviceNiceName,
       '#tree' => TRUE,
       '#access' => $service->canAccess(),
       '#group'  => 'vtabs',
@@ -149,11 +151,11 @@ function _wconsumer_ui_user_profile_form() {
     $caption = NULL;
     $url = NULL;
     if (!$service->getCredentials()) {
-      $caption = t('Allow access to my @service account', array('@service' => ucfirst($serviceName)));
+      $caption = t('Allow access to my @service account', array('@service' => $serviceNiceName));
       $url = 'wconsumer/auth/'.$serviceName;
     }
     else {
-      $caption = t('Revoke access to my @service account', array('@service' => ucfirst($serviceName)));
+      $caption = t('Revoke access to my @service account', array('@service' => $serviceNiceName));
       $url = 'wconsumer/revoke/'.$serviceName;
     }
 

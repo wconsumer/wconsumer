@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer;
 
+use Drupal\wconsumer\Service\Base as Service;
 use Drupal\wconsumer\Service\Collection;
 use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Service\Twitter;
@@ -16,7 +17,7 @@ Wconsumer::instance();
 
 
 /**
- * @property-read Collection $services
+ * @property-read Collection|Service[] $services
  * @property-read Pimple $container
  */
 class Wconsumer {
