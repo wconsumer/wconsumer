@@ -31,31 +31,27 @@ function wconsumer_ui_menu() {
   $items['admin/config/services/wconsumer_ui/default'] = array(
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'title' => 'Settings Management',
-    'weight' => 1
+    'weight' => -1
   );
 
   if (count($services) > 0) {
-    $i = 1;
+    $weight = 1;
 
-    foreach ($services as $name => $service) {
-      $i++;
+    foreach ($services as $service) {
+      $name = $service->getName();
+      $niceName = $service->getMeta()->niceName;
+
       $items['admin/config/services/wconsumer_ui/' . $name] = array(
-        'title' => $service->getMeta()->niceName,
+        'title' => $niceName,
         'type' => MENU_LOCAL_TASK,
         'description' => 'Manage Service',
-
-        // Location of the Form
         'file' => 'wconsumer_ui_form.inc',
         'file path' => drupal_get_path('module', 'wconsumer_ui'),
-
-        // Arguments to the Function
         'page arguments' => array('_wconsumer_ui_form', $name),
         'page callback' => 'drupal_get_form',
-
-        // Permissions
         'access callback' => 'user_access',
         'access arguments' => array('manage web ' . $name),
-        'weight' => $i
+        'weight' => $weight++,
       );
     }
 
@@ -72,6 +68,7 @@ function wconsumer_ui_menu() {
 
       'access callback' => TRUE,
     );
+
     $items['wconsumer/revoke/%'] = array(
       'title' => 'Revoke web service auth',
       'type' => MENU_CALLBACK,
@@ -100,8 +97,6 @@ function wconsumer_ui_menu() {
       'page callback' => '_wconsumer_ui_callback',
 
       'access callback' => TRUE,
-
-      'weight' => $i
     );
   }
 
