@@ -11,6 +11,7 @@ use Drupal\wconsumer\Service\Base as Service;
  * @property-read Linkedin  $linkedin
  * @property-read Meetup    $meetup
  * @property-read Vimeo     $vimeo
+ * @property-read Google    $google
  */
 class Collection implements \IteratorAggregate, \Countable
 {

@@ -106,11 +106,13 @@ function _wconsumer_ui_form_note(Service $service) {
     }
 
     // use callback uri
-    global $base_url;
     $sentences[] =
       'Use "@callbackUrl" (without quotes) as the Callback URL when registering your app (this field might
        also be called Redirect URL or Success Callback URL)';
-    $fields['@callbackUrl'] = $base_url;
+    // It would be better to specify base website url as the callback. However, some of the services like
+    // Google require callback url to be exactly matching to the one specified in app settings. So we'd better
+    // use full callback url for all services rather then varying it for some of them.
+    $fields['@callbackUrl'] = $service->callback();
 
     // callback uri change note
     if ($service->authentication instanceof Oauth) {

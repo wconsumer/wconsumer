@@ -58,4 +58,10 @@ return array(
       // 'secret' => 'xyz',
     ),
   ),
+  'google' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
 );
