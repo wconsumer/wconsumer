@@ -126,8 +126,6 @@ function _wconsumer_ui_user_profile_form() {
   $services = Wconsumer::instance()->services;
   $shownServicesCount = 0;
   foreach ($services as $service) {
-    /** @var \Drupal\wconsumer\Service\Base $service */
-
     if (!$service->isActive()) {
       continue;
     }

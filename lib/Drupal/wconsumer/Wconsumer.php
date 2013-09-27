@@ -4,6 +4,7 @@ namespace Drupal\wconsumer;
 use Drupal\wconsumer\Service\Base as Service;
 use Drupal\wconsumer\Service\Collection;
 use Drupal\wconsumer\Service\Github;
+use Drupal\wconsumer\Service\Google;
 use Drupal\wconsumer\Service\Twitter;
 use Drupal\wconsumer\Service\Linkedin;
 use Drupal\wconsumer\Service\Meetup;
@@ -45,6 +46,11 @@ class Wconsumer {
    * @var Vimeo
    */
   public static $vimeo;
+
+  /**
+   * @var Google
+   */
+  public static $google;
 
   private $services;
   private $container;
@@ -89,6 +95,7 @@ class Wconsumer {
       'linkedin' => new Linkedin(),
       'meetup'   => new Meetup(),
       'vimeo'    => new Vimeo(),
+      'google'   => new Google(),
     ));
 
     $class = new \ReflectionClass(get_class($this));
