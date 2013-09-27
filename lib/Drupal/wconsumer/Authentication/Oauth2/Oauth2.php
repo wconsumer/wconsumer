@@ -31,32 +31,27 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
 
 
 
-  public function signRequest(Client $client, $user = NULL)
-  {
+  public function signRequest(Client $client, $user = NULL) {
     $userId = (isset($user) ? $user->uid : NULL);
     $accessToken = $this->service->requireCredentials($userId)->secret;
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
-  public function authenticate($user, array $scopes = array())
-  {
-    $callback = $this->service->callback();
-    $serviceCredentials = $this->service->requireServiceCredentials();
-
+  public function authenticate($user, array $scopes = array()) {
     $state = array(
       'key' => uniqid('state_', true),
       'scopes' => $scopes,
     );
-
     $this->state($state);
 
     $url =
       $this->authorizeURL . '?' .
       http_build_query(array(
-        'client_id'     => $serviceCredentials->token,
-        'redirect_uri'  => $callback,
+        'client_id'     => $this->service->requireServiceCredentials()->token,
+        'redirect_uri'  => $this->service->callback(),
         'scope'         => join(',', $scopes),
         'state'         => $state['key'],
+        'response_type' => 'code',
       ), null, '&');
 
     drupal_goto($url, array('external' => TRUE));
@@ -122,6 +117,8 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
         'client_id'     => $serviceCredentials->token,
         'client_secret' => $serviceCredentials->secret,
         'code'          => $code,
+        'redirect_uri'  => $this->service->callback(),
+        'grant_type'    => 'authorization_code',
       )
     );
 
