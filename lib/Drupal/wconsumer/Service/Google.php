@@ -34,6 +34,7 @@ class Google extends Base {
 
     $auth->authorizeURL   = 'https://accounts.google.com/o/oauth2/auth';
     $auth->accessTokenURL = 'https://accounts.google.com/o/oauth2/token';
+    $auth->defaultScopes  = array('openid');
 
     return $auth;
   }

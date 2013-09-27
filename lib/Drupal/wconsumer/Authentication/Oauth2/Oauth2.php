@@ -23,6 +23,11 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   public $accessTokenURL;
 
   /**
+   * @var array
+   */
+  public $defaultScopes;
+
+  /**
    * Guzzle client to make HTTP requests to oauth provider
    *
    * @var \Guzzle\Http\Client
@@ -38,6 +43,10 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   }
 
   public function authenticate($user, array $scopes = array()) {
+    if (isset($this->defaultScopes)) {
+      $scopes = array_merge($this->defaultScopes, $scopes);
+    }
+
     $state = array(
       'key' => uniqid('state_', true),
       'scopes' => $scopes,
