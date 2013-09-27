@@ -65,7 +65,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     $response = $client->post($this->accessTokenURL)->send()->getBody(true);
 
-    $accessToken = static::parseParameters($response);
+    $accessToken = static::parseTokenResponse($response);
     $this->service->setCredentials($accessToken, $user->uid);
   }
 
@@ -87,6 +87,18 @@ class Oauth extends AuthencationBase implements AuthInterface {
     return TRUE;
   }
 
+  protected static function parseTokenResponse($input) {
+    $parameters = self::parseResponse($input);
+
+    if (empty($parameters['oauth_token']) || empty($parameters['oauth_token_secret'])) {
+      throw new OAuthException("Failed to parse Access Token response '{$input}'");
+    }
+
+    $credentials = new Credentials($parameters['oauth_token'], $parameters['oauth_token_secret']);
+
+    return $credentials;
+  }
+
   private function requestRequestToken(Credentials $serviceCredentials) {
     /** @var Client $client */
     $client = Wconsumer::instance()->container['httpClient'];
@@ -99,7 +111,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
     $response = $client->post($this->requestTokenURL)->send()->getBody(true);
 
-    $requestToken = static::parseParameters($response);
+    $requestToken = static::parseTokenResponse($response);
 
     return $requestToken;
   }
@@ -123,45 +135,5 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $url = $this->authorizeURL . $delimiter . 'oauth_token='.urlencode($token);
 
     return $url;
-  }
-
-  // This function takes a input like a=b&a=c&d=e and returns the parsed
-  // parameters like this
-  // array('a' => array('b','c'), 'd' => 'e')
-  private static function parseParameters($input) {
-    if (!isset($input) || !$input) {
-      return array();
-    }
-
-    $pairs = explode('&', $input);
-    $parsed_parameters = array();
-
-    foreach ($pairs as $pair) {
-      $split = explode('=', $pair, 2);
-      $parameter = urldecode($split[0]);
-      $value = isset($split[1]) ? urldecode($split[1]) : '';
-
-      if (isset($parsed_parameters[$parameter])) {
-
-        // We have already recieved parameter(s) with this name, so add to the list
-        // of parameters with this name
-        if (is_scalar($parsed_parameters[$parameter])) {
-          // This is the first duplicate, so transform scalar (string) into an array
-          // so we can add the duplicates
-          $parsed_parameters[$parameter] = array($parsed_parameters[$parameter]);
-        }
-
-        $parsed_parameters[$parameter][] = $value;
-      }
-      else {
-        $parsed_parameters[$parameter] = $value;
-      }
-    }
-
-    if (empty($parsed_parameters['oauth_token']) || empty($parsed_parameters['oauth_token_secret'])) {
-      throw new OAuthException("Failed to parse Access Token response '{$input}'");
-    }
-
-    return new Credentials($parsed_parameters['oauth_token'], $parsed_parameters['oauth_token_secret']);
   }
 }

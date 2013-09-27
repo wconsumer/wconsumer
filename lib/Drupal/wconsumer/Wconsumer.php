@@ -3,6 +3,7 @@ namespace Drupal\wconsumer;
 
 use Drupal\wconsumer\Service\Base as Service;
 use Drupal\wconsumer\Service\Collection;
+use Drupal\wconsumer\Service\Facebook;
 use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Service\Google;
 use Drupal\wconsumer\Service\Twitter;
@@ -52,6 +53,12 @@ class Wconsumer {
    */
   public static $google;
 
+  /**
+   * @var Facebook
+   */
+  public static $facebook;
+
+
   private $services;
   private $container;
   private static $instance;
@@ -96,6 +103,7 @@ class Wconsumer {
       'meetup'   => new Meetup(),
       'vimeo'    => new Vimeo(),
       'google'   => new Google(),
+      'facebook' => new Facebook(),
     ));
 
     $class = new \ReflectionClass(get_class($this));

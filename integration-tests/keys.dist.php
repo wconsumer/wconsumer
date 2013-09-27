@@ -64,4 +64,10 @@ return array(
       // 'secret' => 'xyz',
     ),
   ),
+  'facebook' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
 );

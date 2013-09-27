@@ -186,6 +186,7 @@ abstract class Base {
       $credentials = Serialize::unserialize($serializedCredentials, Credentials::getClass());
     }
 
+    /** @var Credentials $credentials */
     return $credentials;
   }
 

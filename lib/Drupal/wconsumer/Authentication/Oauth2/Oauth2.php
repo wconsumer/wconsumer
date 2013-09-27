@@ -7,6 +7,7 @@ use Drupal\wconsumer\Authentication\Base as AuthencationBase;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Plugin as Oauth2Plugin;
 use Drupal\wconsumer\Wconsumer;
+use Guzzle\Common\Exception\RuntimeException;
 use Guzzle\Http\Client;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 
@@ -131,9 +132,21 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       )
     );
 
-    $response = $this->client->send($request)->json();
+    $response = $this->client->send($request);
 
-    return $response;
+    try {
+      $responseArray = $response->json();
+    }
+    catch (RuntimeException $e) {
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        $responseArray = self::parseResponse($response->getBody(true));
+      }
+      else {
+        throw $e;
+      }
+    }
+
+    return $responseArray;
   }
 
   private function state($value = NULL) {

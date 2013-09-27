@@ -94,7 +94,15 @@ class Oauth2Test extends AuthenticationTest {
       'code' => 'abc'
     )));
 
-    $this->assertSame(array('friends'), $this->auth()->getService()->getCredentials(534)->scopes);
+    $this->assertSame(array('friends'), $auth->getService()->getCredentials(534)->scopes);
+  }
+
+  public function testCallbackHandlerSupportsJsonAccessTokenResponse() {
+    $this->checkCallbackHandlerAgainstServiceResponse('{"access_token": "xyz|123", "expires": 123}');
+  }
+
+  public function testCallbackHandlerSupportsUrlParamsStyleResponse() {
+    $this->checkCallbackHandlerAgainstServiceResponse('access_token=xyz|123&expires=123&dummy=');
   }
 
   protected function auth(ServiceBase $service = NULL) {
@@ -113,5 +121,28 @@ class Oauth2Test extends AuthenticationTest {
     $service->setServiceCredentials(Credentials::fromArray($this->keys('github', 'app')));
 
     return $service;
+  }
+
+  private function checkCallbackHandlerAgainstServiceResponse($response) {
+    $_SESSION['wconsumer:integration_tests_test_service:oauth2_state'] = array(
+      'key' => 'xyz',
+      'scopes' => array('friends'),
+    );
+
+    $client = $this->getMockBuilder('Guzzle\Http\Client')->disableOriginalConstructor()->getMock();
+    $client
+      ->expects($this->once())
+      ->method('send')
+      ->will($this->returnValue(new Response(200, null, $response)));
+
+    $auth = $this->auth();
+    $auth->client = $client;
+
+    $auth->onCallback((object)array('uid' => 5), array(array(
+      'state' => 'xyz',
+      'code' => 'abc',
+    )));
+
+    $this->assertSame('xyz|123', $auth->getService()->getCredentials(5)->secret);
   }
 }
