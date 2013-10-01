@@ -14,6 +14,7 @@ use Drupal\wconsumer\Service\Base as Service;
  * @property-read Google    $google
  * @property-read Facebook  $facebook
  * @property-read Dropbox   $dropbox
+ * @property-read Flickr    $flickr
  */
 class Collection implements \IteratorAggregate, \Countable {
   private $services;
