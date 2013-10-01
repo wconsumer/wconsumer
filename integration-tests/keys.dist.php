@@ -70,4 +70,10 @@ return array(
       // 'secret' => 'xyz',
     ),
   ),
+  'dropbox' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
 );

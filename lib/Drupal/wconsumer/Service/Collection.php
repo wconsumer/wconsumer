@@ -13,9 +13,9 @@ use Drupal\wconsumer\Service\Base as Service;
  * @property-read Vimeo     $vimeo
  * @property-read Google    $google
  * @property-read Facebook  $facebook
+ * @property-read Dropbox   $dropbox
  */
-class Collection implements \IteratorAggregate, \Countable
-{
+class Collection implements \IteratorAggregate, \Countable {
   private $services;
 
 
