@@ -76,4 +76,10 @@ return array(
       // 'secret' => 'xyz',
     ),
   ),
+  'flickr' => array(
+    'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+  ),
 );
