@@ -13,7 +13,7 @@ class Oauth2Test extends AuthenticationTest {
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateProvidesScopesInAuthorizeUrl() {
+  public function testAuthorizeProvidesScopesInAuthorizeUrl() {
     $test = $this;
 
     $this->php
@@ -25,16 +25,16 @@ class Oauth2Test extends AuthenticationTest {
         $test->assertSame('notifications,user:email', $query['scope']);
       }));
 
-    $this->auth()->authenticate(NULL, array('notifications', 'user:email'));
+    $this->auth()->authorize(NULL, array('notifications', 'user:email'));
   }
 
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateSavesAuthStateInSession() {
+  public function testAuthorizeSavesAuthStateInSession() {
     $scopes = array('notifications', 'user:email');
 
-    $this->auth()->authenticate(NULL, $scopes);
+    $this->auth()->authorize(NULL, $scopes);
 
     $state = @$_SESSION['wconsumer:integration_tests_test_service:oauth2_state'];
     $this->assertInternalType('array', $state);
@@ -49,11 +49,11 @@ class Oauth2Test extends AuthenticationTest {
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateGeneratesUniqieStateKeyEachTime() {
-    $state = $this->testAuthenticateSavesAuthStateInSession();
+  public function testAuthorizeGeneratesUniqieStateKeyEachTime() {
+    $state = $this->testAuthorizeSavesAuthStateInSession();
     $firstStateKey = $state['key'];
 
-    $state = $this->testAuthenticateSavesAuthStateInSession();
+    $state = $this->testAuthorizeSavesAuthStateInSession();
     $secondStateKey = $state['key'];
 
     $this->assertNotEquals($firstStateKey, $secondStateKey);

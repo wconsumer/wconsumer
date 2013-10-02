@@ -32,7 +32,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  public function authenticate($user, array $scopes = array()) {
+  public function authorize($user, array $scopes = array()) {
     // Fetch request token
     $requestToken = $this->requestRequestToken($this->service->requireServiceCredentials());
 

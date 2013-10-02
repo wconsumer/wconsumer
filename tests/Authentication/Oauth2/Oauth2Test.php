@@ -34,10 +34,10 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $this->assertSame('Bearer oauth2 access token', $authHeader);
   }
 
-  public function testAuthenticate() {
+  public function testAuthorize() {
     $testCase = $this;
 
-    $this->authenticateTest(
+    $this->authorizeTest(
       '__callback_url__',
       '__consumer_key__',
       '__consumer_secret__',
@@ -52,10 +52,10 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     );
   }
 
-  public function testAuthenticateEscapesUrlParameters() {
+  public function testAuthorizeEscapesUrlParameters() {
     $testCase = $this;
 
-    $this->authenticateTest(
+    $this->authorizeTest(
       '__callback_ #()# _url__',
       '__consumer_ #()# _key__',
       '__consumer_ #()# _secret__',
@@ -218,7 +218,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $this->testCallbackHandler(null, null, null, $response, true);
   }
 
-  private function authenticateTest($callbackUri, $consumerKey, $consumerSecret, $scopes, $urlTesterCallback) {
+  private function authorizeTest($callbackUri, $consumerKey, $consumerSecret, $scopes, $urlTesterCallback) {
     $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
 
     $service
@@ -248,7 +248,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
       }));
 
     $null = NULL;
-    $auth->authenticate($null, $scopes);
+    $auth->authorize($null, $scopes);
   }
 
   private function getObjectNamespace($object) {

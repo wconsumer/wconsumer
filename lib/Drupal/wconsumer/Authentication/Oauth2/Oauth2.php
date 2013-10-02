@@ -43,7 +43,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
-  public function authenticate($user, array $scopes = array()) {
+  public function authorize($user, array $scopes = array()) {
     if (isset($this->defaultScopes)) {
       $scopes = array_merge($this->defaultScopes, $scopes);
     }

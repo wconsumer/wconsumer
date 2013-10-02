@@ -57,7 +57,7 @@ class OauthTest extends AuthenticationTest {
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateFetchesRequestTokenAndRedirectsUserToAuthorizeUrl() {
+  public function testAuthorizeFetchesRequestTokenAndRedirectsUserToAuthorizeUrl() {
     $self = $this;
 
     $auth = $this->auth();
@@ -76,20 +76,20 @@ class OauthTest extends AuthenticationTest {
         $self->assertSame(array('external' => TRUE), $options);
       }));
 
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateSavesRequestTokenInSession() {
+  public function testAuthorizeSavesRequestTokenInSession() {
 
     $this->php
       ->expects($this->once())
       ->method('drupal_goto');
 
     $auth = $this->auth();
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
 
     $credentials = @$_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'];
     $credentials = Serialize::unserialize($credentials, Credentials::getClass());
@@ -99,25 +99,25 @@ class OauthTest extends AuthenticationTest {
   /**
    * @expectedException \Guzzle\Http\Exception\CurlException
    */
-  public function testAuthenticateFailsOnNetworkLevelError() {
+  public function testAuthorizeFailsOnNetworkLevelError() {
     $auth = $this->auth();
     $auth->requestTokenUrl = 'http://host.invalid';
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @expectedException \Drupal\wconsumer\Authentication\Oauth\OAuthException
    */
-  public function testAuthenticateFailsOnInvalidResponse() {
+  public function testAuthorizeFailsOnInvalidResponse() {
     $auth = $this->auth();
     $auth->requestTokenUrl = 'http://example.com';
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
-  public function testAuthenticateFailsOnOauthApiLevelError() {
+  public function testAuthorizeFailsOnOauthApiLevelError() {
     $service = null;
     {
       $service = $this->getMock(TestService::getClass(), array('getCallbackUrl'));
@@ -133,19 +133,19 @@ class OauthTest extends AuthenticationTest {
 
     $auth = $this->auth($service);
 
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @expectedException \BadMethodCallException
    */
-  public function testAuthenticateFailsOnEmptyServiceCredentials() {
+  public function testAuthorizeFailsOnEmptyServiceCredentials() {
     $service = $this->service();
     $service->setServiceCredentials(null);
 
     $auth = $this->auth($service);
 
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   public function testLogout() {

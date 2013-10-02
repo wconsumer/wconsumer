@@ -19,7 +19,7 @@ function _wconsumer_frontend_auth($service_name) {
 
   global $user;
   $scopes = array_filter(module_invoke_all('wconsumer_define_required_scopes', $service));
-  $service->authentication->authenticate($user, $scopes);
+  $service->authentication->authorize($user, $scopes);
 }
 
 function _wconsumer_frontend_revoke($service_name) {
