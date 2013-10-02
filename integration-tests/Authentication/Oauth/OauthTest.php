@@ -120,11 +120,11 @@ class OauthTest extends AuthenticationTest {
   public function testAuthenticateFailsOnOauthApiLevelError() {
     $service = null;
     {
-      $service = $this->getMock(TestService::getClass(), array('callback'));
+      $service = $this->getMock(TestService::getClass(), array('getCallbackUrl'));
 
       $service
         ->expects($this->once())
-        ->method('callback')
+        ->method('getCallbackUrl')
         ->will($this->returnValue('C:\fake\url'));
 
       /** @noinspection PhpParamsInspection */

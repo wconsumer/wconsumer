@@ -19,7 +19,7 @@ class BaseTest extends \PHPUnit_Framework_TestCase {
 
   public function testCallbackUrl() {
     $service = new FooService();
-    $this->assertNotEmpty($service->callback());
+    $this->assertNotEmpty($service->getCallbackUrl());
   }
 
   public function testMeta() {

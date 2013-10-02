@@ -105,7 +105,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,
-      'callback'        => $this->service->callback(),
+      'callback'        => $this->service->getCallbackUrl(),
     )));
 
     $response = $client->post($this->requestTokenUrl)->send()->getBody(true);

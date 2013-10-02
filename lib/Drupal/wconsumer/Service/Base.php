@@ -221,7 +221,7 @@ abstract class Base {
     }
   }
 
-  public function callback() {
+  public function getCallbackUrl() {
     global $base_url;
     return $base_url.'/wconsumer/callback/'.$this->name;
   }

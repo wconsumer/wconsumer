@@ -223,7 +223,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
     $service
       ->expects($this->once())
-      ->method('callback')
+      ->method('getCallbackUrl')
       ->will($this->returnValue($callbackUri));
 
     $service
