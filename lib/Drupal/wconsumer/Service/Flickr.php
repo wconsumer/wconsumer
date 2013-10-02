@@ -24,9 +24,9 @@ class Flickr extends Base {
   protected function initAuthentication() {
     $auth = new Oauth($this);
 
-    $auth->requestTokenURL  = 'http://www.flickr.com/services/oauth/request_token';
-    $auth->authorizeURL     = 'http://www.flickr.com/services/oauth/authorize';
-    $auth->accessTokenURL   = 'http://www.flickr.com/services/oauth/access_token';
+    $auth->requestTokenUrl  = 'http://www.flickr.com/services/oauth/request_token';
+    $auth->authorizeUrl     = 'http://www.flickr.com/services/oauth/authorize';
+    $auth->accessTokenUrl   = 'http://www.flickr.com/services/oauth/access_token';
 
     return $auth;
   }

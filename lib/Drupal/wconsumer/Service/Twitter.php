@@ -20,9 +20,9 @@ class Twitter extends Base {
   protected function initAuthentication() {
     $auth = new Oauth($this);
 
-    $auth->requestTokenURL  = 'https://api.twitter.com/oauth/request_token';
-    $auth->authorizeURL     = 'https://api.twitter.com/oauth/authorize';
-    $auth->accessTokenURL   = 'https://api.twitter.com/oauth/access_token';
+    $auth->requestTokenUrl  = 'https://api.twitter.com/oauth/request_token';
+    $auth->authorizeUrl     = 'https://api.twitter.com/oauth/authorize';
+    $auth->accessTokenUrl   = 'https://api.twitter.com/oauth/access_token';
 
     return $auth;
   }

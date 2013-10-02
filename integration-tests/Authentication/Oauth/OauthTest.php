@@ -101,7 +101,7 @@ class OauthTest extends AuthenticationTest {
    */
   public function testAuthenticateFailsOnNetworkLevelError() {
     $auth = $this->auth();
-    $auth->requestTokenURL = 'http://host.invalid';
+    $auth->requestTokenUrl = 'http://host.invalid';
     $auth->authenticate($GLOBALS['user']);
   }
 
@@ -110,7 +110,7 @@ class OauthTest extends AuthenticationTest {
    */
   public function testAuthenticateFailsOnInvalidResponse() {
     $auth = $this->auth();
-    $auth->requestTokenURL = 'http://example.com';
+    $auth->requestTokenUrl = 'http://example.com';
     $auth->authenticate($GLOBALS['user']);
   }
 
@@ -188,9 +188,9 @@ class OauthTest extends AuthenticationTest {
     /** @var Oauth $auth */
     $auth = parent::auth($service);
 
-    $auth->requestTokenURL = 'https://api.twitter.com/oauth/request_token';
-    $auth->authorizeURL = 'https://api.twitter.com/oauth/authorize';
-    $auth->accessTokenURL = 'https://api.twitter.com/oauth/access_token';
+    $auth->requestTokenUrl = 'https://api.twitter.com/oauth/request_token';
+    $auth->authorizeUrl = 'https://api.twitter.com/oauth/authorize';
+    $auth->accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
 
     return $auth;
   }

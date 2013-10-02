@@ -24,9 +24,9 @@ class Vimeo extends Base {
   protected function initAuthentication() {
     $auth = new Oauth($this);
 
-    $auth->requestTokenURL  = 'https://vimeo.com/oauth/request_token';
-    $auth->authorizeURL     = 'https://vimeo.com/oauth/authorize';
-    $auth->accessTokenURL   = 'https://vimeo.com/oauth/access_token';
+    $auth->requestTokenUrl  = 'https://vimeo.com/oauth/request_token';
+    $auth->authorizeUrl     = 'https://vimeo.com/oauth/authorize';
+    $auth->accessTokenUrl   = 'https://vimeo.com/oauth/access_token';
 
     return $auth;
   }

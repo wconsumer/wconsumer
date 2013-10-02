@@ -25,9 +25,9 @@ class Linkedin extends Base {
   protected function initAuthentication() {
     $auth = new Oauth($this);
 
-    $auth->requestTokenURL = 'https://api.linkedin.com/uas/oauth/requestToken';
-    $auth->authorizeURL    = 'https://www.linkedin.com/uas/oauth/authenticate';
-    $auth->accessTokenURL  = 'https://api.linkedin.com/uas/oauth/accessToken';
+    $auth->requestTokenUrl = 'https://api.linkedin.com/uas/oauth/requestToken';
+    $auth->authorizeUrl    = 'https://www.linkedin.com/uas/oauth/authenticate';
+    $auth->accessTokenUrl  = 'https://api.linkedin.com/uas/oauth/accessToken';
 
     return $auth;
   }
