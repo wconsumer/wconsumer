@@ -22,12 +22,10 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   };
 
   $service = Wconsumer::instance()->services->{$serviceName};
+  
+  _wconsumer_ui_form_https_support_warning($service);
+
   $meta = $service->getMeta();
-
-  if (strpos($service->callback(), 'https://') === 0) {
-    _wconsumer_ui_form_check_https_support($meta->niceName);
-  }
-
   $tokenLabel = $meta->consumerKeyLabel;
   $secretLabel = $meta->consumerSecretLabel;
 
@@ -149,68 +147,20 @@ function _wconsumer_ui_form_note(Service $service) {
   );
 }
 
-function _wconsumer_ui_form_check_https_support($service) {
+function _wconsumer_ui_form_https_support_warning(Service $service) {
   global $base_url;
 
-  drupal_set_message(t('
-      HTTPS support required to make @service work. Please make sure your Drupal installation
-      is able to handle HTTPS request before you enable this service. In order to do this you have to
-      <ol>
-        <li>install SSL certficate,</li>
-        <li>enable HTTPS core support in settings.php by providing <code>$conf[\'https\'] = TRUE;</code> there</li>
-        <li>install <a href="https://drupal.org/project/securepages" target="_blank">Secure Pages</a> module (beta or stable version recommended).</li>
-      </ol>
-      Read more <a href="https://drupal.org/https-information" target="_blank">here</a>.
-  ', array(
-    '@service' => $service,
-  )));
+  $service_requires_https = (strpos($service->callback(), 'https://') === 0);
+  $drupal_uses_https = (strpos($base_url, 'https://') === 0);
 
-  if (!variable_get('https', FALSE)) {
+  if (!$drupal_uses_https && $service_requires_https) {
     drupal_set_message(t('
-      It seems this Drupal installation does not support HTTPS. The reason why do we think so is that HTTPS
-      support is not enabled in settings.php.
-    '), 'warning');
-    return;
+      HTTPS support required to make @service work. However it looks like this Drupal installation
+      does not use HTTPS. Please make sure your website is properly configured for HTTPS support.
+    ', array(
+      '@service' => $service->getMeta()->niceName,
+    )), 'warning');
   }
-
-  if (strpos($base_url, 'https://') !== 0) {
-    $client = new \Guzzle\Service\Client();
-
-    $url_is_accessible = function($url) use($client) {
-      $response = null;
-      $exception = null;
-
-      try {
-        $response = $client->get($url)->send();
-      }
-      catch (\Exception $e) {
-        $exception = $e;
-      }
-
-      return (!$exception && $response->isSuccessful());
-    };
-
-    // Make sure we are able to ping this website at all even via HTTP.
-    if (!$url_is_accessible($base_url)) {
-      drupal_set_message(t('Can\'t check HTTPS support state'), 'warning');
-      return;
-    }
-
-    // Check if we are able to ping it via HTTPS.
-    $https_base_url = preg_replace('|^http://|i', 'https://', $base_url);
-    if (!$url_is_accessible($https_base_url)) {
-      drupal_set_message(t('
-        It seems this Drupal installation does not support HTTPS. The reason why do we think so is that this website
-        is not accessible via https:// link. You can try it on your own:
-        <a href="@https_base_url" target="_blank">@https_base_url</a>.
-      ', array(
-        '@https_base_url' => $https_base_url,
-      )), 'warning');
-      return;
-    }
-  }
-
-  drupal_set_message(t('HTTPS is currently supported'));
 }
 
 function _wconsumer_ui_form_submit($form, &$form_state) {
