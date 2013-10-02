@@ -137,7 +137,7 @@ function _wconsumer_ui_user_profile_form() {
       '#type' => 'fieldset',
       '#title' => $serviceNiceName,
       '#tree' => TRUE,
-      '#access' => $service->canAccess(),
+      '#access' => TRUE,
       '#group'  => 'vtabs',
     );
 

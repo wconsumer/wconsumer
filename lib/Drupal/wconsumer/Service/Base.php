@@ -207,16 +207,6 @@ abstract class Base {
   }
 
   /**
-   * Can the current user access this service
-   *
-   * @todo Implement Permissions
-   * @return bool
-   */
-  public function canAccess() {
-    return TRUE;
-  }
-
-  /**
    * See if they are authenticated on a system/user basis
    *
    * @param string $basis On what basis are they being check for (system/user)
