@@ -17,7 +17,6 @@ class Oauth extends AuthencationBase implements AuthInterface {
   public $requestTokenURL;
   public $authorizeURL;
   public $accessTokenURL;
-  public $authenticateURL;
 
 
 

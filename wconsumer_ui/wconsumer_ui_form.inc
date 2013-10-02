@@ -22,7 +22,7 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   };
 
   $service = Wconsumer::instance()->services->{$serviceName};
-  
+
   _wconsumer_ui_form_https_support_warning($service);
 
   $meta = $service->getMeta();

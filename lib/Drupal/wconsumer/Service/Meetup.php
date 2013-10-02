@@ -27,7 +27,6 @@ class Meetup extends Base {
     $auth->requestTokenURL  = 'https://api.meetup.com/oauth/request/';
     $auth->authorizeURL     = 'http://www.meetup.com/authorize/';
     $auth->accessTokenURL   = 'https://api.meetup.com/oauth/access/';
-    $auth->authenticateURL  = 'http://www.meetup.com/authenticate/';
 
     return $auth;
   }
