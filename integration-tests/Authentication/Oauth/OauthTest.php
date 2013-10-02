@@ -57,7 +57,7 @@ class OauthTest extends AuthenticationTest {
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateFetchesRequestTokenAndRedirectsUserToAuthorizeUrl() {
+  public function testAuthorizeFetchesRequestTokenAndRedirectsUserToAuthorizeUrl() {
     $self = $this;
 
     $auth = $this->auth();
@@ -76,20 +76,20 @@ class OauthTest extends AuthenticationTest {
         $self->assertSame(array('external' => TRUE), $options);
       }));
 
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @bypassDrupalGoto
    */
-  public function testAuthenticateSavesRequestTokenInSession() {
+  public function testAuthorizeSavesRequestTokenInSession() {
 
     $this->php
       ->expects($this->once())
       ->method('drupal_goto');
 
     $auth = $this->auth();
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
 
     $credentials = @$_SESSION['wconsumer:integration_tests_test_service:oauth_request_token'];
     $credentials = Serialize::unserialize($credentials, Credentials::getClass());
@@ -99,32 +99,32 @@ class OauthTest extends AuthenticationTest {
   /**
    * @expectedException \Guzzle\Http\Exception\CurlException
    */
-  public function testAuthenticateFailsOnNetworkLevelError() {
+  public function testAuthorizeFailsOnNetworkLevelError() {
     $auth = $this->auth();
-    $auth->requestTokenURL = 'http://host.invalid';
-    $auth->authenticate($GLOBALS['user']);
+    $auth->requestTokenUrl = 'http://host.invalid';
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @expectedException \Drupal\wconsumer\Authentication\Oauth\OAuthException
    */
-  public function testAuthenticateFailsOnInvalidResponse() {
+  public function testAuthorizeFailsOnInvalidResponse() {
     $auth = $this->auth();
-    $auth->requestTokenURL = 'http://example.com';
-    $auth->authenticate($GLOBALS['user']);
+    $auth->requestTokenUrl = 'http://example.com';
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @expectedException \Guzzle\Http\Exception\ClientErrorResponseException
    */
-  public function testAuthenticateFailsOnOauthApiLevelError() {
+  public function testAuthorizeFailsOnOauthApiLevelError() {
     $service = null;
     {
-      $service = $this->getMock(TestService::getClass(), array('callback'));
+      $service = $this->getMock(TestService::getClass(), array('getCallbackUrl'));
 
       $service
         ->expects($this->once())
-        ->method('callback')
+        ->method('getCallbackUrl')
         ->will($this->returnValue('C:\fake\url'));
 
       /** @noinspection PhpParamsInspection */
@@ -133,19 +133,19 @@ class OauthTest extends AuthenticationTest {
 
     $auth = $this->auth($service);
 
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   /**
    * @expectedException \BadMethodCallException
    */
-  public function testAuthenticateFailsOnEmptyServiceCredentials() {
+  public function testAuthorizeFailsOnEmptyServiceCredentials() {
     $service = $this->service();
     $service->setServiceCredentials(null);
 
     $auth = $this->auth($service);
 
-    $auth->authenticate($GLOBALS['user']);
+    $auth->authorize($GLOBALS['user']);
   }
 
   public function testLogout() {
@@ -188,9 +188,9 @@ class OauthTest extends AuthenticationTest {
     /** @var Oauth $auth */
     $auth = parent::auth($service);
 
-    $auth->requestTokenURL = 'https://api.twitter.com/oauth/request_token';
-    $auth->authorizeURL = 'https://api.twitter.com/oauth/authorize';
-    $auth->accessTokenURL = 'https://api.twitter.com/oauth/access_token';
+    $auth->requestTokenUrl = 'https://api.twitter.com/oauth/request_token';
+    $auth->authorizeUrl = 'https://api.twitter.com/oauth/authorize';
+    $auth->accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
 
     return $auth;
   }

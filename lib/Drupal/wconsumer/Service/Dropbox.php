@@ -31,8 +31,8 @@ class Dropbox extends Base {
     return TRUE;
   }
 
-  public function callback() {
-    $url = parent::callback();
+  public function getCallbackUrl() {
+    $url = parent::getCallbackUrl();
     $url = preg_replace('|^http://|', 'https://', $url); // Dropbox.com only allows HTTPS callback
     return $url;
   }

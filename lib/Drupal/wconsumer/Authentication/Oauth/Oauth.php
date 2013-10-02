@@ -14,9 +14,9 @@ use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
 class Oauth extends AuthencationBase implements AuthInterface {
 
-  public $requestTokenURL;
-  public $authorizeURL;
-  public $accessTokenURL;
+  public $requestTokenUrl;
+  public $authorizeUrl;
+  public $accessTokenUrl;
 
 
 
@@ -32,7 +32,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
     )));
   }
 
-  public function authenticate($user, array $scopes = array()) {
+  public function authorize($user, array $scopes = array()) {
     // Fetch request token
     $requestToken = $this->requestRequestToken($this->service->requireServiceCredentials());
 
@@ -62,7 +62,7 @@ class Oauth extends AuthencationBase implements AuthInterface {
       'verifier'        => @$values[0]['oauth_verifier'],
     )));
 
-    $response = $client->post($this->accessTokenURL)->send()->getBody(true);
+    $response = $client->post($this->accessTokenUrl)->send()->getBody(true);
 
     $accessToken = static::parseTokenResponse($response);
     $this->service->setCredentials($accessToken, $user->uid);
@@ -105,10 +105,10 @@ class Oauth extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new GuzzleOAuth(array(
       'consumer_key'    => $serviceCredentials->token,
       'consumer_secret' => $serviceCredentials->secret,
-      'callback'        => $this->service->callback(),
+      'callback'        => $this->service->getCallbackUrl(),
     )));
 
-    $response = $client->post($this->requestTokenURL)->send()->getBody(true);
+    $response = $client->post($this->requestTokenUrl)->send()->getBody(true);
 
     $requestToken = static::parseTokenResponse($response);
 
@@ -127,11 +127,11 @@ class Oauth extends AuthencationBase implements AuthInterface {
 
   private function createAuthorizeURL($token) {
     $delimiter = '?';
-    if ((string)parse_url($this->authorizeURL, PHP_URL_QUERY) !== '') {
+    if ((string)parse_url($this->authorizeUrl, PHP_URL_QUERY) !== '') {
       $delimiter = '&';
     }
 
-    $url = $this->authorizeURL . $delimiter . 'oauth_token='.urlencode($token);
+    $url = $this->authorizeUrl . $delimiter . 'oauth_token='.urlencode($token);
 
     return $url;
   }

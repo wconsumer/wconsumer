@@ -116,7 +116,7 @@ function _wconsumer_ui_form_note(Service $service) {
       // It would be better to specify base website url as the callback. However, some of the services like
       // Google require callback url to be exactly matching to the one specified in app settings. So we'd better
       // use full callback url for all services rather then varying it for some of them.
-      $callbackUrl = $service->callback();
+      $callbackUrl = $service->getCallbackUrl();
 
       $callbackUrl = check_plain($callbackUrl);
       $callbackUrl = preg_replace('|^(https://)|', '<b>\1</b>', $callbackUrl);
@@ -150,7 +150,7 @@ function _wconsumer_ui_form_note(Service $service) {
 function _wconsumer_ui_form_https_support_warning(Service $service) {
   global $base_url;
 
-  $service_requires_https = (strpos($service->callback(), 'https://') === 0);
+  $service_requires_https = (strpos($service->getCallbackUrl(), 'https://') === 0);
   $drupal_uses_https = (strpos($base_url, 'https://') === 0);
 
   if (!$drupal_uses_https && $service_requires_https) {

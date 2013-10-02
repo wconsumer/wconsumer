@@ -57,7 +57,7 @@ function wconsumer_ui_menu() {
 
     // Here you can redirect user to start service auth for him
     $items['wconsumer/auth/%'] = array(
-      'title' => 'Authenticate user with web service',
+      'title' => 'Authorize user with web service',
       'type' => MENU_CALLBACK,
 
       'file path' => drupal_get_path('module', 'wconsumer_ui'),
@@ -137,7 +137,7 @@ function _wconsumer_ui_user_profile_form() {
       '#type' => 'fieldset',
       '#title' => $serviceNiceName,
       '#tree' => TRUE,
-      '#access' => $service->canAccess(),
+      '#access' => TRUE,
       '#group'  => 'vtabs',
     );
 

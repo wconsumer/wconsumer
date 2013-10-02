@@ -24,9 +24,9 @@ class Meetup extends Base {
   protected function initAuthentication() {
     $auth = new Oauth($this);
 
-    $auth->requestTokenURL  = 'https://api.meetup.com/oauth/request/';
-    $auth->authorizeURL     = 'http://www.meetup.com/authorize/';
-    $auth->accessTokenURL   = 'https://api.meetup.com/oauth/access/';
+    $auth->requestTokenUrl  = 'https://api.meetup.com/oauth/request/';
+    $auth->authorizeUrl     = 'http://www.meetup.com/authorize/';
+    $auth->accessTokenUrl   = 'https://api.meetup.com/oauth/access/';
 
     return $auth;
   }

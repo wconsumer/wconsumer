@@ -43,7 +43,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     $client->addSubscriber(new Oauth2Plugin($accessToken));
   }
 
-  public function authenticate($user, array $scopes = array()) {
+  public function authorize($user, array $scopes = array()) {
     if (isset($this->defaultScopes)) {
       $scopes = array_merge($this->defaultScopes, $scopes);
     }
@@ -58,7 +58,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       $this->authorizeURL . '?' .
       http_build_query(array(
         'client_id'     => $this->service->requireServiceCredentials()->token,
-        'redirect_uri'  => $this->service->callback(),
+        'redirect_uri'  => $this->service->getCallbackUrl(),
         'scope'         => join(',', $scopes),
         'state'         => $state['key'],
         'response_type' => 'code',
@@ -127,7 +127,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
         'client_id'     => $serviceCredentials->token,
         'client_secret' => $serviceCredentials->secret,
         'code'          => $code,
-        'redirect_uri'  => $this->service->callback(),
+        'redirect_uri'  => $this->service->getCallbackUrl(),
         'grant_type'    => 'authorization_code',
       )
     );
