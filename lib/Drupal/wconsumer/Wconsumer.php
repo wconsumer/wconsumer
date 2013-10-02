@@ -5,6 +5,7 @@ use Drupal\wconsumer\Service\Base as Service;
 use Drupal\wconsumer\Service\Collection;
 use Drupal\wconsumer\Service\Facebook;
 use Drupal\wconsumer\Service\Dropbox;
+use Drupal\wconsumer\Service\Flickr;
 use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Service\Google;
 use Drupal\wconsumer\Service\Twitter;
@@ -64,6 +65,11 @@ class Wconsumer {
    */
   public static $dropbox;
 
+  /**
+   * @var Flickr
+   */
+  public static $flickr;
+
 
   private $services;
   private $container;
@@ -111,6 +117,7 @@ class Wconsumer {
       'google'   => new Google(),
       'facebook' => new Facebook(),
       'dropbox'  => new Dropbox(),
+      'flickr'   => new Flickr(),
     ));
 
     $class = new \ReflectionClass(get_class($this));

@@ -15,6 +15,7 @@ web service API. You don't have to worry about authentication, authorization, re
 - Google
 - Facebook
 - Dropbox
+- Flickr
 
 
 ### Installation
