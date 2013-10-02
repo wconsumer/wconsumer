@@ -63,7 +63,7 @@ abstract class Base {
   }
 
   public function isActive() {
-    return $this->isEnabled() && $this->checkAuthentication('system');
+    return $this->isEnabled() && $this->getServiceCredentials();
   }
 
   public function getName() {
@@ -204,21 +204,6 @@ abstract class Base {
     $meta = new Meta();
     $meta->niceName = ucfirst($this->getName());
     return $meta;
-  }
-
-  /**
-   * See if they are authenticated on a system/user basis
-   *
-   * @param string $basis On what basis are they being check for (system/user)
-   * @param int|null $user_id The user ID (default to NULL for the current user)
-   * @return bool
-   */
-  public function checkAuthentication($basis = 'user', $user_id = NULL) {
-    switch ($basis) {
-      case 'user':    return ($this->getCredentials($user_id) !== null);
-      case 'system':  return ($this->getServiceCredentials() !== null);
-      default:        return FALSE;
-    }
   }
 
   public function getCallbackUrl() {
