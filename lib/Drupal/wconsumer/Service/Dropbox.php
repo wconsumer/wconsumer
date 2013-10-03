@@ -40,8 +40,8 @@ class Dropbox extends Base {
   protected function initAuthentication() {
     $auth = new Oauth2($this);
 
-    $auth->authorizeURL   = 'https://www.dropbox.com/1/oauth2/authorize';
-    $auth->accessTokenURL = 'https://api.dropbox.com/1/oauth2/token';
+    $auth->authorizeUrl   = 'https://www.dropbox.com/1/oauth2/authorize';
+    $auth->accessTokenUrl = 'https://api.dropbox.com/1/oauth2/token';
 
     return $auth;
   }

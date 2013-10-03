@@ -25,8 +25,8 @@ class Github extends Base {
   protected function initAuthentication() {
     $auth = new Oauth2($this);
 
-    $auth->authorizeURL = 'https://github.com/login/oauth/authorize';
-    $auth->accessTokenURL = 'https://github.com/login/oauth/access_token';
+    $auth->authorizeUrl = 'https://github.com/login/oauth/authorize';
+    $auth->accessTokenUrl = 'https://github.com/login/oauth/access_token';
 
     return $auth;
   }

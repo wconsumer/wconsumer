@@ -32,8 +32,8 @@ class Google extends Base {
   protected function initAuthentication() {
     $auth = new Oauth2($this);
 
-    $auth->authorizeURL   = 'https://accounts.google.com/o/oauth2/auth';
-    $auth->accessTokenURL = 'https://accounts.google.com/o/oauth2/token';
+    $auth->authorizeUrl   = 'https://accounts.google.com/o/oauth2/auth';
+    $auth->accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
     $auth->defaultScopes  = array('openid');
 
     return $auth;

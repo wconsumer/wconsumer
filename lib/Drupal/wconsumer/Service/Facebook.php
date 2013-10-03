@@ -32,8 +32,8 @@ class Facebook extends Base {
   protected function initAuthentication() {
     $auth = new Oauth2($this);
 
-    $auth->authorizeURL   = 'https://www.facebook.com/dialog/oauth';
-    $auth->accessTokenURL = 'https://graph.facebook.com/oauth/access_token';
+    $auth->authorizeUrl   = 'https://www.facebook.com/dialog/oauth';
+    $auth->accessTokenUrl = 'https://graph.facebook.com/oauth/access_token';
 
     return $auth;
   }

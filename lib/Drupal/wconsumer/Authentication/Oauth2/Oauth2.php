@@ -16,12 +16,12 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
   /**
    * @var string
    */
-  public $authorizeURL;
+  public $authorizeUrl;
 
   /**
    * @var string
    */
-  public $accessTokenURL;
+  public $accessTokenUrl;
 
   /**
    * @var array
@@ -55,7 +55,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     $this->state($state);
 
     $url =
-      $this->authorizeURL . '?' .
+      $this->authorizeUrl . '?' .
       http_build_query(array(
         'client_id'     => $this->service->requireServiceCredentials()->token,
         'redirect_uri'  => $this->service->getCallbackUrl(),
@@ -119,7 +119,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     // @codeCoverageIgnoreEnd
 
     $request = $this->client->post(
-      $this->accessTokenURL,
+      $this->accessTokenUrl,
       array(
         'Accept' => 'application/json'
       ),

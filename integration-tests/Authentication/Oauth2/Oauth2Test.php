@@ -109,8 +109,8 @@ class Oauth2Test extends AuthenticationTest {
     /** @var Oauth2 $auth */
     $auth = parent::auth($service);
 
-    $auth->authorizeURL = 'https://github.com/login/oauth/authorize';
-    $auth->accessTokenURL = 'https://github.com/login/oauth/access_token';
+    $auth->authorizeUrl = 'https://github.com/login/oauth/authorize';
+    $auth->accessTokenUrl = 'https://github.com/login/oauth/access_token';
 
     return $auth;
   }

@@ -178,7 +178,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
     /** @noinspection PhpParamsInspection */
     $auth = $this->auth($service);
-    $auth->accessTokenURL = $accessTokenUrl;
+    $auth->accessTokenUrl = $accessTokenUrl;
     $auth->client = $client;
 
     $auth->onCallback($user, array(array(
