@@ -2,6 +2,7 @@
 namespace Drupal\wconsumer\AcceptanceTests;
 
 use Drupal\wconsumer\Authentication\Credentials;
+use Drupal\wconsumer\Service\Vimeo;
 use Drupal\wconsumer\Wconsumer;
 use Drupal\wconsumer\Service\Base as Service;
 
@@ -48,7 +49,8 @@ class OauthFlowTest extends SeleniumTestCase {
       //array(Wconsumer::$github),
       //array(Wconsumer::$twitter),
       //array(Wconsumer::$linkedin),
-      array(Wconsumer::$meetup),
+      // array(Wconsumer::$meetup),
+      array(Wconsumer::$vimeo),
     );
   }
 
@@ -80,11 +82,11 @@ class OauthFlowTest extends SeleniumTestCase {
       '#login_field', // github
       '#username_or_email', // twitter
       '#session_key-oauthAuthorizeForm', // linkedin
-      '#email', // meetup
+      '#email', // meetup, vimeo
     );
 
     $knownPasswordFields = array(
-      '#password', // github, twitter, meetup
+      '#password', // github, twitter, meetup, vimeo
       '#session_password-oauthAuthorizeForm', // linkedin
     );
 
@@ -94,12 +96,26 @@ class OauthFlowTest extends SeleniumTestCase {
     $login->value($credentials->token);
     $password->value($credentials->secret);
 
-    $login->submit();
-  }
+    if ($service instanceof Vimeo) {
+      $submit = $this->byCssSelector('input[type="submit"][value="Log In"]');
+      $submit->click();
+    }
+    else {
+      $login->submit();
+    }
+}
 
   private function allowAccess() {
-    if ($allowAccessButton = $this->elementExists($this->using('xpath')->value('//button[contains(., "Allow access")]'))) {
-      $allowAccessButton->click();
+    $knownAllowAccessButtons = array(
+      'github' => $this->using('xpath')->value('//button[contains(., "Allow access")]'),
+      'vimeo'  => $this->using('css selector')->value('input[name="accept"][value="Allow"]'),
+    );
+
+    foreach ($knownAllowAccessButtons as $selector) {
+      if ($allowAccessButton = $this->elementExists($selector)) {
+        $allowAccessButton->click();
+        break;
+      }
     }
   }
 

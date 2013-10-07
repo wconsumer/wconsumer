@@ -6,6 +6,7 @@
  */
 return array(
   'github' => array(
+    // oAuth application credentials
     'app' => array(
       /*
       'token'   => '',
@@ -18,6 +19,7 @@ return array(
       Rather keep whole twitter/app section an empty array/null/false. The same is true for other sections.
       */
     ),
+    // oAuth user credentials. Token and secret for oAuth1 and just secret (access_token) for oAuth2.
     'user' => array(
       /*
       'token' => 'dummy',
@@ -25,6 +27,7 @@ return array(
       'scopes' => array('gist'),
       */
     ),
+    // Service account credentials used for acceptance tests
     'webuser' => array(
       /*
       'token'  => '',
@@ -74,6 +77,10 @@ return array(
   ),
   'vimeo' => array(
     'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+    'webuser' => array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
     ),
