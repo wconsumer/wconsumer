@@ -47,7 +47,8 @@ class OauthFlowTest extends SeleniumTestCase {
     return array (
       //array(Wconsumer::$github),
       //array(Wconsumer::$twitter),
-      array(Wconsumer::$linkedin),
+      //array(Wconsumer::$linkedin),
+      array(Wconsumer::$meetup),
     );
   }
 
@@ -79,10 +80,11 @@ class OauthFlowTest extends SeleniumTestCase {
       '#login_field', // github
       '#username_or_email', // twitter
       '#session_key-oauthAuthorizeForm', // linkedin
+      '#email', // meetup
     );
 
     $knownPasswordFields = array(
-      '#password', // github, twitter
+      '#password', // github, twitter, meetup
       '#session_password-oauthAuthorizeForm', // linkedin
     );
 

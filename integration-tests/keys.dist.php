@@ -67,6 +67,10 @@ return array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
     ),
+    'webuser' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
   ),
   'vimeo' => array(
     'app' => array(
