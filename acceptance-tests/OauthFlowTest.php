@@ -46,13 +46,15 @@ class OauthFlowTest extends SeleniumTestCase {
 
   public static function provideServices() {
     return array (
-      //array(Wconsumer::$github),
-      //array(Wconsumer::$twitter),
-      //array(Wconsumer::$linkedin),
-      //array(Wconsumer::$meetup),
-      //array(Wconsumer::$vimeo),
+//      array(Wconsumer::$github),
+//      array(Wconsumer::$twitter),
+//      array(Wconsumer::$linkedin),
+//      array(Wconsumer::$meetup),
+//      array(Wconsumer::$vimeo),
       // array(Wconsumer::$google), non-public domains not allowed in redirect uri. can't test it.
-      array(Wconsumer::$facebook),
+//      array(Wconsumer::$facebook),
+//      array(Wconsumer::$dropbox), requires https, need to think more
+      array(Wconsumer::$flickr),
     );
   }
 
@@ -87,12 +89,14 @@ class OauthFlowTest extends SeleniumTestCase {
       '#username_or_email', // twitter
       '#session_key-oauthAuthorizeForm', // linkedin
       '#email', // meetup, vimeo, facebook
+      '#username', // flickr
     );
 
     $knownPasswordFields = array(
       '#password', // github, twitter, meetup, vimeo
       '#session_password-oauthAuthorizeForm', // linkedin
       '#pass', // facebook
+      '#passwd', // flickr
     );
 
     $login = $this->byCssSelector(join(', ', $knownLoginFields));
@@ -119,6 +123,7 @@ class OauthFlowTest extends SeleniumTestCase {
       'github'    => $this->using('xpath')->value('//button[contains(., "Allow access")]'),
       'vimeo'     => $this->using('css selector')->value('*[name="accept"][value="Allow"]'),
       'facebook'  => $this->using('css selector')->value('*[type="submit"][name="__CONFIRM__"]'),
+      'flickr'    => $this->using('css selector')->value('*[type="submit"][value="OK, I\'LL AUTHORIZE IT"]'),
     );
 
     foreach ($knownAllowAccessButtons as $selector) {

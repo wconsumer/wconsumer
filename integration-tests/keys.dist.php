@@ -96,6 +96,10 @@ return array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
     ),
+    'webuser' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
   ),
   'dropbox' => array(
     'app' => array(
@@ -105,6 +109,10 @@ return array(
   ),
   'flickr' => array(
     'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+    'webuser' => array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
     ),
