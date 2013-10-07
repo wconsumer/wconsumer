@@ -5,43 +5,59 @@
  * please make sure you keep omitted sections empty at whole rather than setting their individual keys to empty.
  */
 return array(
-  'twitter' => array(
+  'github' => array(
     'app' => array(
       /*
-      'token'  => 'J4nehKmp77zUJkQmbT7Iww',
-      'secret' => 'NMlIawwrWZqfgbc0HYlfcEMcY2xxovYwKTtXAT3A',
+      'token'   => '',
+      'secret'  => '',
       */
       /*
       If you want to omit twitter app section don't do like this:
       'token' => NULL,
       'secret' => NULL,
-      Rather keep whole twitter/app section an empty array/null/false
-      */
-    ),
-    'user' => array(
-      /*
-      'token'  => '44890920-udMlSmn0iRRmr2ry6oQPQfnDhvRGdbVgQWbnEAbT6',
-      'secret' => 'QRoyvBqj0pLsAOFmFgQM1Ld8Mmc9RGbA4XoK4EtE',
-      */
-    )
-  ),
-  'github' => array(
-    'app' => array(
-      /*
-      'token'   => '9ca76bb91a6d18fedda0',
-      'secret'  => '3352d261453258e973011bdc6f35344def3fbccd',
+      Rather keep whole twitter/app section an empty array/null/false. The same is true for other sections.
       */
     ),
     'user' => array(
       /*
       'token' => 'dummy',
-      'secret' => '4ca9947d59993eaae3b232dcdec2716d922df2c5',
+      'secret' => '',
       'scopes' => array('gist'),
       */
-    )
+    ),
+    'webuser' => array(
+      /*
+      'token'  => '',
+      'secret' => '',
+      */
+    ),
+  ),
+  'twitter' => array(
+    'app' => array(
+      /*
+      'token'  => '',
+      'secret' => '',
+      */
+    ),
+    'user' => array(
+      /*
+      'token'  => '',
+      'secret' => '',
+      */
+    ),
+    'webuser' => array(
+      /*
+      'token'  => '',
+      'secret' => '',
+      */
+    ),
   ),
   'linkedin' => array(
     'app' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
+    'webuser' => array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
     ),

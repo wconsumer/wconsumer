@@ -44,20 +44,18 @@ class OauthFlowTest extends SeleniumTestCase {
   }
 
   public static function provideServices() {
-    $result = array();
-
-    foreach (Wconsumer::instance()->services as $service) {
-      $result[] = array($service);
-      break;
-    }
-
-    return $result;
+    return array (
+      //array(Wconsumer::$github),
+      //array(Wconsumer::$twitter),
+      array(Wconsumer::$linkedin),
+    );
   }
 
   private function clickVerticalServiceTab(Service $service) {
     $this->find($this->using('xpath')->value(
       '//*[@id="edit-web-services"]'.
-      '//*[contains(@class, "vertical-tab-button")]'.$this->xpathContains($service->getMeta()->niceName)
+      '//*[contains(@class, "vertical-tab-button")]'.$this->xpathContains($service->getMeta()->niceName).
+      '/a'
     ))->click();
   }
 
@@ -76,9 +74,25 @@ class OauthFlowTest extends SeleniumTestCase {
 
   private function loginWithExternalService(Service $service) {
     $credentials = Credentials::fromArray($this->keys->get($service->getName(), 'webuser'));
-    $this->byId('login_field')->value($credentials->token);
-    $this->byId('password')->value($credentials->secret);
-    $this->byCssSelector('#login > form')->submit();
+
+    $knownLoginFields = array(
+      '#login_field', // github
+      '#username_or_email', // twitter
+      '#session_key-oauthAuthorizeForm', // linkedin
+    );
+
+    $knownPasswordFields = array(
+      '#password', // github, twitter
+      '#session_password-oauthAuthorizeForm', // linkedin
+    );
+
+    $login = $this->byCssSelector(join(', ', $knownLoginFields));
+    $password = $this->byCssSelector(join(', ', $knownPasswordFields));
+
+    $login->value($credentials->token);
+    $password->value($credentials->secret);
+
+    $login->submit();
   }
 
   private function allowAccess() {
@@ -93,11 +107,22 @@ class OauthFlowTest extends SeleniumTestCase {
     $this->assertSame($domesticDomain, $currentDomain);
   }
 
-  private function expectSuccessMessage($message) {
-    $this->find($this->using('xpath')->value(
-      '//*[contains(@class, "messages")][contains(@class, "status")]'.
-      $this->xpathContains($message)
-    ));
+  public function expectSuccessMessage($message, $waitUntil = TRUE) {
+    if ($waitUntil) {
+      $self = $this;
+      return $this->waitUntil(
+        function() use($self, $message) {
+          return $self->expectSuccessMessage($message, FALSE);
+        },
+        5000
+      );
+    }
+    else {
+      return $this->find($this->using('xpath')->value(
+        '//*[contains(@class, "messages")][contains(@class, "status")]'.
+        $this->xpathContains($message)
+      ));
+    }
   }
 
   private function find(\PHPUnit_Extensions_Selenium2TestCase_ElementCriteria $criteria) {
