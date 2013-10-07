@@ -34,10 +34,10 @@ class OauthFlowTest extends SeleniumTestCase {
 
     $this->clickVerticalServiceTab($service);
     $this->clickServiceButton("Allow access to my {$serviceNiceName} account");
-    $this->expectExternalServicePage();
+    $this->expectExternalDomain();
     $this->loginWithExternalService($service);
     $this->allowAccess();
-    $this->expectDomesticPage();
+    $this->expectHomeDomain();
     $this->expectSuccessMessage("your {$serviceNiceName} account is now linked with your local account");
     $this->clickVerticalServiceTab($service);
     $this->clickServiceButton("Revoke access to my {$serviceNiceName} account");
@@ -49,8 +49,10 @@ class OauthFlowTest extends SeleniumTestCase {
       //array(Wconsumer::$github),
       //array(Wconsumer::$twitter),
       //array(Wconsumer::$linkedin),
-      // array(Wconsumer::$meetup),
-      array(Wconsumer::$vimeo),
+      //array(Wconsumer::$meetup),
+      //array(Wconsumer::$vimeo),
+      // array(Wconsumer::$google), non-public domains not allowed in redirect uri. can't test it.
+      array(Wconsumer::$facebook),
     );
   }
 
@@ -69,10 +71,12 @@ class OauthFlowTest extends SeleniumTestCase {
     ))->click();
   }
 
-  private function expectExternalServicePage() {
-    $currentDomain = parse_url($this->url(), PHP_URL_HOST);
-    $domesticDomain = parse_url(DRUPAL_BASE_URL, PHP_URL_HOST);
-    $this->assertNotSame($domesticDomain, $currentDomain);
+  private function expectExternalDomain() {
+    $this->assertNotSame($this->homeDomain(), $this->currentDomain());
+  }
+
+  private function expectHomeDomain() {
+    $this->assertSame($this->homeDomain(), $this->currentDomain());
   }
 
   private function loginWithExternalService(Service $service) {
@@ -82,12 +86,13 @@ class OauthFlowTest extends SeleniumTestCase {
       '#login_field', // github
       '#username_or_email', // twitter
       '#session_key-oauthAuthorizeForm', // linkedin
-      '#email', // meetup, vimeo
+      '#email', // meetup, vimeo, facebook
     );
 
     $knownPasswordFields = array(
       '#password', // github, twitter, meetup, vimeo
       '#session_password-oauthAuthorizeForm', // linkedin
+      '#pass', // facebook
     );
 
     $login = $this->byCssSelector(join(', ', $knownLoginFields));
@@ -103,26 +108,27 @@ class OauthFlowTest extends SeleniumTestCase {
     else {
       $login->submit();
     }
-}
+  }
 
   private function allowAccess() {
+    if ($this->homeDomain() === $this->currentDomain()) {
+      return;
+    }
+
     $knownAllowAccessButtons = array(
-      'github' => $this->using('xpath')->value('//button[contains(., "Allow access")]'),
-      'vimeo'  => $this->using('css selector')->value('input[name="accept"][value="Allow"]'),
+      'github'    => $this->using('xpath')->value('//button[contains(., "Allow access")]'),
+      'vimeo'     => $this->using('css selector')->value('*[name="accept"][value="Allow"]'),
+      'facebook'  => $this->using('css selector')->value('*[type="submit"][name="__CONFIRM__"]'),
     );
 
     foreach ($knownAllowAccessButtons as $selector) {
       if ($allowAccessButton = $this->elementExists($selector)) {
         $allowAccessButton->click();
-        break;
+        return;
       }
     }
-  }
 
-  private function expectDomesticPage() {
-    $currentDomain = parse_url($this->url(), PHP_URL_HOST);
-    $domesticDomain = parse_url(DRUPAL_BASE_URL, PHP_URL_HOST);
-    $this->assertSame($domesticDomain, $currentDomain);
+    $this->fail('Confirm button not found');
   }
 
   public function expectSuccessMessage($message, $waitUntil = TRUE) {
@@ -141,6 +147,14 @@ class OauthFlowTest extends SeleniumTestCase {
         $this->xpathContains($message)
       ));
     }
+  }
+
+  private function homeDomain() {
+    return parse_url($this->url(), PHP_URL_HOST);
+  }
+
+  private function currentDomain() {
+    return parse_url(DRUPAL_BASE_URL, PHP_URL_HOST);
   }
 
   private function find(\PHPUnit_Extensions_Selenium2TestCase_ElementCriteria $criteria) {
