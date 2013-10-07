@@ -2,6 +2,7 @@
 namespace Drupal\wconsumer\AcceptanceTests;
 
 use Drupal\wconsumer\Authentication\Credentials;
+use Drupal\wconsumer\Service\Google;
 use Drupal\wconsumer\Service\Vimeo;
 use Drupal\wconsumer\Wconsumer;
 use Drupal\wconsumer\Service\Base as Service;
@@ -32,33 +33,32 @@ class OauthFlowTest extends SeleniumTestCase {
 
     $this->setupService($service);
 
-    $this->clickVerticalServiceTab($service);
+    $this->clickServiceTab($service);
     $this->clickServiceButton("Allow access to my {$serviceNiceName} account");
     $this->expectExternalDomain();
     $this->loginWithExternalService($service);
     $this->allowAccess();
     $this->expectHomeDomain();
     $this->expectSuccessMessage("your {$serviceNiceName} account is now linked with your local account");
-    $this->clickVerticalServiceTab($service);
+    $this->clickServiceTab($service);
     $this->clickServiceButton("Revoke access to my {$serviceNiceName} account");
     $this->expectSuccessMessage("Your {$serviceNiceName} account has been revoked");
   }
 
   public static function provideServices() {
-    return array (
-//      array(Wconsumer::$github),
-//      array(Wconsumer::$twitter),
-//      array(Wconsumer::$linkedin),
-//      array(Wconsumer::$meetup),
-//      array(Wconsumer::$vimeo),
-      // array(Wconsumer::$google), non-public domains not allowed in redirect uri. can't test it.
-//      array(Wconsumer::$facebook),
-//      array(Wconsumer::$dropbox), requires https, need to think more
-      array(Wconsumer::$flickr),
-    );
+    $result = array();
+
+    foreach (Wconsumer::instance()->services as $service) {
+      if ($service instanceof Vimeo || // requires https, need to think more on a way to test it
+          $service instanceof Google) { // non-public domains not allowed in redirect uri. can't test it.
+        continue;
+      }
+
+      $result[] = array($service);
+    }
   }
 
-  private function clickVerticalServiceTab(Service $service) {
+  private function clickServiceTab(Service $service) {
     $this->find($this->using('xpath')->value(
       '//*[@id="edit-web-services"]'.
       '//*[contains(@class, "vertical-tab-button")]'.$this->xpathContains($service->getMeta()->niceName).
