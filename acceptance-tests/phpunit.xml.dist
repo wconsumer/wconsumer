@@ -7,4 +7,11 @@
          verbose="true"
          syntaxCheck="true"
          stopOnFailure="false">
+
+    <testsuites>
+        <testsuite name="wconsumer">
+            <directory suffix="Test.php">.</directory>
+        </testsuite>
+    </testsuites>
+    
 </phpunit>
