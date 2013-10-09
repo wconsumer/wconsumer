@@ -8,7 +8,10 @@ serverVersion='2.35.0'
 serverFile=selenium-server-standalone-$serverVersion.jar
 
 echo "Starting Python web server"
+cd "$WEBROOT"
 sudo python -m SimpleHTTPServer $fixturePort &
+cd -
+sudo sh -c 'echo "127.0.0.1 drupal.loc" >> /etc/hosts'
 
 echo "Starting xvfb"
 echo "Starting Selenium"
