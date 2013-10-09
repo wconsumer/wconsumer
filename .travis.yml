@@ -17,7 +17,7 @@ before_script:
   - php composer.phar install --prefer-source --no-interaction --dev
   - sh build/scripts/install-drupal.sh
   - sh build/scripts/decrypt-keys.sh
-  - sh build/scritps/start-selenium.sh
+  - sh build/scripts/start-selenium.sh
 
 script:
   - phpunit --configuration .
