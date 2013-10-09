@@ -58,6 +58,8 @@ class OauthFlowTest extends SeleniumTestCase {
 
       $result[] = array($service);
     }
+
+    return $result;
   }
 
   private function clickServiceTab(Service $service) {
