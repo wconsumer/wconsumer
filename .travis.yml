@@ -34,3 +34,6 @@ script:
   - phpunit
   - cd integration-tests && phpunit && cd -
   - php merge-coverage-reports.php
+
+after_script:
+  - sh acceptance-tests/output-screenshots.sh
