@@ -30,9 +30,9 @@ before_script:
   - sh acceptance-tests/start-selenium.sh
 
 script:
-  - phpunit
-  - cd integration-tests && phpunit ; cd -
-  - cd acceptance-tests && phpunit ; cd -
+  - phpunit --configuration .
+  - phpunit --configuration integration-tests
+  - phpunit --configuration acceptance-tests
   - php merge-coverage-reports.php
 
 after_script:
