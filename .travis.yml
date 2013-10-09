@@ -13,10 +13,27 @@ mysql:
   encoding: utf8
 
 before_script:
+  - curl -s http://getcomposer.org/installer | php
+  - php composer.phar install --prefer-source --no-interaction --dev
+  - mysql -e 'create database drupal;'
+  - pear channel-discover pear.drush.org
+  - pear install drush/drush
+  - phpenv rehash
+  - cd ..
+  - drush dl drupal --drupal-project-rename=drupal
+  - cd drupal
+  - drush site-install --db-url=mysql://root:@127.0.0.1/drupal --yes
+  - mv ../wconsumer ./sites/all/modules/
+  - drush en --yes wconsumer
+  - cd sites/all/modules/wconsumer/
+  - openssl aes-256-cbc -k "$TEST_KEYS_SECRET" -in integration-tests/keys.php.enc -d -a -out integration-tests/keys.php
   - sh acceptance-tests/start-selenium.sh
 
 script:
+  - phpunit
+  - cd integration-tests && phpunit && cd -
   - cd acceptance-tests && phpunit && cd -
+  - php merge-coverage-reports.php
 
 after_script:
   - sh acceptance-tests/output-screenshots.sh
