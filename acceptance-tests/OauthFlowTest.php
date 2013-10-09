@@ -2,8 +2,8 @@
 namespace Drupal\wconsumer\AcceptanceTests;
 
 use Drupal\wconsumer\Authentication\Credentials;
+use Drupal\wconsumer\Service\Dropbox;
 use Drupal\wconsumer\Service\Google;
-use Drupal\wconsumer\Service\Vimeo;
 use Drupal\wconsumer\Wconsumer;
 use Drupal\wconsumer\Service\Base as Service;
 
@@ -51,7 +51,7 @@ class OauthFlowTest extends SeleniumTestCase {
     $result = array();
 
     foreach (Wconsumer::instance()->services as $service) {
-      if ($service instanceof Vimeo || // requires https, need to think more on a way to test it
+      if ($service instanceof Dropbox || // requires https, need to think more on a way to test it
           $service instanceof Google) { // non-public domains not allowed in redirect uri. can't test it.
         continue;
       }
