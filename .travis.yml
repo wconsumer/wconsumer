@@ -15,5 +15,8 @@ mysql:
 before_script:
   - sh acceptance-tests/start-selenium.sh
 
+script:
+  - cd acceptance-tests && phpunit && cd -
+
 after_script:
   - sh acceptance-tests/output-screenshots.sh
