@@ -2,6 +2,7 @@
 
 define('WC_BASE', dirname(__DIR__));
 define('DRUPAL_ROOT', WC_BASE.'/../../../../');
+define('SCREENSHOTS_DIR', WC_BASE.'/build/screenshots');
 
 // Setup autoloading
 {

@@ -5,6 +5,7 @@ composer.lock
 build/logs
 build/docs
 build/coverage
+build/screenshots
 
 # Sensitive data
 integration-tests/keys.php

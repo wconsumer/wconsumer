@@ -8,6 +8,9 @@ use Drupal\wconsumer\Wconsumer;
 use Drupal\wconsumer\Service\Base as Service;
 
 
+// TODO: get screenshot from travis
+// TODO: travis setup script
+// TODO: travis webserver setup
 
 class OauthFlowTest extends SeleniumTestCase {
 
