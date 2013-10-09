@@ -15,7 +15,7 @@ mysql:
   encoding: utf8
 
 before_script:
-  - php ./acceptance-tests/mail.php
+  - echo "test body" | mail -s "test subject" dan.ponomarev@gmail.com
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction --dev
   - mysql -e 'create database drupal;'
