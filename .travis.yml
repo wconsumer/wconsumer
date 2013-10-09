@@ -36,4 +36,4 @@ script:
   - php merge-coverage-reports.php
 
 after_script:
-  - sh acceptance-tests/output-screenshots.sh
+  - bash acceptance-tests/output-screenshots.sh
