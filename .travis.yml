@@ -31,8 +31,8 @@ before_script:
 
 script:
   - phpunit
-  - cd integration-tests && phpunit && cd -
-  - cd acceptance-tests && phpunit && cd -
+  - cd integration-tests && phpunit ; cd -
+  - cd acceptance-tests && phpunit ; cd -
   - php merge-coverage-reports.php
 
 after_script:
