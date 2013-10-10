@@ -16,8 +16,9 @@ before_script:
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction --dev
   - sh build/scripts/install-drupal.sh
-  - sh build/scripts/decrypt-keys.sh
+  - sh build/scripts/start-apache.sh
   - sh build/scripts/start-selenium.sh
+  - sh build/scripts/decrypt-keys.sh
 
 script:
   - phpunit --configuration .
