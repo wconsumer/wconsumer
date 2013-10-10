@@ -22,16 +22,8 @@ class SeleniumTestCase extends \PHPUnit_Extensions_Selenium2TestCase {
 
   public function onNotSuccessfulTest(\Exception $e) {
     if ($this->getSessionId()) {
-      $screenshotFilename = null; {
-        $thisClassPath = explode('\\', get_class($this));
-        $baseClassPaths = explode('\\', self::getBaseClass());
-        $thisClassPathRelativeToBase = array_diff($thisClassPath, $baseClassPaths);
-        $testCaseId = join('\\', $thisClassPathRelativeToBase).'::'.$this->getName();
-        $screenshotBaseName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $testCaseId);
-        $screenshotFilename = SCREENSHOTS_DIR."/{$screenshotBaseName}.png";
-      }
-
-      file_put_contents($screenshotFilename, $this->currentScreenshot());
+      $this->saveScreenshot();
+      $this->appendCurrentUrl($e);
     }
 
     parent::onNotSuccessfulTest($e);
@@ -44,5 +36,24 @@ class SeleniumTestCase extends \PHPUnit_Extensions_Selenium2TestCase {
 
     $this->setBrowser('firefox');
     $this->setBrowserUrl(DRUPAL_BASE_URL);
+  }
+
+  private function saveScreenshot() {
+    $screenshotFilename = null; {
+      $thisClassPath = explode('\\', get_class($this));
+      $baseClassPaths = explode('\\', self::getBaseClass());
+      $thisClassPathRelativeToBase = array_diff($thisClassPath, $baseClassPaths);
+      $testCaseId = join('\\', $thisClassPathRelativeToBase).'::'.$this->getName();
+      $screenshotBaseName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $testCaseId);
+      $screenshotFilename = SCREENSHOTS_DIR."/{$screenshotBaseName}.png";
+    }
+
+    file_put_contents($screenshotFilename, $this->currentScreenshot());
+  }
+
+  private function appendCurrentUrl(\Exception $e) {
+    $messageProperty = new \ReflectionProperty(get_class($e), 'message');
+    $messageProperty->setAccessible(TRUE);
+    $messageProperty->setValue($e, "(url: {$this->url()}) {$messageProperty->getValue($e)}");
   }
 }
