@@ -12,6 +12,9 @@ mysql:
   username: root
   encoding: utf8
 
+before_install:
+  - sudo apt-get update
+
 before_script:
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction --dev
