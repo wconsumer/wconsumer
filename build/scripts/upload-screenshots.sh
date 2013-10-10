@@ -2,7 +2,7 @@
 
 set -e
 
-screenshots_dir="/vagrant/build/screenshots"
+screenshots_dir="./build/screenshots"
 screenshots=$(find $screenshots_dir -name "*.png" -type f)
 
 if [ ! -z "$screenshots" ] ; then
