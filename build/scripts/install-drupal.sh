@@ -14,7 +14,6 @@ cd drupal
 
 drush site-install --db-url=mysql://root:@127.0.0.1/drupal --yes
 chmod +w ./sites/default/settings.php && echo "\$base_url = 'http://drupal.loc';" >> ./sites/default/settings.php
-export WEBROOT=`pwd`
 
 mv ../wconsumer ./sites/all/modules/
 drush en --yes wconsumer

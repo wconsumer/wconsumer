@@ -4,7 +4,8 @@ set -e
 
 sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-mysql php5-curl
 
-sudo sed -i -e "s,/var/www,$(WEBROOT),g" /etc/apache2/sites-available/default
+www="$(dirname $TRAVIS_BUILD_DIR)/drupal"
+sudo sed -i -e "s,/var/www,$www,g" /etc/apache2/sites-available/default
 sudo a2enmod rewrite
 sudo a2enmod actions
 
