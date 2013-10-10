@@ -26,4 +26,4 @@ script:
   - php merge-coverage-reports.php
 
 after_script:
-  - bash build/scripts/output-screenshots.sh
+  - bash build/scripts/upload-screenshots.sh
