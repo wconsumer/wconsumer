@@ -146,7 +146,7 @@ class OauthFlowTest extends SeleniumTestCase {
         function() use($self, $message) {
           return $self->expectSuccessMessage($message, FALSE);
         },
-        5000
+        10000
       );
     }
     else {
