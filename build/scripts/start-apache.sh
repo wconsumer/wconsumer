@@ -8,6 +8,7 @@ sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-mysql php5-
 www="$(dirname $TRAVIS_BUILD_DIR)/drupal"
 echo "Setting webroot to $www"
 sudo sed -i -e "s,/var/www,$www,g" /etc/apache2/sites-available/default
+sudo sed -i -e 's/AllowOverride None/AllowOverride All/g' /etc/apache2/sites-available/default
 
 echo "Enable rewrite and actions modules"
 sudo a2enmod rewrite
