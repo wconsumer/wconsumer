@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\IntegrationTests;
 
 use Guzzle\Http\Exception\ClientErrorResponseException;
-
+use Guzzle\Http\Exception\CurlException;
 
 
 abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
@@ -34,8 +34,16 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
   }
 
   protected function runTest() {
+    $result = null;
+
     try {
-      return parent::runTest();
+      $result = parent::runTest();
+    }
+    catch (CurlException $e) {
+      $this->markTestSkipped(
+        "Request to '{$e->getRequest()->getUrl()}' failed due to connection problem. ".
+        "Original message: {$e->getMessage()}."
+      );
     }
     catch (ClientErrorResponseException $e) {
       if ($e->getResponse()->getStatusCode() == 429) {
@@ -45,6 +53,8 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
         throw $e;
       }
     }
+
+    return $result;
   }
 
   /**
