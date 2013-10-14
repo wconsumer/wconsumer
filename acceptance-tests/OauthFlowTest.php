@@ -173,7 +173,7 @@ class OauthFlowTest extends SeleniumTestCase {
 
   private function setupService(Service $service) {
     $service->setEnabled(TRUE);
-    $service->setCredentials(Credentials::fromArray($this->keys->get($service->getName(), 'app')));
+    $service->setServiceCredentials(Credentials::fromArray($this->keys->get($service->getName(), 'app')));
     $this->refresh();
   }
 
