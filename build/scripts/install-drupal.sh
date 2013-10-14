@@ -17,5 +17,6 @@ chmod +w ./sites/default/settings.php && echo "\$base_url = 'http://drupal.loc';
 
 mv ../wconsumer ./sites/all/modules/
 drush en --yes wconsumer
+drush en --yes wconsumer_ui
 
 cd sites/all/modules/wconsumer/
