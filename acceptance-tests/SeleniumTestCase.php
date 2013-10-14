@@ -2,10 +2,13 @@
 namespace Drupal\wconsumer\AcceptanceTests;
 
 use Drupal\wconsumer\IntegrationTests\TestKeysContainer;
-
+use Exception;
+use RuntimeException;
 
 
 class SeleniumTestCase extends \PHPUnit_Extensions_Selenium2TestCase {
+  const MAX_TRIES = 3;
+
   /**
    * @var TestKeysContainer
    */
@@ -27,6 +30,22 @@ class SeleniumTestCase extends \PHPUnit_Extensions_Selenium2TestCase {
     }
 
     parent::onNotSuccessfulTest($e);
+  }
+
+  protected function runTest() {
+    $triesLeft = self::MAX_TRIES;
+
+    $exception = null;
+    while ($triesLeft--) {
+      try {
+        return parent::runTest();
+      }
+      catch (\Exception $e) {
+        $exception = $e;
+      }
+    }
+
+    throw $exception;
   }
 
   protected function setUp() {
