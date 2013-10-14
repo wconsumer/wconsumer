@@ -130,10 +130,10 @@ class Wconsumer {
     $this->container = new Pimple();
 
     $this->container['httpClient'] = function() {
-      $client = new Client(null, array(
-        'timeout' => 30,
+      $client = new Client(null, array('request.options' => array(
+        'timeout' => 10,
         'verify'  => true,
-      ));
+      )));
 
       $client->setUserAgent('Web Consumer Manager', true);
 

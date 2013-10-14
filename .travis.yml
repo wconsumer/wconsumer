@@ -2,35 +2,32 @@ language: php
 
 env:
   global:
-    secure: "liCquuuz15mrHSFBUteUK8pqEFVkP1F8l6VfD+1psz5GFFXUQyVeROrbCuFapWnMF6g+nq/vwHhvsxHR4x3BHpzG25Zj1LhLwhDArtJMxlz8mZe3ttbRm8Y1Agq5tDCuYIZC9+/E6jL+nmBkzqoZk6x+7y61vB7QBzHSEi7xCds="
+    secure: "NI+jn/g3y646pWAoDb3QmtJChQwanIcIkWIgBRWa6O+ofAdo7AeY2TKeW5rGPhhu2z2hz8QXu7l2ev6SbXvPlFmVUiSzdyEB8T52G1d/W5UYSto02xlysK/7c+08ecVoXaojOyfAfuteBL+PLYdK4aR6Wf8tOqYFFHQ03MfcYlQ="
 
 php:
   - 5.3
-  - 5.4
-  - 5.5
 
 mysql:
   database: drupal
   username: root
   encoding: utf8
 
+before_install:
+  - sudo apt-get update
+
 before_script:
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction --dev
-  - mysql -e 'create database drupal;'
-  - pear channel-discover pear.drush.org
-  - pear install drush/drush
-  - phpenv rehash
-  - cd ..
-  - drush dl drupal --drupal-project-rename=drupal
-  - cd drupal
-  - drush site-install --db-url=mysql://root:@127.0.0.1/drupal --yes
-  - mv ../wconsumer ./sites/all/modules/
-  - drush en --yes wconsumer
-  - cd sites/all/modules/wconsumer/
-  - openssl aes-256-cbc -k "$TEST_KEYS_SECRET" -in integration-tests/keys.php.enc -d -a -out integration-tests/keys.php
+  - sh build/scripts/install-drupal.sh
+  - sh build/scripts/start-apache.sh
+  - sh build/scripts/start-selenium.sh
+  - sh build/scripts/decrypt-keys.sh
 
 script:
-  - phpunit
-  - cd integration-tests && phpunit && cd -
+  - phpunit --configuration .
+  - phpunit --configuration integration-tests
+  - phpunit --configuration acceptance-tests
   - php merge-coverage-reports.php
+
+after_script:
+  - bash build/scripts/upload-screenshots.sh

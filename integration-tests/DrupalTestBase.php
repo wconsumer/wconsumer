@@ -7,6 +7,11 @@ use Guzzle\Http\Exception\ClientErrorResponseException;
 
 abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
   /**
+   * @var TestKeysContainer
+   */
+  protected $keys;
+
+  /**
    * @var \DatabaseTransaction
    */
   private $transaction;
@@ -15,6 +20,8 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
 
   public function setUp() {
     parent::setUp();
+
+    $this->keys = new TestKeysContainer($this);
     $this->transaction = db_transaction();
   }
 
@@ -41,34 +48,9 @@ abstract class DrupalTestBase extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * Returns senstivie data required for testing like passwords, keys, secrets etc.
-   * See keys.dist.php for details.
+   * @deprecated Use $this->keys->get() instead
    */
   protected function keys($section = NULL, $subsection = NULL, $subsubsection = NULL) {
-    static $keys;
-
-    if (!isset($keys)) {
-      $keysFile = __DIR__.'/keys.php';
-      if (file_exists($keysFile)) {
-        $keys = include($keysFile);
-      }
-      if (empty($keys)) {
-        $keys = array();
-      }
-    }
-
-    $result = $keys;
-    foreach (func_get_args() as $section) {
-      $result = @$result[$section];
-    }
-
-    if (empty($result)) {
-      $this->markTestSkipped(
-        'Test requires sensitive test data under ['.join('][', func_get_args()).'] '.
-        'section of keys.php which is not set'
-      );
-    }
-
-    return $result;
+    return call_user_func_array(array($this->keys, 'get'), func_get_args());
   }
 }
