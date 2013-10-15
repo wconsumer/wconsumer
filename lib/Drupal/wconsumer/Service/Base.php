@@ -42,18 +42,7 @@ abstract class Base {
     $user = new \stdClass();
     $user->uid = (isset($userId) ? $userId : $GLOBALS['user']->uid);
 
-    if (!$this->isActive()) {
-      throw new ServiceInactive("'{$this->name}' service is currently inactive");
-    }
-
-    $credentials = $this->getCredentials($user->uid);
-    if (!$credentials) {
-      throw new NoUserCredentials("User not yet authorized access to his '{$this->name}' service profile");
-    }
-
-    if (count(array_diff($scopes, $credentials->scopes)) > 0) {
-      throw new AdditionalScopesRequired("Additional scopes/permissions required. Need to re-authorize user with '{$this->name}' service.");
-    }
+    $this->checkApiAvailability($user, $scopes);
 
     /** @var Client $client */
     $client = Wconsumer::instance()->container['httpClient'];
@@ -232,5 +221,33 @@ abstract class Base {
     $name = strtolower($name);
 
     return $name;
+  }
+
+  private function checkApiAvailability($user, array $scopes) {
+    if (!$this->isActive()) {
+      throw new ServiceInactive(
+        "{$this->getMeta()->niceName} service integration which is required ".
+        "for this function to work is currently deactivated."
+      );
+    }
+
+    $credentials = $this->getCredentials($user->uid);
+    if (!$credentials) {
+      throw new NoUserCredentials("Please {$this->connectLink()}.");
+    }
+
+    if (count(array_diff($scopes, $credentials->scopes)) > 0) {
+      throw new AdditionalScopesRequired(
+        "We need additional permissions with your {$this->getMeta()->niceName} account. ".
+        "Please {$this->connectLink(TRUE)}."
+      );
+    }
+  }
+
+  private function connectLink($reConnect = FALSE) {
+    $url = check_plain(url('wconsumer/auth/'.rawurlencode($this->name), array('query' => drupal_get_destination())));
+    $contents = ($reConnect ? "re-connect" : "connect") . " with {$this->getMeta()->niceName}";
+    $link = "<a href=\"{$url}\">{$contents}</a>";
+    return $link;
   }
 }
