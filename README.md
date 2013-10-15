@@ -48,10 +48,27 @@ If that's not looking clear then you may need to look at [Guzzle](https://github
 for making HTTP requests.
 
 
-### Handling exceptions
+### Handling common exceptions
 
 The first line from the previous example may throw exception in some cases. Sometimes you may want to handle them
 in your module to do some specific actions or provide specific message to user. Below how you do this:
+
+```php
+$api = null;
+try {
+  $api = Wconsumer::$github->api();
+}
+catch (ApiUnavailable $e) {
+  drupal_set_message($e->getMessage(), 'error');
+  return;
+}
+
+// use $api somehow
+...
+```
+
+Likely that's all what you need and that's recommended way. However below more complex example just so you know you
+can handle cases precisely:
 
 ```php
 $api = null;
@@ -71,6 +88,17 @@ catch (AdditionalScopesRequired $e) {
 // use $api somehow
 ...
 ```
+
+The exceptions above are all descendants of the common ApiUnavailable exception class. Here a list of all common
+exceptions:
+
+- `ApiUnavailable`. Common parent of the common exceptions.
+- `ServiceInactive`. Service interaction is not possible in a moment. It's disabled by website administrator, or no service credentials like client_id/client_secret provided, or some other similar reason.
+- `NoUserCredentials`. No actual user credentials stored. Most likely that means user has not yet authorized access to his foreign account.
+- `AdditionalScopesRequired`. User has not [yet] granted all required permissions passed into api() method. Need to re-authorize user to request additional permissions.
+
+
+### Handling HTTP errors
 
 Also you may want to handle HTTP errors coming from Guzzle:
 ```php
