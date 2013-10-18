@@ -47,7 +47,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
         $testCase->assertContains('client_id=__consumer_key__', $url);
         $testCase->assertNotContains('__consumer_secret__', $url);
         $testCase->assertContains('redirect_uri=__callback_url__', $url);
-        $testCase->assertContains('scope=__scope_1__%2C__scope_2__', $url);
+        $testCase->assertContains('scope=__scope_1__+__scope_2__', $url);
       }
     );
   }
@@ -65,7 +65,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
         $testCase->assertContains('client_id=__consumer_+%23%28%29%23+_key__', $url);
         $testCase->assertNotContains('__consumer_+%23%28%29%23+_secret__', $url);
         $testCase->assertContains('redirect_uri=__callback_+%23%28%29%23+_url__', $url);
-        $testCase->assertContains('scope=__scope_+%23%28%29%23+_one__%2C__scope_+%23%28%29%23+_two__', $url);
+        $testCase->assertContains('scope=__scope_+%23%28%29%23+_one__+__scope_+%23%28%29%23+_two__', $url);
       }
     );
   }

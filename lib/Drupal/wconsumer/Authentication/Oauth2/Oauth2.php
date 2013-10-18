@@ -59,7 +59,7 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
       http_build_query(array(
         'client_id'     => $this->service->requireServiceCredentials()->token,
         'redirect_uri'  => $this->service->getCallbackUrl(),
-        'scope'         => join(',', $scopes),
+        'scope'         => join(' ', $scopes),
         'state'         => $state['key'],
         'response_type' => 'code',
       ), null, '&');

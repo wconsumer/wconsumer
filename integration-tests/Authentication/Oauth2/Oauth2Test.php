@@ -22,7 +22,7 @@ class Oauth2Test extends AuthenticationTest {
       ->will($this->returnCallback(function($url, $options) use($test) {
         $query = null;
         parse_str(parse_url($url, PHP_URL_QUERY), $query);
-        $test->assertSame('notifications,user:email', $query['scope']);
+        $test->assertSame('notifications user:email', $query['scope']);
       }));
 
     $this->auth()->authorize(NULL, array('notifications', 'user:email'));
