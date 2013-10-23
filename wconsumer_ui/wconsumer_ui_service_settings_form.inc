@@ -6,7 +6,7 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
+function wconsumer_ui_service_settings_form($form, &$form_state, $serviceName = NULL) {
   if (!isset($serviceName)) {
     $form['dummy'] = array(
       '#markup' => t('Please click on a tab above to configure an individual service.'),
@@ -23,7 +23,7 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
 
   $service = Wconsumer::instance()->services->{$serviceName};
 
-  _wconsumer_ui_form_https_support_warning($service);
+  wconsumer_ui_service_settings_form_https_support_warning($service);
 
   $meta = $service->getMeta();
   $tokenLabel = $meta->consumerKeyLabel;
@@ -45,7 +45,7 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
    );
 
   if ($usesOauth($service)) {
-    $form['creds']['note'] = _wconsumer_ui_form_note($service);
+    $form['creds']['note'] = wconsumer_ui_service_settings_form_note($service);
   }
 
   $form['creds']['enabled'] = array(
@@ -90,7 +90,7 @@ function _wconsumer_ui_form($form, &$form_state, $serviceName = NULL) {
   return $form;
 }
 
-function _wconsumer_ui_form_note(Service $service) {
+function wconsumer_ui_service_settings_form_note(Service $service) {
   $sentences = array();
   $fields = array();
   {
@@ -147,7 +147,7 @@ function _wconsumer_ui_form_note(Service $service) {
   );
 }
 
-function _wconsumer_ui_form_https_support_warning(Service $service) {
+function wconsumer_ui_service_settings_form_https_support_warning(Service $service) {
   global $base_url;
 
   $service_requires_https = (strpos($service->getCallbackUrl(), 'https://') === 0);
@@ -163,7 +163,7 @@ function _wconsumer_ui_form_https_support_warning(Service $service) {
   }
 }
 
-function _wconsumer_ui_form_submit($form, &$form_state) {
+function wconsumer_ui_service_settings_form_submit($form, &$form_state) {
   $values = $form_state['input'];
   if (!isset($values['service-name'])) {
     drupal_exit();

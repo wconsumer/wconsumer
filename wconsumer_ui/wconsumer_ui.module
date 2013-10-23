@@ -19,8 +19,8 @@ function wconsumer_ui_menu() {
     'type' => MENU_NORMAL_ITEM,
     'menu_name' => 'management',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_wconsumer_ui_form'),
-    'file' => 'wconsumer_ui_form.inc',
+    'page arguments' => array('wconsumer_ui_service_settings_form'),
+    'file' => 'wconsumer_ui_service_settings_form.inc',
     'file path' => drupal_get_path('module', 'wconsumer_ui'),
     'access callback' => 'user_access',
     'access arguments' => array(
@@ -45,9 +45,9 @@ function wconsumer_ui_menu() {
         'title' => $niceName,
         'type' => MENU_LOCAL_TASK,
         'description' => 'Manage Service',
-        'file' => 'wconsumer_ui_form.inc',
+        'file' => 'wconsumer_ui_service_settings_form.inc',
         'file path' => drupal_get_path('module', 'wconsumer_ui'),
-        'page arguments' => array('_wconsumer_ui_form', $name),
+        'page arguments' => array('wconsumer_ui_service_settings_form', $name),
         'page callback' => 'drupal_get_form',
         'access callback' => 'user_access',
         'access arguments' => array('manage web ' . $name),
@@ -89,7 +89,7 @@ function wconsumer_ui_menu() {
       'description' => 'Manage Service',
 
       // Location of the Form
-      'file' => 'wconsumer_ui_form.inc',
+      'file' => 'wconsumer_ui_service_settings_form.inc',
       'file path' => drupal_get_path('module', 'wconsumer_ui'),
 
       // Arguments to the Function
