@@ -19,6 +19,10 @@
       $this->accessToken = $accessToken;
     }
 
+    public function getToken() {
+      return $this->accessToken;
+    }
+
     public function buildAuthorizationHeader()
     {
       return "Bearer {$this->accessToken}";

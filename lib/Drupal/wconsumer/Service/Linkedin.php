@@ -1,13 +1,13 @@
 <?php
 namespace Drupal\wconsumer\Service;
 
-use Drupal\wconsumer\Authentication\Oauth\Oauth;
+use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
 class Linkedin extends Base {
   protected $name = 'linkedin';
-  protected $apiUrl = 'http://api.linkedin.com/v1/';
+  protected $apiUrl = 'https://api.linkedin.com/v1/';
 
 
 
@@ -23,11 +23,12 @@ class Linkedin extends Base {
   }
 
   protected function initAuthentication() {
-    $auth = new Oauth($this);
+    $auth = new Oauth2($this);
 
-    $auth->requestTokenUrl = 'https://api.linkedin.com/uas/oauth/requestToken';
-    $auth->authorizeUrl    = 'https://www.linkedin.com/uas/oauth/authenticate';
-    $auth->accessTokenUrl  = 'https://api.linkedin.com/uas/oauth/accessToken';
+    $baseurl = "https://www.linkedin.com/uas/oauth2";
+    $auth->authorizeUrl = "{$baseurl}/authorization";
+    $auth->accessTokenUrl = "{$baseurl}/accessToken";
+    $auth->authorizeWithUrlParameter = 'oauth2_access_token';
 
     return $auth;
   }

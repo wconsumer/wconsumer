@@ -90,14 +90,16 @@ class OauthFlowTest extends SeleniumTestCase {
     $knownLoginFields = array(
       '#login_field', // github
       '#username_or_email', // twitter
-      '#session_key-oauthAuthorizeForm', // linkedin
+      '#session_key-oauthAuthorizeForm', // linkedin oauth
+      '#session_key-oauth2SAuthorizeForm', // linkedin oauth2
       '#email', // meetup, vimeo, facebook
       '#username', // flickr
     );
 
     $knownPasswordFields = array(
       '#password', // github, twitter, meetup, vimeo
-      '#session_password-oauthAuthorizeForm', // linkedin
+      '#session_password-oauthAuthorizeForm', // linkedin oauth
+      '#session_password-oauth2SAuthorizeForm', // linkedin oauth2
       '#pass', // facebook
       '#passwd', // flickr
     );

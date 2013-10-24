@@ -10,10 +10,12 @@ use Drupal\wconsumer\Authentication\Oauth2\AccessToken\BearerToken;
 class Plugin implements EventSubscriberInterface {
 
   private $token;
+  private $useUrlParameterInsteadOfHeader;
 
 
-  public function __construct($accessToken) {
+  public function __construct($accessToken, $useUrlParameterInsteadOfHeader = null) {
     $this->token = new BearerToken($accessToken);
+    $this->useUrlParameterInsteadOfHeader = $useUrlParameterInsteadOfHeader;
   }
 
   /**
@@ -33,6 +35,12 @@ class Plugin implements EventSubscriberInterface {
   public function onRequestBeforeSend(Event $event) {
     /** @var \Guzzle\Http\Message\Request $request */
     $request = $event['request'];
-    $request->setHeader('Authorization', $this->token->buildAuthorizationHeader());
+
+    if (!isset($this->useUrlParameterInsteadOfHeader)) {
+      $request->setHeader('Authorization', $this->token->buildAuthorizationHeader());
+    }
+    else {
+      $request->getQuery()->set($this->useUrlParameterInsteadOfHeader, $this->token->getToken());
+    }
   }
 }

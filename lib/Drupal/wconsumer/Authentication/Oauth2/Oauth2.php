@@ -35,12 +35,19 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
    */
   public $client;
 
+  /**
+   * Some services require access_token to be passed withing url rather than headers.
+   *
+   * @var string
+   */
+  public $authorizeWithUrlParameter = null;
+
 
 
   public function signRequest(Client $client, $user = NULL) {
     $userId = (isset($user) ? $user->uid : NULL);
     $accessToken = $this->service->requireCredentials($userId)->secret;
-    $client->addSubscriber(new Oauth2Plugin($accessToken));
+    $client->addSubscriber(new Oauth2Plugin($accessToken, $this->authorizeWithUrlParameter));
   }
 
   public function authorize($user, array $scopes = array()) {

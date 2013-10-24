@@ -60,6 +60,10 @@ return array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
     ),
+    'user' => array(
+      // 'token' => 'abc',
+      // 'secret' => 'xyz',
+    ),
     'webuser' => array(
       // 'token' => 'abc',
       // 'secret' => 'xyz',
