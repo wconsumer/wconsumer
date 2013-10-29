@@ -165,17 +165,13 @@ function wconsumer_ui_service_settings_form_https_support_warning(Service $servi
 
 function wconsumer_ui_service_settings_form_submit($form, &$form_state) {
   $values = $form_state['input'];
-  if (!isset($values['service-name'])) {
+
+  $serviceName = @$values['service-name'];
+  if (!isset($serviceName)) {
     drupal_exit();
   }
 
-  $serviceName = $values['service-name'];
-  $service = Wconsumer::instance()->services->get($serviceName);
-  if (!isset($service)) {
-    drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
-    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);
-    return;
-  }
+  $service = Wconsumer::instance()->services->{$serviceName};
 
   $service->setEnabled((bool)$values['enabled']);
 
@@ -192,7 +188,7 @@ function wconsumer_ui_service_settings_form_submit($form, &$form_state) {
   }
 
   $service->setServiceCredentials($credentials);
-  drupal_set_message(t('Service Configuration Saved.'));
+  drupal_set_message(t('Service configuration saved.'));
 }
 
 /**
@@ -201,17 +197,12 @@ function wconsumer_ui_service_settings_form_submit($form, &$form_state) {
 function _wconsumer_ui_callback($serviceName = NULL) {
   global $user;
 
-  $service = Wconsumer::instance()->services->get($serviceName);
-  if (!isset($service)) {
-    drupal_set_message(t('Unable to obtain service object: '.$serviceName), 'error');
-    watchdog('wconsumer_ui', 'Unable to obtain service object: '.$serviceName, array($serviceName), WATCHDOG_ERROR);
-    return;
-  }
+  $service = Wconsumer::instance()->services->{$serviceName};
 
   $service->authentication->onCallback($user, array($_REQUEST));
   drupal_set_message(t(
     "Your @service account is now linked with your local account.",
-    array('@service' => $serviceName))
+    array('@service' => $service->getMeta()->niceName))
   );
 
   _wconsumer_ui_goto();
