@@ -43,6 +43,34 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
     $this->assertTrue(!isset($credentials->dummy));
   }
 
+  /**
+   * @dataProvider provideEqualTests
+   */
+  public function testEqual($first, $second, $expectedResult) {
+    $result = Credentials::equal($first, $second);
+    $this->assertSame($expectedResult, $result);
+  }
+
+  public static function provideEqualTests() {
+    return array(
+      // Basic example
+      array(new Credentials('abc', 'xyz', array('scope')), new Credentials('abc', 'xyz', array('scope')), true),
+
+      // Nulls
+      array(null, null, true),
+      array(new Credentials('abc', 'xyz'), null, false),
+
+      // Different scopes
+      array(new Credentials('abc', 'xyz', array('scope1')), new Credentials('abc', 'xyz', array('scope2')), false),
+
+      // Same scope set but in different order
+      array(new Credentials('abc', 'xyz', array('scope1', 'scope2')), new Credentials('abc', 'xyz', array('scope2', 'scope1')), true),
+
+      // Conversion to int pitfall (string converted to 0 int)
+      array(new Credentials('abc', 'xyz'), new Credentials(0, 0), false),
+    );
+  }
+
   public function testSerialize() {
     $credentials = new Credentials('johntheuser', 'mypassword');
     $this->assertSame('{"token":"johntheuser","secret":"mypassword","scopes":[]}', $credentials->serialize());

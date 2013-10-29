@@ -27,10 +27,31 @@ class Credentials {
     return get_called_class();
   }
 
+  public static function equal(Credentials $first = null, Credentials $second = null) {
+    if ($first === $second) {
+      return true;
+    }
+
+    if (!isset($first) || !isset($second)) {
+      return false;
+    }
+
+    if ($first->token !== $second->token ||
+        $first->secret !== $second->secret ||
+        $first->scopes !== $second->scopes) {
+      return false;
+    }
+
+    return true;
+  }
+
   public function __construct($token, $secret, array $scopes = NULL) {
     $this->token = $this->input($token, 'Token');
     $this->secret = $this->input($secret, 'Token secret');
-    $this->scopes = (array)$scopes;
+
+    $scopes = array_unique(array_map('strval', (array)$scopes));
+    sort($scopes);
+    $this->scopes = $scopes;
   }
 
   public function __get($property) {
