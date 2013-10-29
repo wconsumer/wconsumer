@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Service;
 
+use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
@@ -20,6 +21,10 @@ class Linkedin extends Service {
     $meta->registerAppUrl      = 'https://www.linkedin.com/secure/developer?newapp';
 
     return $meta;
+  }
+
+  public function validateServiceCredentials(Credentials $credentials) {
+    return TRUE;
   }
 
   protected function initAuthentication() {
