@@ -31,7 +31,7 @@ function _wconsumer_frontend_revoke($service_name) {
 
   global $user;
   $service->authentication->logout($user);
-  drupal_set_message(t('Your @service account has been revoked.', array('@service' => $service->getName())));
+  drupal_set_message(t('Your @service account has been revoked.', array('@service' => $service->getMeta()->niceName)));
 
   drupal_goto();
 }
