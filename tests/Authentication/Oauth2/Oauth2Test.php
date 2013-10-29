@@ -3,7 +3,7 @@ namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Tests\TestService;
 use Guzzle\Http\Message\Response;
 
@@ -256,7 +256,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     return $class->getNamespaceName();
   }
 
-  private function auth(Base $service = NULL) {
+  private function auth(Service $service = NULL) {
     if (!isset($service)) {
       $service = new TestService();
     }

@@ -5,7 +5,7 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 
 
 
-class Flickr extends Base {
+class Flickr extends Service {
   protected $name = 'flickr';
   protected $apiUrl = 'http://api.flickr.com/services/rest/';
 

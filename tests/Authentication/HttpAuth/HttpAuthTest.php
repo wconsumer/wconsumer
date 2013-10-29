@@ -3,7 +3,7 @@
 
   use Drupal\wconsumer\Authentication\Credentials;
   use Drupal\wconsumer\Authentication\HttpAuth\HttpAuth;
-  use Drupal\wconsumer\Service\Base;
+  use Drupal\wconsumer\Service\Service;
   use Drupal\wconsumer\Tests\TestService;
 
 
@@ -33,7 +33,7 @@
       $auth->signRequest($client);
     }
 
-    private function auth(Base $service = null) {
+    private function auth(Service $service = null) {
       if (!isset($service)) {
         $service = new TestService();
       }

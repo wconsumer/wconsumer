@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Authentication;
 
-use Drupal\wconsumer\Service\Base as ServiceBase;
+use Drupal\wconsumer\Service\Service as ServiceBase;
 use Drupal\wconsumer\Util\Serialize;
 use Drupal\wconsumer\Wconsumer;
 

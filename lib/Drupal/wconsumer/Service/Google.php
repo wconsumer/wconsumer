@@ -6,7 +6,7 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-class Google extends Base {
+class Google extends Service {
   protected $name = 'google';
   protected $apiUrl = 'https://www.googleapis.com/';
 

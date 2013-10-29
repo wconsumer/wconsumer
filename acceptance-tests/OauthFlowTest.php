@@ -6,7 +6,7 @@ use Drupal\wconsumer\Service\Dropbox;
 use Drupal\wconsumer\Service\Google;
 use Drupal\wconsumer\Service\Vimeo;
 use Drupal\wconsumer\Wconsumer;
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service as Service;
 
 
 

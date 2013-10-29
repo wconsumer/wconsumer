@@ -5,7 +5,7 @@ use Drupal\wconsumer\IntegrationTests\Authentication\AuthenticationTest;
 use Drupal\wconsumer\IntegrationTests\TestService;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth\Oauth;
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Util\Serialize;
 use Guzzle\Http\Client;
 
@@ -184,7 +184,7 @@ class OauthTest extends AuthenticationTest {
     $auth->onCallback($GLOBALS['user'], array());
   }
 
-  protected function auth(Base $service = null) {
+  protected function auth(Service $service = null) {
     /** @var Oauth $auth */
     $auth = parent::auth($service);
 

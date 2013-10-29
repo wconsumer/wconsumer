@@ -5,7 +5,7 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-class Linkedin extends Base {
+class Linkedin extends Service {
   protected $name = 'linkedin';
   protected $apiUrl = 'https://api.linkedin.com/v1/';
 

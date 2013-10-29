@@ -5,7 +5,7 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-class Github extends Base {
+class Github extends Service {
   protected $name = 'github';
   protected $apiUrl = 'https://api.github.com/';
 

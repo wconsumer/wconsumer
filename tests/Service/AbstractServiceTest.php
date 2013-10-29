@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests\Service;
 
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 
 
 
@@ -18,7 +18,7 @@ abstract class AbstractServiceTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * @return Base
+   * @return Service
    */
   protected abstract function service();
 }

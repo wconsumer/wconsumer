@@ -5,7 +5,7 @@ use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
 use Drupal\wconsumer\IntegrationTests\TestService;
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Authentication\Base as AuthenticationBase;
-use Drupal\wconsumer\Service\Base as ServiceBase;
+use Drupal\wconsumer\Service\Service as ServiceBase;
 
 
 

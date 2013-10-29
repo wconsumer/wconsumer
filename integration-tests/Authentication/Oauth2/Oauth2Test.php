@@ -4,7 +4,7 @@ namespace Drupal\wconsumer\IntegrationTests\Authentication\Oauth2;
 use Drupal\wconsumer\IntegrationTests\Authentication\AuthenticationTest;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
-use Drupal\wconsumer\Service\Base as ServiceBase;
+use Drupal\wconsumer\Service\Service as ServiceBase;
 use Guzzle\Http\Message\Response;
 
 

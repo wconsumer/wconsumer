@@ -12,7 +12,7 @@ use Guzzle\Http\Client;
 
 
 
-abstract class Base {
+abstract class Service {
 
   public $authentication;
 

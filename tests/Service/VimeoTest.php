@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\Tests\Service;
 
 use Drupal\wconsumer\Authentication\Oauth\Oauth;
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Service\Vimeo;
 
 
