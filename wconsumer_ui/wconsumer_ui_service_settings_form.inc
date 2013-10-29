@@ -3,6 +3,7 @@ use Drupal\wconsumer\Wconsumer;
 use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
+use Drupal\wconsumer\Authentication\Credentials;
 
 
 
@@ -199,11 +200,16 @@ function _wconsumer_ui_callback($serviceName = NULL) {
 
   $service = Wconsumer::instance()->services->{$serviceName};
 
-  $service->authentication->onCallback($user, array($_REQUEST));
-  drupal_set_message(t(
-    "Your @service account is now linked with your local account.",
-    array('@service' => $service->getMeta()->niceName))
-  );
+  $userOldCredentials = $service->getCredentials($user->uid);
+    $service->authentication->onCallback($user, array($_REQUEST));
+  $userNewCredentials = $service->getCredentials($user->uid);
+
+  if (user_is_logged_in() && !Credentials::equal($userOldCredentials, $userNewCredentials)) {
+    drupal_set_message(t(
+      "Your @service account is now linked with your local account.",
+      array('@service' => $service->getMeta()->niceName))
+    );
+  }
 
   _wconsumer_ui_goto();
 }
