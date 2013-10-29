@@ -8,7 +8,7 @@ use Drupal\wconsumer\Service\Service;
 
 /**
  * We need this class b/c we need an unique service name which is generated from class name to isolate the test case
- * in this file from others. See ServiceBase::$_instance variable for details.
+ * in this file from others. See Service::$_instance variable for details.
  */
 class TestService extends Service {
   protected $name = 'integration_tests_test_service';

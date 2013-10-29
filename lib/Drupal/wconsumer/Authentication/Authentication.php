@@ -1,17 +1,17 @@
 <?php
 namespace Drupal\wconsumer\Authentication;
 
-use Drupal\wconsumer\Service\Service as ServiceBase;
-use Drupal\wconsumer\Util\Serialize;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Wconsumer;
 
 
-class Base {
+
+class Authentication {
   protected $service;
 
 
 
-  public function __construct(ServiceBase $service) {
+  public function __construct(Service $service) {
     $this->service = $service;
   }
 

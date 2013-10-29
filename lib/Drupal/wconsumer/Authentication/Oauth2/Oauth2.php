@@ -3,7 +3,7 @@ namespace Drupal\wconsumer\Authentication\Oauth2;
 
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WconsumerException;
-use Drupal\wconsumer\Authentication\Base as AuthencationBase;
+use Drupal\wconsumer\Authentication\Authentication;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Plugin as Oauth2Plugin;
 use Drupal\wconsumer\Wconsumer;
@@ -12,7 +12,8 @@ use Guzzle\Http\Client;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 
 
-class Oauth2 extends AuthencationBase implements AuthInterface {
+
+class Oauth2 extends Authentication implements AuthInterface {
   /**
    * @var string
    */
@@ -74,23 +75,10 @@ class Oauth2 extends AuthencationBase implements AuthInterface {
     drupal_goto($url, array('external' => TRUE));
   }
 
-  /**
-   * Log the User out of the System
-   *
-   * @uses ServiceBase Removes their credentials
-   */
   public function logout($user) {
     $this->service->setCredentials(null, $user->uid);
   }
 
-  /**
-   * Callback for authencation
-   *
-   * @param object $user   The User Object
-   * @param array  $values The array of values passed
-   *
-   * @throws WconsumerException
-   */
   public function onCallback($user, $values) {
     $values = $values[0];
 

@@ -3,7 +3,7 @@ namespace Drupal\wconsumer\Authentication\QueryString;
 
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Exception as WcException;
-use Drupal\wconsumer\Authentication\Base as AuthencationBase;
+use Drupal\wconsumer\Authentication\Authentication;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\QueryString\Plugin as GuzzlePlugin;
 use Guzzle\Http\Client;
@@ -14,7 +14,7 @@ use Guzzle\Http\Client;
  *
  * Used for services that require a query string parameter for requests
  */
-class QueryString extends AuthencationBase implements AuthInterface {
+class QueryString extends Authentication implements AuthInterface {
   /**
    * The key to be added
    *
