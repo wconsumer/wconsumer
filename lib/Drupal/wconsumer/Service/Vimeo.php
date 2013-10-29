@@ -5,7 +5,7 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 
 
 
-class Vimeo extends Base {
+class Vimeo extends Service {
   protected $name = 'vimeo';
   protected $apiUrl = 'http://vimeo.com/api/rest/v2/';
 

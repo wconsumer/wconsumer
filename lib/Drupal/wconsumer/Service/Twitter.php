@@ -5,7 +5,7 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 
 
 
-class Twitter extends Base {
+class Twitter extends Service {
   protected $name = 'twitter';
   protected $apiUrl = 'https://api.twitter.com/1.1/';
 

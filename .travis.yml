@@ -2,7 +2,7 @@ language: php
 
 env:
   global:
-    secure: "QhCwndihAzy73BkP+aUaGHVFQRNjiprLUhRlBdaU5pytx/y96bhC7FA1NfaDKkTCCWNrjCT/OdmL3TrU9Wsq23pFvMYXvYgs6ClKo+0DqYQHsKBZTvJWEPWnSk0ilQj5aRd8WESE/GiOrzt9DtaGAiQN1cq92dOLUUzXJTbAX/s="
+    secure: "T6ToLYB+0YkXgusVEiPkwychocebWtCf1z3keC+J0W8xXVyrC3qK+hZ70DBwuSf/uRQgxlB70tbH621nNvXLHsdgVV+gMJzCpyTCgtCzbv6pZRz4zAVSCsuIY5x86A8ASR2waWm7jv+1v6/kSm9NM3mQXY4vAHIyfMn3H9tFgbY="
 
 php:
   - 5.3

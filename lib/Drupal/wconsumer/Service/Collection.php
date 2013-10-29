@@ -2,7 +2,7 @@
 namespace Drupal\wconsumer\Service;
 
 use Pimple;
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service;
 
 
 /**

@@ -3,7 +3,7 @@ namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Tests\TestService;
 use Guzzle\Http\Message\Response;
 
@@ -12,7 +12,7 @@ use Guzzle\Http\Message\Response;
 class Oauth2Test extends \PHPUnit_Framework_TestCase {
 
   public function testSignRequest() {
-    $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
+    $service = $this->getMockBuilder(Service::getClass())->disableOriginalConstructor()->getMock();
     $service
       ->expects($this->once())
       ->method('requireCredentials')
@@ -74,7 +74,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $user = new \stdClass();
     $user->uid = time();
 
-    $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
+    $service = $this->getMockBuilder(Service::getClass())->disableOriginalConstructor()->getMock();
     $service
       ->expects($this->once())
       ->method('setCredentials')
@@ -131,7 +131,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     $user->uid = time();
 
     $service = null; {
-      $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
+      $service = $this->getMockBuilder(Service::getClass())->disableOriginalConstructor()->getMock();
 
       $service
         ->expects($onceOrAny())
@@ -219,7 +219,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
   }
 
   private function authorizeTest($callbackUri, $consumerKey, $consumerSecret, $scopes, $urlTesterCallback) {
-    $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
+    $service = $this->getMockBuilder(Service::getClass())->disableOriginalConstructor()->getMock();
 
     $service
       ->expects($this->once())
@@ -256,7 +256,7 @@ class Oauth2Test extends \PHPUnit_Framework_TestCase {
     return $class->getNamespaceName();
   }
 
-  private function auth(Base $service = NULL) {
+  private function auth(Service $service = NULL) {
     if (!isset($service)) {
       $service = new TestService();
     }

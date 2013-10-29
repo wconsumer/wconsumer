@@ -1,11 +1,12 @@
 <?php
 namespace Drupal\wconsumer\Service;
 
+use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-class Linkedin extends Base {
+class Linkedin extends Service {
   protected $name = 'linkedin';
   protected $apiUrl = 'https://api.linkedin.com/v1/';
 
@@ -20,6 +21,10 @@ class Linkedin extends Base {
     $meta->registerAppUrl      = 'https://www.linkedin.com/secure/developer?newapp';
 
     return $meta;
+  }
+
+  public function validateServiceCredentials(Credentials $credentials) {
+    return TRUE;
   }
 
   protected function initAuthentication() {

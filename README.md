@@ -119,7 +119,7 @@ these two steps:
 
 1\. Provide scopes definition callback:
 ```php
-function mymodule_wconsumer_define_required_scopes(\Drupal\wconsumer\Service\Base $service) {
+function mymodule_wconsumer_define_required_scopes(\Drupal\wconsumer\Service\Service $service) {
   if ($service instanceof \Drupal\wconsumer\Service\Github) {
     return array('user:email');
   }

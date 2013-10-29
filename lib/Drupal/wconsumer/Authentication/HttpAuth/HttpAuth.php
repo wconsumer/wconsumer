@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Authentication\HttpAuth;
 
-use Drupal\wconsumer\Authentication\Base as AuthencationBase;
+use Drupal\wconsumer\Authentication\Authentication;
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Guzzle\Plugin\CurlAuth\CurlAuthPlugin as GuzzleHttpAuth;
 use Guzzle\Http\Client;
@@ -12,7 +12,7 @@ use Guzzle\Http\Client;
  *
  * Used for services that require a specific HTTP username and password
  */
-class HttpAuth extends AuthencationBase implements AuthInterface {
+class HttpAuth extends Authentication implements AuthInterface {
 
   public function signRequest(Client $client, $user = NULL) {
     $credentials = $this->service->requireServiceCredentials();

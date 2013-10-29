@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Tests\Service;
 
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 
 
 
@@ -35,12 +35,12 @@ class BaseTest extends \PHPUnit_Framework_TestCase {
 /**
  * @ignore
  */
-class FooService extends Base {
+class FooService extends Service {
 }
 
 /**
  * @ignore
  */
-class FooServiceWithName extends Base {
+class FooServiceWithName extends Service {
   protected $name = 'specialservice';
 }

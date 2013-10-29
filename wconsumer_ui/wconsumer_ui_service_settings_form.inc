@@ -1,6 +1,6 @@
 <?php
 use Drupal\wconsumer\Wconsumer;
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 

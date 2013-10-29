@@ -1,8 +1,8 @@
 <?php
 namespace Drupal\wconsumer\Tests;
 
-use Drupal\wconsumer\Service\Base;
+use Drupal\wconsumer\Service\Service;
 
 
 
-class TestService extends Base {}
+class TestService extends Service {}

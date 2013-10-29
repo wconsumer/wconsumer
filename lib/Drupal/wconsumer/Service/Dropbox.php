@@ -8,7 +8,7 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-class Dropbox extends Base {
+class Dropbox extends Service {
   protected $name = 'dropbox';
   protected $apiUrl = 'https://api.dropbox.com/1/';
 

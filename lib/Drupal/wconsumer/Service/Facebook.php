@@ -6,7 +6,7 @@ use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 
 
 
-class Facebook extends Base {
+class Facebook extends Service {
   protected $name = 'facebook';
   protected $apiUrl = 'https://graph.facebook.com/';
 

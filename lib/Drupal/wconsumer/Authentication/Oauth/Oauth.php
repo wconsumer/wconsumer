@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer\Authentication\Oauth;
 
-use Drupal\wconsumer\Authentication\Base as AuthencationBase;
+use Drupal\wconsumer\Authentication\Authentication;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Util\Serialize;
@@ -12,7 +12,7 @@ use Guzzle\Plugin\Oauth\OauthPlugin as GuzzleOAuth;
 
 
 
-class Oauth extends AuthencationBase implements AuthInterface {
+class Oauth extends Authentication implements AuthInterface {
 
   public $requestTokenUrl;
   public $authorizeUrl;

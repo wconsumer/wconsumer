@@ -3,7 +3,7 @@ namespace Drupal\wconsumer\IntegrationTests\Service;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service;
 
 
 
