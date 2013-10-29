@@ -1,5 +1,5 @@
 <?php
-use Drupal\wconsumer\Service\Service as Service;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Service\Github;
 
 

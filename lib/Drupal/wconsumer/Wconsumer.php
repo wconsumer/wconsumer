@@ -1,7 +1,7 @@
 <?php
 namespace Drupal\wconsumer;
 
-use Drupal\wconsumer\Service\Service as Service;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Service\Collection;
 use Drupal\wconsumer\Service\Facebook;
 use Drupal\wconsumer\Service\Dropbox;
