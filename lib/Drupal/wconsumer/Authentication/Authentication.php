@@ -6,7 +6,7 @@ use Drupal\wconsumer\Wconsumer;
 
 
 
-class Authentication {
+class Authentication extends Base {
   protected $service;
 
 
