@@ -22,7 +22,7 @@
 
     private function signRequestTest($predefinedQueryKey = null, $storedQueryKey = null)
     {
-      $service = $this->getMockBuilder('Drupal\wconsumer\Service\Base')->disableOriginalConstructor()->getMock();
+      $service = $this->getMockBuilder(Service::getClass())->disableOriginalConstructor()->getMock();
       $service
         ->expects($this->any())
         ->method('requireServiceCredentials')
