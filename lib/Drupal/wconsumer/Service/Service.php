@@ -48,6 +48,8 @@ abstract class Service extends Base {
     $client = Wconsumer::instance()->container['httpClient'];
     $client->setBaseUrl($this->apiUrl);
     $this->authentication->signRequest($client, $user);
+    $client->addSubscriber($this->unauthorizedRequestHandler());
+
     return $client;
   }
 
@@ -221,6 +223,10 @@ abstract class Service extends Base {
     $name = strtolower($name);
 
     return $name;
+  }
+
+  protected function unauthorizedRequestHandler() {
+    return new UnauthorizedResponseHandler\Common();
   }
 
   private function checkApiAvailability($user, array $scopes) {

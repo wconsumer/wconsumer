@@ -3,6 +3,7 @@ namespace Drupal\wconsumer\IntegrationTests\Service;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
+use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Service;
 
 
@@ -29,8 +30,40 @@ abstract class AbstractServiceTest extends DrupalTestBase {
     $this->assertTrue($result);
   }
 
+  public function testApiWithInvalidUserCredentials() {
+    $url = $this->currentUserInfoApiEndpoint();
+
+    $service = $this->service();
+    $service->setCredentials(new Credentials('unknown', 'invalid'), 50);
+    $api = $service->api(50);
+
+    $this->setExpectedException(NoUserCredentials::getClass());
+    $api->get($url)->send();
+  }
+
   /**
-   * @return Service
+   * @return string
    */
-  protected abstract function service();
+  protected abstract function currentUserInfoApiEndpoint();
+
+  protected function service() {
+    $serviceClass = null; {
+      $matches = array();
+      preg_match('/^(.*)Test$/', basename(get_class($this)), $matches);
+      $serviceClass = $matches[1];
+      $serviceClass = dirname(Service::getClass()).'\\'.$serviceClass;
+    }
+
+    /** @var Service $service */
+    $service = new $serviceClass();
+
+    $service->setEnabled(true);
+    $service->setServiceCredentials(Credentials::fromArray($this->keys->get($service->getName(), 'app')));
+
+    if ($userCredentials = $this->keys->tryGet($service->getName(), 'user')) {
+      $service->setCredentials(Credentials::fromArray($userCredentials));
+    }
+
+    return $service;
+  }
 }

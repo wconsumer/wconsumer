@@ -1,9 +1,6 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests\Service;
 
-use Drupal\wconsumer\Authentication\Credentials;
-use Drupal\wconsumer\Service\Github;
-
 
 
 class GithubTest extends AbstractServiceTest {
@@ -51,10 +48,7 @@ class GithubTest extends AbstractServiceTest {
     $this->assertSame(204, $responseObject->getStatusCode());
   }
 
-  protected function service() {
-    $github = new Github();
-    $github->setServiceCredentials(Credentials::fromArray($this->keys('github', 'app')));
-    $github->setCredentials(Credentials::fromArray($this->keys('github', 'user')));
-    return $github;
+  protected function currentUserInfoApiEndpoint() {
+    return '/user';
   }
 }

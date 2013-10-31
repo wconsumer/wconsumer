@@ -1,9 +1,6 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests\Service;
 
-use Drupal\wconsumer\Authentication\Credentials;
-use Drupal\wconsumer\Service\Twitter;
-
 
 
 class TwitterTest extends AbstractServiceTest {
@@ -24,12 +21,7 @@ class TwitterTest extends AbstractServiceTest {
     $this->assertArrayHasKey('friends_count', $data);
   }
 
-  protected function service() {
-    $twitter = new Twitter();
-
-    $twitter->setServiceCredentials(Credentials::fromArray($this->keys('twitter', 'app')));
-    $twitter->setCredentials(Credentials::fromArray($this->keys('twitter', 'user')));
-
-    return $twitter;
+  protected function currentUserInfoApiEndpoint() {
+    return 'account/settings.json';
   }
 }

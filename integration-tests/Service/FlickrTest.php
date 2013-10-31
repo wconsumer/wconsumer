@@ -1,16 +1,20 @@
 <?php
 namespace Drupal\wconsumer\IntegrationTests\Service;
 
-use Drupal\wconsumer\Authentication\Credentials;
-use Drupal\wconsumer\Service\Flickr;
-
 
 
 class FlickrTest extends AbstractServiceTest {
 
-  protected function service() {
-    $flickr = new Flickr();
-    $flickr->setServiceCredentials(Credentials::fromArray($this->keys('flickr', 'app')));
-    return $flickr;
+  public function testApi() {
+    $api = $this->service()->api();
+
+    $response = $api->get('?method=flickr.push.getSubscriptions&format=json&nojsoncallback=1')->send()->json();
+
+    $this->assertNotNull(@$response['subscriptions']);
+    $this->assertSame('ok', @$response['stat']);
+  }
+
+  protected function currentUserInfoApiEndpoint() {
+    return '?method=flickr.push.getSubscriptions&format=json&nojsoncallback=1';
   }
 }

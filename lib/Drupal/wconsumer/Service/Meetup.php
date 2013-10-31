@@ -7,7 +7,7 @@ use Drupal\wconsumer\Authentication\Oauth\Oauth;
 
 class Meetup extends Service {
   protected $name = 'meetup';
-  protected $apiUrl = 'http://api.meetup.com/';
+  protected $apiUrl = 'http://api.meetup.com/2/';
 
 
 

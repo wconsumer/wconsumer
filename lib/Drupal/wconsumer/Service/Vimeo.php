@@ -30,4 +30,8 @@ class Vimeo extends Service {
 
     return $auth;
   }
+
+  protected function unauthorizedRequestHandler() {
+    return new UnauthorizedResponseHandler\Vimeo();
+  }
 }
