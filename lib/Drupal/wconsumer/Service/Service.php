@@ -226,7 +226,7 @@ abstract class Service extends Base {
   }
 
   protected function unauthorizedRequestHandler() {
-    return new UnauthorizedResponseHandler\Common();
+    return new UnauthorizedResponseHandler\Common($this);
   }
 
   private function checkApiAvailability($user, array $scopes) {

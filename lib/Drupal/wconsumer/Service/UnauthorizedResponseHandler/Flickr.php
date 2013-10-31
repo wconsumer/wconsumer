@@ -1,15 +1,13 @@
 <?php
 namespace Drupal\wconsumer\Service\UnauthorizedResponseHandler;
 
-use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Guzzle\Common\Event;
 use Guzzle\Common\Exception\RuntimeException;
 use Guzzle\Http\Message\Response;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 
 
-class Flickr implements EventSubscriberInterface {
+class Flickr extends Common {
 
   public static function getSubscribedEvents() {
     return array('request.complete' => 'onRequestComplete');
@@ -29,7 +27,7 @@ class Flickr implements EventSubscriberInterface {
       }
 
       if ($errorCode == 98) {
-        throw new NoUserCredentials();
+        $this->fail();
       }
     }
   }

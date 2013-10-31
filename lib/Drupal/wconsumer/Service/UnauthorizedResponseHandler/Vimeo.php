@@ -1,14 +1,12 @@
 <?php
 namespace Drupal\wconsumer\Service\UnauthorizedResponseHandler;
 
-use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Guzzle\Common\Event;
 use Guzzle\Http\Message\Response;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 
 
-class Vimeo implements EventSubscriberInterface {
+class Vimeo extends Common {
 
   public static function getSubscribedEvents() {
     return array('request.complete' => 'onRequestComplete');
@@ -32,7 +30,7 @@ class Vimeo implements EventSubscriberInterface {
       }
 
       if ($errorCode == 401) {
-        throw new NoUserCredentials();
+        $this->fail();
       }
     }
   }
