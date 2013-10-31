@@ -31,7 +31,7 @@ class Flickr extends Service {
     return $auth;
   }
 
-  protected function unauthorizedRequestHandler() {
-    return new UnauthorizedResponseHandler\Flickr($this);
+  protected function unauthorizedRequestHandler($userId) {
+    return new UnauthorizedResponseHandler\Flickr($this, $userId);
   }
 }

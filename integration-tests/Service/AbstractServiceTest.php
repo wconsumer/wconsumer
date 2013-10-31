@@ -37,8 +37,13 @@ abstract class AbstractServiceTest extends DrupalTestBase {
     $service->setCredentials(new Credentials('unknown', 'invalid'), 50);
     $api = $service->api(50);
 
-    $this->setExpectedException(NoUserCredentials::getClass());
-    $api->get($url)->send();
+    // 1. Expect NoUserCredentials exception
+    $this->expectException(NoUserCredentials::getClass(), function() use($api, $url) {
+      $api->get($url)->send();
+    });
+
+    // 2. Expect user credentials reset
+    $this->assertNull($service->getCredentials(50));
   }
 
   /**
@@ -65,5 +70,18 @@ abstract class AbstractServiceTest extends DrupalTestBase {
     }
 
     return $service;
+  }
+
+  private function expectException($exceptionClass, $fromCallback) {
+    $exception = null;
+    try {
+      $fromCallback();
+    }
+    catch (\Exception $e) {
+      $exception = $e;
+    }
+
+    $this->assertNotNull($exception);
+    $this->assertInstanceOf($exceptionClass, $exception);
   }
 }

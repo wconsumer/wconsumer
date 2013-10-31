@@ -12,11 +12,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class Common implements EventSubscriberInterface {
 
   private $service;
+  private $userId;
 
 
 
-  public function __construct(Service $service) {
+  public function __construct(Service $service, $userId) {
     $this->service = $service;
+    $this->userId = $userId;
   }
 
   public static function getSubscribedEvents() {
@@ -33,6 +35,7 @@ class Common implements EventSubscriberInterface {
   }
 
   protected function fail() {
+    $this->service->setCredentials(null, $this->userId);
     throw new NoUserCredentials($this->service);
   }
 }
