@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
+namespace Drupal\wconsumer\Tests\Unit\Authentication\Oauth2;
 
 use Drupal\wconsumer\Authentication\Oauth2\Plugin;
 use Guzzle\Common\Event;

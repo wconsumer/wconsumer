@@ -1,10 +1,10 @@
 <?php
-  namespace Drupal\wconsumer\Tests\Authentication\QueryString;
+  namespace Drupal\wconsumer\Tests\Unit\Authentication\QueryString;
 
   use Drupal\wconsumer\Authentication\Credentials;
   use Drupal\wconsumer\Authentication\QueryString\QueryString;
   use Drupal\wconsumer\Service\Service;
-  use Drupal\wconsumer\Tests\TestService;
+  use Drupal\wconsumer\Tests\Unit\TestService;
 
 
 

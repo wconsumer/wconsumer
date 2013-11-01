@@ -1,8 +1,9 @@
 <?php
-namespace Drupal\wconsumer\Tests\Rest;
+namespace Drupal\wconsumer\Tests\Unit\Authentication;
 
 use Drupal\wconsumer\Authentication\Authentication;
-use Drupal\wconsumer\Tests\TestService;
+use Drupal\wconsumer\Tests\Unit\TestService;
+
 
 
 class BaseTest extends \PHPUnit_Framework_TestCase {

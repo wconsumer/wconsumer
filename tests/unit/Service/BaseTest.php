@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests\Service;
+namespace Drupal\wconsumer\Tests\Unit\Service;
 
 use Drupal\wconsumer\Service\Service;
 
@@ -9,7 +9,7 @@ class BaseTest extends \PHPUnit_Framework_TestCase {
 
   public function testServiceName() {
     $object = new FooService();
-    $this->assertEquals('drupal__wconsumer__tests__service__fooservice', $object->getName());
+    $this->assertEquals('drupal__wconsumer__tests__unit__service__fooservice', $object->getName());
   }
 
   public function testSpecificServiceName() {

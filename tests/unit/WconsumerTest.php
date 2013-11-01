@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests;
+namespace Drupal\wconsumer\Tests\Unit;
 
 use Drupal\wconsumer\Service\Github;
 use Drupal\wconsumer\Service\Linkedin;

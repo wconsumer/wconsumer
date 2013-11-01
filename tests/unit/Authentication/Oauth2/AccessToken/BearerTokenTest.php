@@ -1,5 +1,5 @@
 <?php
-  namespace Drupal\wconsumer\Tests\Authentication\Oauth2\AccessToken;
+  namespace Drupal\wconsumer\Tests\Unit\Authentication\Oauth2\AccessToken;
 
   use Drupal\wconsumer\Authentication\Oauth2\AccessToken\BearerToken;
 

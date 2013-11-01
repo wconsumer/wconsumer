@@ -1,10 +1,10 @@
 <?php
-namespace Drupal\wconsumer\Tests\Authentication\Oauth2;
+namespace Drupal\wconsumer\Tests\Unit\Authentication\Oauth2;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 use Drupal\wconsumer\Service\Service;
-use Drupal\wconsumer\Tests\TestService;
+use Drupal\wconsumer\Tests\Unit\TestService;
 use Guzzle\Http\Message\Response;
 
 

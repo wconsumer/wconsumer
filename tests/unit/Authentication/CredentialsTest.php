@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests\Authentication;
+namespace Drupal\wconsumer\Tests\Unit\Authentication;
 
 use Drupal\wconsumer\Authentication\Credentials;
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="tests/bootstrap.php"
+<phpunit bootstrap="bootstrap.php"
          backupGlobals="false"
          backupStaticAttributes="false"
          strict="true"
@@ -10,18 +10,18 @@
 
   <testsuites>
     <testsuite name="wconsumer">
-      <directory suffix="Test.php">tests/</directory>
+      <directory suffix="Test.php">.</directory>
     </testsuite>
   </testsuites>
 
   <logging>
       <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
-      <log type="coverage-php" target="./build/coverage/unit-tests-coverage.serialized"/>
+      <log type="coverage-php" target="../../build/coverage/unit-tests-coverage.serialized"/>
   </logging>
 
   <filter>
     <whitelist addUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">./lib</directory>
+      <directory suffix=".php">../../lib</directory>
     </whitelist>
   </filter>
 

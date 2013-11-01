@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests\Service;
+namespace Drupal\wconsumer\Tests\Unit\Service;
 
 use Drupal\wconsumer\Authentication\Oauth\Oauth;
 use Drupal\wconsumer\Service\Service;

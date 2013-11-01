@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests\Util;
+namespace Drupal\wconsumer\Tests\Unit\Util;
 
 use Drupal\wconsumer\Util\Serialize;
 

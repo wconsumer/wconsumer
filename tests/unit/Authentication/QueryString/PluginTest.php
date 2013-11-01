@@ -1,5 +1,5 @@
 <?php
-  namespace Drupal\wconsumer\Tests\Authentication\QueryString;
+  namespace Drupal\wconsumer\Tests\Unit\Authentication\QueryString;
 
 
 

@@ -1,10 +1,10 @@
 <?php
-  namespace Drupal\wconsumer\Tests\Authentication\HttpAuth;
+  namespace Drupal\wconsumer\Tests\Unit\Authentication\HttpAuth;
 
   use Drupal\wconsumer\Authentication\Credentials;
   use Drupal\wconsumer\Authentication\HttpAuth\HttpAuth;
   use Drupal\wconsumer\Service\Service;
-  use Drupal\wconsumer\Tests\TestService;
+  use Drupal\wconsumer\Tests\Unit\TestService;
 
 
 

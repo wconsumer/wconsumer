@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\Tests\Service;
+namespace Drupal\wconsumer\Tests\Unit\Service;
 
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 use Drupal\wconsumer\Service\Github;
