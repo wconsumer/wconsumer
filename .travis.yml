@@ -29,7 +29,7 @@ script:
   - phpunit --configuration tests/unit
   - phpunit --configuration integration-tests
   - phpunit --configuration acceptance-tests
-  - php merge-coverage-reports.php
+  - php tests/merge-coverage-reports.php
 
 after_script:
   - bash build/scripts/upload-screenshots.sh

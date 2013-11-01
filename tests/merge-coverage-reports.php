@@ -1,7 +1,11 @@
 <?php
 echo "\nGenerating merged coverage report for both unit and integration tests\n";
 
-$autoloadFile = __DIR__.'/vendor/autoload.php';
+if (!defined('WC_BASE')) {
+  define('WC_BASE', dirname(__DIR__));
+}
+
+$autoloadFile = WC_BASE.'/vendor/autoload.php';
 if (!file_exists($autoloadFile)) {
   die('Composer not installed');
 }
@@ -20,7 +24,7 @@ $writer->process($coverage);
 ?>
 <?php
 function read($name) {
-  $filename = __DIR__ . '/build/coverage/' . $name;
+  $filename = WC_BASE.'/build/coverage/'.$name;
   if (!file_exists($filename)) {
     die("Coverage report '{$name}' file not found '{$filename}'");
   }
