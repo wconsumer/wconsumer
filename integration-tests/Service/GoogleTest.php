@@ -6,8 +6,10 @@ namespace Drupal\wconsumer\IntegrationTests\Service;
 class GoogleTest extends AbstractServiceTest {
 
   public function testApi() {
-    $response = $this->service()->api()->get($this->currentUserInfoApiEndpoint())->send()->json();
-    $this->assertNotEmpty(@$response['sub']);
+    $this->markTestSkipped(
+      'We can\'t have a long living token for Google stored in keys.php. '.
+      'So can\'t test Google API for now.'
+    );
   }
 
   public function testValidateServiceCredentials() {
