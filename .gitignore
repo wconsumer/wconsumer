@@ -8,4 +8,4 @@ build/coverage
 build/screenshots
 
 # Sensitive data
-tests/integration/keys.php
+tests/Integration/keys.php

@@ -26,9 +26,9 @@ before_script:
   - sh build/scripts/decrypt-keys.sh
 
 script:
-  - phpunit --configuration tests/unit
-  - phpunit --configuration tests/integration
-  - phpunit --configuration tests/acceptance
+  - phpunit --configuration tests/Unit
+  - phpunit --configuration tests/Integration
+  - phpunit --configuration tests/Acceptance
   - php tests/merge-coverage-reports.php
 
 after_script:
