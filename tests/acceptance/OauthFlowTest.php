@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\AcceptanceTests;
+namespace Drupal\wconsumer\Tests\Acceptance;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Service\Dropbox;

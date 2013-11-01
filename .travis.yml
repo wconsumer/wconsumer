@@ -28,7 +28,7 @@ before_script:
 script:
   - phpunit --configuration tests/unit
   - phpunit --configuration tests/integration
-  - phpunit --configuration acceptance-tests
+  - phpunit --configuration tests/acceptance
   - php tests/merge-coverage-reports.php
 
 after_script:

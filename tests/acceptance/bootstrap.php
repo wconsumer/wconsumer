@@ -1,7 +1,7 @@
 <?php
 
-define('WC_BASE', dirname(__DIR__));
-define('DRUPAL_ROOT', WC_BASE.'/../../../../');
+define('WC_BASE', dirname(dirname(__DIR__)));
+define('DRUPAL_ROOT', WC_BASE.'/../../../..');
 define('SCREENSHOTS_DIR', WC_BASE.'/build/screenshots');
 
 // Setup autoloading
@@ -10,15 +10,15 @@ define('SCREENSHOTS_DIR', WC_BASE.'/build/screenshots');
     die('Composer not initialized.');
   }
 
-  require(WC_BASE.'/vendor/autoload.php');
+  require( WC_BASE . '/vendor/autoload.php' );
 
   spl_autoload_register(function($class) {
-    static $prefix = 'Drupal\\wconsumer\\AcceptanceTests\\';
+    static $prefix = 'Drupal\\wconsumer\\Tests\\Acceptance\\';
 
     if (strpos($class, $prefix) === 0) {
       $class = substr($class, strlen($prefix));
 
-      $filename = WC_BASE.'/acceptance-tests/'.str_replace('\\', "/", $class).'.php';
+      $filename = WC_BASE.'/tests/acceptance/'.str_replace('\\', "/", $class).'.php';
       if (file_exists($filename)) {
         require_once($filename);
       }
@@ -33,7 +33,7 @@ if (!class_exists('PHPUnit_Framework_TestCase')) {
 }
 
 $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-require_once(DRUPAL_ROOT.'/includes/bootstrap.inc');
+require_once( DRUPAL_ROOT . '/includes/bootstrap.inc' );
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 global $base_url;
