@@ -54,7 +54,7 @@ abstract class AbstractServiceTest extends DrupalTestBase {
   protected function service() {
     $serviceClass = null; {
       $matches = array();
-      preg_match('/^(.*)Test$/', basename(get_class($this)), $matches);
+      preg_match('/(\w+?)Test$/', get_class($this), $matches);
       $serviceClass = $matches[1];
       $serviceClass = dirname(Service::getClass()).'\\'.$serviceClass;
     }
