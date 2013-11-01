@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests;
+namespace Drupal\wconsumer\Tests\Integration;
 
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use Guzzle\Http\Exception\CurlException;

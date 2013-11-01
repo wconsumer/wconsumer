@@ -1,9 +1,8 @@
 <?php
 namespace Drupal\wconsumer\AcceptanceTests;
 
-use Drupal\wconsumer\IntegrationTests\TestKeysContainer;
+use Drupal\wconsumer\Tests\Integration\TestKeysContainer;
 use Exception;
-use RuntimeException;
 
 
 class SeleniumTestCase extends \PHPUnit_Extensions_Selenium2TestCase {

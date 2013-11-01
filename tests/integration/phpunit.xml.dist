@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="./bootstrap.php"
+<phpunit bootstrap="bootstrap.php"
          backupGlobals="true"
          backupStaticAttributes="false"
          strict="true"
@@ -16,12 +16,12 @@
 
   <logging>
     <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
-    <log type="coverage-php" target="../build/coverage/integration-tests-coverage.serialized"/>
+    <log type="coverage-php" target="../../build/coverage/integration-tests-coverage.serialized"/>
   </logging>
 
   <filter>
     <whitelist addUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">../lib</directory>
+      <directory suffix=".php">../../lib</directory>
     </whitelist>
   </filter>
 

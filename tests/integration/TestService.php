@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests;
+namespace Drupal\wconsumer\Tests\Integration;
 
 use Drupal\wconsumer\Authentication\HttpAuth\HttpAuth;
 use Drupal\wconsumer\Service\Service;

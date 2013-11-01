@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests\Service;
+namespace Drupal\wconsumer\Tests\Integration\Service;
 
 
 

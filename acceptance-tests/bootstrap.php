@@ -25,7 +25,7 @@ define('SCREENSHOTS_DIR', WC_BASE.'/build/screenshots');
     }
   });
 
-  require_once(WC_BASE.'/integration-tests/TestKeysContainer.php');
+  require_once( WC_BASE . '/tests/integration/TestKeysContainer.php' );
 }
 
 if (!class_exists('PHPUnit_Framework_TestCase')) {

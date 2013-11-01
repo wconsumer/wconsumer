@@ -1,9 +1,9 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests\Service;
+namespace Drupal\wconsumer\Tests\Integration\Service;
 
-use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
+use Drupal\wconsumer\Tests\Integration\DrupalTestBase;
 use Drupal\wconsumer\Authentication\Credentials;
-use Drupal\wconsumer\IntegrationTests\TestService;
+use Drupal\wconsumer\Tests\Integration\TestService;
 
 
 

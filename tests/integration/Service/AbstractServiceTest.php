@@ -1,8 +1,8 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests\Service;
+namespace Drupal\wconsumer\Tests\Integration\Service;
 
 use Drupal\wconsumer\Authentication\Credentials;
-use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
+use Drupal\wconsumer\Tests\Integration\DrupalTestBase;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Service;
 

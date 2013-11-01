@@ -1,7 +1,7 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests\Authentication\Oauth2;
+namespace Drupal\wconsumer\Tests\Integration\Authentication\Oauth2;
 
-use Drupal\wconsumer\IntegrationTests\Authentication\AuthenticationTest;
+use Drupal\wconsumer\Tests\Integration\Authentication\AuthenticationTest;
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Authentication\Oauth2\Oauth2;
 use Drupal\wconsumer\Service\Service;

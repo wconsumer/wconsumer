@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests;
+namespace Drupal\wconsumer\Tests\Integration;
 
 /**
  * A test suite to run right after drupal + wconsumer installation to make sure everything is set up properly and

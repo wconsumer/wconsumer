@@ -1,8 +1,8 @@
 <?php
-namespace Drupal\wconsumer\IntegrationTests\Authentication;
+namespace Drupal\wconsumer\Tests\Integration\Authentication;
 
-use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
-use Drupal\wconsumer\IntegrationTests\TestService;
+use Drupal\wconsumer\Tests\Integration\DrupalTestBase;
+use Drupal\wconsumer\Tests\Integration\TestService;
 use Drupal\wconsumer\Authentication\AuthInterface;
 use Drupal\wconsumer\Authentication\Authentication;
 use Drupal\wconsumer\Service\Service;
@@ -43,7 +43,7 @@ abstract class AuthenticationTest extends DrupalTestBase {
   }
 
   protected function authClass() {
-    return str_replace('\\IntegrationTests\\', '\\', preg_replace('/Test$/', '', get_class($this)));
+    return str_replace('\\Tests\Integration\\', '\\', preg_replace('/Test$/', '', get_class($this)));
   }
 
   protected function service() {
