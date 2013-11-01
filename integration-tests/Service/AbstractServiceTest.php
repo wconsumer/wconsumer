@@ -3,6 +3,7 @@ namespace Drupal\wconsumer\IntegrationTests\Service;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\IntegrationTests\DrupalTestBase;
+use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Service\Service;
 
 
@@ -29,8 +30,58 @@ abstract class AbstractServiceTest extends DrupalTestBase {
     $this->assertTrue($result);
   }
 
+  public function testApiWithInvalidUserCredentials() {
+    $url = $this->currentUserInfoApiEndpoint();
+
+    $service = $this->service();
+    $service->setCredentials(new Credentials('unknown', 'invalid'), 50);
+    $api = $service->api(50);
+
+    // 1. Expect NoUserCredentials exception
+    $this->expectException(NoUserCredentials::getClass(), function() use($api, $url) {
+      $api->get($url)->send();
+    });
+
+    // 2. Expect user credentials reset
+    $this->assertNull($service->getCredentials(50));
+  }
+
   /**
-   * @return Service
+   * @return string
    */
-  protected abstract function service();
+  protected abstract function currentUserInfoApiEndpoint();
+
+  protected function service() {
+    $serviceClass = null; {
+      $matches = array();
+      preg_match('/(\w+?)Test$/', get_class($this), $matches);
+      $serviceClass = $matches[1];
+      $serviceClass = substr(Service::getClass(), 0, strrpos(Service::getClass(), '\\')).'\\'.$serviceClass;
+    }
+
+    /** @var Service $service */
+    $service = new $serviceClass();
+
+    $service->setEnabled(true);
+    $service->setServiceCredentials(Credentials::fromArray($this->keys->get($service->getName(), 'app')));
+
+    if ($userCredentials = $this->keys->tryGet($service->getName(), 'user')) {
+      $service->setCredentials(Credentials::fromArray($userCredentials));
+    }
+
+    return $service;
+  }
+
+  private function expectException($exceptionClass, $fromCallback) {
+    $exception = null;
+    try {
+      $fromCallback();
+    }
+    catch (\Exception $e) {
+      $exception = $e;
+    }
+
+    $this->assertNotNull($exception);
+    $this->assertInstanceOf($exceptionClass, $exception);
+  }
 }

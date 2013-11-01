@@ -30,4 +30,8 @@ class Flickr extends Service {
 
     return $auth;
   }
+
+  protected function unauthorizedRequestHandler($userId) {
+    return new UnauthorizedResponseHandler\Flickr($this, $userId);
+  }
 }

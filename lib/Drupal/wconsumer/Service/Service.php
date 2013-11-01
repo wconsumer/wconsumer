@@ -48,6 +48,8 @@ abstract class Service extends Base {
     $client = Wconsumer::instance()->container['httpClient'];
     $client->setBaseUrl($this->apiUrl);
     $this->authentication->signRequest($client, $user);
+    $client->addSubscriber($this->unauthorizedRequestHandler($userId));
+
     return $client;
   }
 
@@ -223,31 +225,22 @@ abstract class Service extends Base {
     return $name;
   }
 
+  protected function unauthorizedRequestHandler($userId) {
+    return new UnauthorizedResponseHandler\Common($this, $userId);
+  }
+
   private function checkApiAvailability($user, array $scopes) {
     if (!$this->isActive()) {
-      throw new ServiceInactive(
-        "{$this->getMeta()->niceName} service integration which is required ".
-        "for this function to work is currently deactivated."
-      );
+      throw new ServiceInactive($this);
     }
 
     $credentials = $this->getCredentials($user->uid);
     if (!$credentials) {
-      throw new NoUserCredentials("Please {$this->connectLink()}.");
+      throw new NoUserCredentials($this);
     }
 
     if (count(array_diff($scopes, $credentials->scopes)) > 0) {
-      throw new AdditionalScopesRequired(
-        "We need additional permissions with your {$this->getMeta()->niceName} account. ".
-        "Please {$this->connectLink(TRUE)}."
-      );
+      throw new AdditionalScopesRequired($this);
     }
-  }
-
-  private function connectLink($reConnect = FALSE) {
-    $url = check_plain(url('wconsumer/auth/'.rawurlencode($this->name), array('query' => drupal_get_destination())));
-    $contents = ($reConnect ? "re-connect" : "connect") . " with {$this->getMeta()->niceName}";
-    $link = "<a href=\"{$url}\">{$contents}</a>";
-    return $link;
   }
 }
