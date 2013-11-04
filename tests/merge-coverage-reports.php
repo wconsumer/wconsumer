@@ -16,17 +16,24 @@ if (!class_exists('PHP_CodeCoverage')) {
 }
 
 $coverage = new PHP_CodeCoverage();
-$coverage->merge(read('unit-tests-coverage.serialized'));
-$coverage->merge(read('integration-tests-coverage.serialized'));
+foreach (listReports() as $report) {
+  $coverage->merge(read($report));
+}
 
-$writer = new PHP_CodeCoverage_Report_Text(new PHPUnit_TextUI_ResultPrinter(), 35, 70, TRUE);
+$writer = new PHP_CodeCoverage_Report_Text(new PHPUnit_TextUI_ResultPrinter(), 35, 70, FALSE);
 $writer->process($coverage);
+
+$writer = new PHP_CodeCoverage_Report_HTML();
+$writer->process($coverage, WC_BASE.'/build/coverage/html-merged');
 ?>
 <?php
-function read($name) {
-  $filename = WC_BASE.'/build/coverage/'.$name;
+function listReports() {
+  return glob(WC_BASE.'/build/coverage/*serialized*');
+}
+
+function read($filename) {
   if (!file_exists($filename)) {
-    die("Coverage report '{$name}' file not found '{$filename}'");
+    die("Coverage report '{$filename}' file not found '{$filename}'");
   }
 
   return unserialize(file_get_contents($filename));

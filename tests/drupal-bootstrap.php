@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__.'/boostrap.php');
+require_once(__DIR__ . '/bootstrap.php');
 
 define('DRUPAL_ROOT', WC_BASE.'/../../../..');
 

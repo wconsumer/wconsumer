@@ -26,10 +26,12 @@ before_script:
   - sh build/scripts/decrypt-keys.sh
 
 script:
-  - phpunit --configuration tests/Unit
-  - phpunit --configuration tests/Integration
-  - phpunit --configuration tests/Acceptance
-  - php tests/merge-coverage-reports.php
+  - cd tests
+  - ../vendor/bin/phpunit Unit
+  - ../vendor/bin/phpunit Integration
+  - ../vendor/bin/phpunit Acceptance
+  - php merge-coverage-reports.php
+  - cd ..
 
 after_script:
   - bash build/scripts/upload-screenshots.sh
