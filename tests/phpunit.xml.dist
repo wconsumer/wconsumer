@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="bootstrap.php"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         strict="true"
+         verbose="true"
+         syntaxCheck="true"
+         stopOnFailure="false">
+
+  <logging>
+    <log type="coverage-php" target="../build/coverage/coverage.serialized"/>
+  </logging>
+
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">../lib</directory>
+    </whitelist>
+  </filter>
+
+</phpunit>

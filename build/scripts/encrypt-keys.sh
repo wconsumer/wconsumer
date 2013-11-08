@@ -15,7 +15,7 @@ set -ve
 password=`cat /dev/urandom | head -c 10000 | openssl sha1`
 
 # Encrypt keys file with password
-openssl aes-256-cbc -k "$password" -in integration-tests/keys.php -out integration-tests/keys.php.enc -a
+openssl aes-256-cbc -k "$password" -in tests/Integration/keys.php -out tests/Integration/keys.php.enc -a
 
 # Encrypt password with asymmetric encryption and update it in .travis.yml
 # Paste it in .travis.yml under env.global.secure section

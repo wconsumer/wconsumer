@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="bootstrap.php"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         strict="true"
+         verbose="true"
+         syntaxCheck="true"
+         stopOnFailure="false">
+
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">../lib</directory>
+    </whitelist>
+  </filter>
+
+</phpunit>
