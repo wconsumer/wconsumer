@@ -3,6 +3,7 @@ namespace Drupal\wconsumer\Tests\Acceptance;
 
 use Drupal\wconsumer\Authentication\Credentials;
 use Drupal\wconsumer\Service\Dropbox;
+use Drupal\wconsumer\Service\Flickr;
 use Drupal\wconsumer\Service\Google;
 use Drupal\wconsumer\Service\Vimeo;
 use Drupal\wconsumer\Wconsumer;
@@ -51,7 +52,8 @@ class OauthFlowTest extends SeleniumTestCase {
 
     foreach (Wconsumer::instance()->services as $service) {
       if ($service instanceof Dropbox || // requires https, need to think more on a way to test it
-          $service instanceof Google) { // non-public domains not allowed in redirect uri. can't test it.
+          $service instanceof Google ||  // non-public domains not allowed in redirect uri. can't test it.
+          $service instanceof Flickr) {  // flick is asking captcha now
         continue;
       }
 
