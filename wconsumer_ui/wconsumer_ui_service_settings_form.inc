@@ -83,6 +83,14 @@ function wconsumer_ui_service_settings_form($form, &$form_state, $serviceName = 
     '#value' => t('Save Configuration')
   );
 
+  $form['reset_auth'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset all users auth tokens'),
+    '#submit' => array('wconsumer_ui_reset_auth'),
+    '#prefix' => '<br><br>',
+    '#attributes' => array('onclick' => 'return confirm("That would make all users have authorize service again. Are you sure?");')
+  );
+
   $form['service-name'] = array(
     '#type' => 'hidden',
     '#value' => $serviceName,
@@ -177,19 +185,47 @@ function wconsumer_ui_service_settings_form_submit($form, &$form_state) {
   $service->setEnabled((bool)$values['enabled']);
 
   try {
-    $credentials = \Drupal\wconsumer\Authentication\Credentials::fromArray($values);
+    $newCredentials = Credentials::fromArray($values);
   } catch (\Drupal\wconsumer\Exception $e) {
     drupal_set_message(t($e->getMessage()), 'error');
     return;
   }
 
-  if (!$service->validateServiceCredentials($credentials)) {
+  if (!$service->validateServiceCredentials($newCredentials)) {
     drupal_set_message(t('The service reports that the new credentials are not valid. Please double-check them.'), 'error');
     return;
   }
 
-  $service->setServiceCredentials($credentials);
+  $previousCredentianls = $service->getServiceCredentials();
+
+  $service->setServiceCredentials($newCredentials);
   drupal_set_message(t('Service configuration saved.'));
+
+  if (!Credentials::equal($previousCredentianls, $newCredentials)) {
+    drupal_set_message(t(
+      'You have just changed service app credentials. '.
+      'Please note that users authorized by this moment will continue using the previous app. '.
+      'Although currently existing auth tokens will continue working you may want to reset them and force users to reauthorize with the new app. '.
+      'To do this click "Reset all users auth tokens" button below.'
+    ), 'warning');
+  }
+}
+
+function wconsumer_ui_reset_auth($form, $form_state) {
+  $service = Wconsumer::instance()->services->{$form_state['input']['service-name']};
+
+  $uids =
+    db_select('users', 'u')
+      ->condition('u.uid', 0, '<>')
+      ->fields('u', array('uid'))
+    ->execute()
+    ->fetchCol();
+
+  foreach ($uids as $uid) {
+    $service->setCredentials(NULL, $uid);
+  }
+
+  drupal_set_message(t('All auth tokens has been reset.'));
 }
 
 /**
