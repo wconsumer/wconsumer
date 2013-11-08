@@ -152,6 +152,9 @@ function _wconsumer_ui_user_profile_form() {
       $url = 'wconsumer/revoke/'.$serviceName;
     }
 
+    $destination = drupal_get_destination();
+    $destination['destination'] .= "#edit-{$serviceName}";
+
     $form[$serviceName]['action'] = array(
       '#markup' =>
         '<p>
@@ -160,7 +163,7 @@ function _wconsumer_ui_user_profile_form() {
         </p>'.
         l($caption, $url, array(
           'attributes' => array('class' => 'button'),
-          'query'      => drupal_get_destination(),
+          'query'      => $destination,
         ))
     );
 
